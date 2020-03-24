@@ -499,6 +499,14 @@ C     shelf-ice ocean interface
       ENDIF
 #endif /* ALLOW_SHELFICE */
 
+#ifdef ALLOW_ICEBERG
+      IF ( useICEBERG ) THEN
+              CALL TIMER_START('ICEBERG [DO_OCEANIC_PHYS]',myThid)
+C              CALL ICEBERG_MAIN(myTime,myIter,myThid)
+              CALL TIMER_STOP('ICEBERG [DO_OCEANIC_PHYS]',myThid)
+      ENDIF
+#endif
+
 #ifdef ALLOW_ICEFRONT
       IF ( useICEFRONT .AND. fluidIsWater ) THEN
 #ifdef ALLOW_DEBUG

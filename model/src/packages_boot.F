@@ -93,8 +93,8 @@ C     data.pkg namelists
      &          useMNC,
      &          useRunClock,
      &          useEMBED_FILES,
-     &          useMYPACKAGE
-
+     &          useMYPACKAGE,
+     &          useICEBERG
       _BEGIN_MASTER(myThid)
 
       WRITE(msgBuf,'(A)') ' PACKAGES_BOOT: opening data.pkg'
@@ -158,6 +158,7 @@ c     useGAD          =.FALSE.
       useRunClock     =.FALSE.
       useEMBED_FILES  =.FALSE.
       useMYPACKAGE    =.FALSE.
+      useICEBERG      =.FALSE.
 
 C-    Adjust default to account for pkgs without run-time On/Off switch
 #ifdef ALLOW_AUTODIFF

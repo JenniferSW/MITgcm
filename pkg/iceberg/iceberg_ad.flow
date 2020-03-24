@@ -1,0 +1,12 @@
+C----------------------------------------
+C subroutine  iceberg_diagnostics_state
+C----------------------------------------
+CADJ SUBROUTINE iceberg_diagnostics_state INPUT  = 1,2,3
+CADJ SUBROUTINE iceberg_diagnostics_state OUTPUT =
+
+C----------------------------------------
+C subroutine  iceberg_read_pickup
+C----------------------------------------
+CADJ SUBROUTINE iceberg_read_pickup  INPUT  = 1,2
+CADJ SUBROUTINE iceberg_read_pickup  OUTPUT =
+

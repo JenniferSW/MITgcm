@@ -36,6 +36,10 @@ C     === Global variables ===
 # include "tamc.h"
 # include "tamc_keys.h"
 #endif
+#ifdef ALLOW_ICEBERG
+#include "ICEBERG.h"
+#endif /*ALLOW_ICEBERG*/
+
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     === Routine arguments ===
@@ -236,6 +240,14 @@ C-- external_forcing_surf.F outside bi,bj loop.
         ENDIF
 #endif /* SALT_PLUME_VOLUME */
 #endif /* ALLOW_SALT_PLUME */
+
+#ifdef ALLOW_ICEBERG
+        IF (useICEBERG) THEN
+                CALL ICEBERG_FORCING_SURF(
+     &               bi, bj, iMin, iMax, jMin, jMax,
+     &               myTime, myIter, myThid)
+        ENDIF
+#endif /* ALLOW_ICEBERG */
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 C--   Fresh-water flux

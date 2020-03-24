@@ -214,6 +214,13 @@ C     Do SBO diagnostics.
       ENDIF
 #endif  /* ALLOW_SHELFICE */
 
+#ifdef ALLOW_ICEBERG
+      IF (useICEBERG ) THEN
+              CALL ICEBERG_OUTPUT(myTime,myIter,myThid)
+              CALL ICEBERG_WRITE_PICKUP(myTime,myIter,myThid)
+      ENDIF
+#endif /*ALLOW_ICEBERG*/
+
 #ifdef ALLOW_BULK_FORCE
 C     Do bulkf output.
       IF ( useBulkForce .AND. myIter.NE.nIter0 )

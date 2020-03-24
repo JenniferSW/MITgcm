@@ -277,6 +277,10 @@ C--   if useShelfIce=T, set SHELFICE parameters; otherwise just return
       CALL SHELFICE_READPARMS( myThid )
 #endif
 
+#ifdef ALLOW_ICEBERG
+      IF (useICEBERG) CALL ICEBERG_READPARMS( myThid)
+#endif /*ALLOW_ICEBERG*/
+
 #ifdef ALLOW_ICEFRONT
 C--   if useICEFRONT=T, set ICEFRONT parameters; otherwise just return
       CALL ICEFRONT_READPARMS( myThid )

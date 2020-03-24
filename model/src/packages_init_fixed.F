@@ -400,6 +400,10 @@ C--   Initialise fixed array for Float pkg
       ENDIF
 #endif
 
+#ifdef ALLOW_ICEBERG
+      IF (useICEBERG) CALL ICEBERG_INIT_FIXED(myThid)
+#endif
+
 #ifdef ALLOW_LONGSTEP
       IF (usePTRACERS) THEN
 # ifdef ALLOW_DEBUG
