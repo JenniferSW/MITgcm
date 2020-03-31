@@ -6,6 +6,10 @@ C     Package flag
       COMMON /MYPA_ICEBERG/
      &                     myPa_MNC, myPa_MDSIO
 
+C     Test Variable
+      CHARACTER*5 TestVar
+
+
 C     MYPA parameters
       LOGICAL myPa_StaV_Cgrid
       LOGICAL myPa_Tend_Cgrid

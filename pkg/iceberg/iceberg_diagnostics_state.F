@@ -37,7 +37,7 @@ C     !LOCAL VARIABLES:
       IF ( useDiagnostics ) THEN
 
 #ifdef ICEBERG_3D_STATE
-         CALL DIAGNOSTICS_FILL( mypa_StatScal1,'MYPaSta1',
+         CALL DIAGNOSTICS_FILL( myPa_StatScal1,'TestCall',
      &                          0,Nr, 0, 1, 1, myThid )
          CALL DIAGNOSTICS_FILL( mypa_StatScal2,'MYPaSta2',
      &                          0,Nr, 0, 1, 1, myThid )

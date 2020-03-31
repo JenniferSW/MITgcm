@@ -44,7 +44,7 @@ c     IF ( useDiagnotics ) THEN
 
         diagName  = 'TestCall'
         diagTitle = 'Test Variable for package ICEBERG'
-        diagUnits = 'unit            '
+        diagUnits = 'none            '
         diagCode  = 'SM      MR      '
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )

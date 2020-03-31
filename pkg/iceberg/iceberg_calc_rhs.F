@@ -13,8 +13,8 @@ C !USES: ===============================================================
       IMPLICIT NONE
 #include "SIZE.h"
 #include "EEPARAMS.h"
-c#include "PARAMS.h"
-c#include "ICEBERG.h"
+#include "PARAMS.h"
+#include "ICEBERG.h"
 
 C !INPUT PARAMETERS: ===================================================
 C myTime    :: Current time in simulation
@@ -25,20 +25,42 @@ C myThid    :: my Thread Id number
 
 C !OUTPUT PARAMETERS: ==================================================
 
+      
 C !LOCAL VARIABLES: ====================================================
 C bi,bj     :: Tile indices
-      INTEGER bi, bj
+      INTEGER bi, bj, i, j, k
 CEOP
-
-C--   Loops on tile indices bi,bj
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
+      bi = 1
+      bj = 1
+      k = 1
+c      i = 1
+c      j = 1
 
 C--   Calculate custom tendency terms ...
+c         DO k=1,Nr
+           DO j=1-Oly,sNy+Oly
+            DO i=1-Olx,sNx+Olx
+#ifdef ICEBERG_3D_STATE
+             mypa_StatScal1(i,j,k,bi,bj) = 999.
+#endif /* ICEBERG_3D_STATE */
+            ENDDO
+           ENDDO
+c          ENDDO
 
-C--   end bi,bj loops.
-       ENDDO
-      ENDDO
+       
+c#ifdef ALLOW_DIAGNOSTICS
+      IF ( useDiagnostics ) THEN
+
+c#ifdef ICEBERG_3D_STATE
+         CALL DIAGNOSTICS_FILL( mypa_StatScal1,'TestCall',
+     &                          0,Nr, 0, 1, 1, myThid )
+c#endif /* ICEBERG_3D_STATE */
+
+      ENDIF
+c#endif /*ALLOW_DIAGNOSTICS*/
+
+      
+
 
       RETURN
       END

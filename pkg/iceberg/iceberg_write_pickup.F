@@ -123,19 +123,23 @@ C--------------------------
         ENDIF
 #ifdef ALLOW_MDSIO
 C     uses this specific S/R to write (with more informations) only meta files
-        j  = 1
-        nj = ABS(nj)
-        IF ( nWrFlds*Nr .EQ. nj ) THEN
-          j  = Nr
-          nj = nWrFlds
-        ENDIF
-        glf  = globalFiles
-        timList(1) = myTime
-        CALL MDS_WR_METAFILES( fn, fp, glf, .FALSE.,
-     &                         0, 0, j, ' ',
-     &                         nWrFlds, wrFldList,
-     &                         1, timList, oneRL,
-     &                         nj, myIter, myThid )
+c        j  = 1
+c        nj = ABS(nj)
+c        IF ( nWrFlds*Nr .EQ. nj ) THEN
+c          j  = Nr
+c          nj = nWrFlds
+c        ENDIF
+c        glf  = globalFiles
+c        timList(1) = myTime
+c        CALL MDS_WR_METAFILES( fn, fp, glf, .FALSE.,
+c     &                         0, 0, j, ' ',
+c     &                         nWrFlds, wrFldList,
+c     &                         1, timList, oneRL,
+c     &                         nj, myIter, myThid )
+
+
+
+
 #endif /* ALLOW_MDSIO */
 C--------------------------
 

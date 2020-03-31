@@ -335,6 +335,12 @@ C--   Initialise float position
       ENDIF
 #endif /* ALLOW_SHELFICE */
 
+#ifdef ALLOW_ICEBERG
+      IF (useICEBERG) THEN
+              CALL ICEBERG_INIT_VARIA(myThid)
+      ENDIF
+#endif /*ALLOW_ICEBERG*/
+
 #ifdef ALLOW_ICEFRONT
       IF (useICEFRONT) THEN
 # ifdef ALLOW_DEBUG
