@@ -76,8 +76,8 @@ C     this is done within IO routines => no longer needed
 c      _BARRIER
 
 #ifdef ICEBERG_3D_STATE
-       IF ( myPa_Scal1File .NE. ' ' ) THEN
-         CALL READ_FLD_XYZ_RL( myPa_Scal1File, ' ',
+       IF ( ICEBERG_initialFile .NE. ' ' ) THEN
+         CALL READ_FLD_XYZ_RL( ICEBERG_initialFile, ' ',
      &                         myPa_StatScal1, 0, myThid )
          CALL EXCH_3D_RL( myPa_StatScal1, Nr, myThid )
        ENDIF

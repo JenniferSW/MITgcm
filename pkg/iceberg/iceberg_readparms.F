@@ -38,7 +38,7 @@ C     iUnit      :: Work variable for IO unit number
      &       myPa_index1,     myPa_index2,
      &       myPa_param1,     myPa_param2,
      &       myPa_string1,    myPa_string2,
-     &       myPa_Scal1File,  myPa_Scal2File,
+     &       ICEBERG_initialFile,  myPa_Scal2File,
      &       myPa_VelUFile,   myPa_VelVFile,
      &       myPa_Surf1File,  myPa_Surf2File
 
@@ -72,7 +72,7 @@ C-    additional parameters:
       myPa_string1     = ' '
       myPa_string2     = ' '
 C-    file names for initial conditions:
-      myPa_Scal1File   = ' '
+      ICEBERG_initialFile   = ' '
       myPa_Scal2File   = ' '
       myPa_VelUFile    = ' '
       myPa_VelVFile    = ' '

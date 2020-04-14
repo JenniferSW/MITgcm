@@ -29,7 +29,7 @@ C-    additional parameters:
       CHARACTER*(MAX_LEN_FNAM) myPa_string2
 
 C-    file names for initial conditions:
-      CHARACTER*(MAX_LEN_FNAM) myPa_Scal1File
+      CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialFile
       CHARACTER*(MAX_LEN_FNAM) myPa_Scal2File
       CHARACTER*(MAX_LEN_FNAM) myPa_VelUFile
       CHARACTER*(MAX_LEN_FNAM) myPa_VelVFile
@@ -44,7 +44,7 @@ C-    file names for initial conditions:
       COMMON /MYPA_PARAMS_I/ myPa_index1, myPa_index2
       COMMON /MYPA_PARAMS_R/ myPa_param1, myPa_param2
       COMMON /MYPA_PARAMS_C/ myPa_string1, myPa_string2,
-     &       myPa_Scal1File, myPa_Scal2File,
+     &       ICEBERG_initialFile, myPa_Scal2File,
      &       myPa_VelUFile,  myPa_VelVFile,
      &       myPa_Surf1File, myPa_Surf2File
 

@@ -217,7 +217,7 @@ C     Do SBO diagnostics.
 #ifdef ALLOW_ICEBERG
       IF (useICEBERG ) THEN
               CALL ICEBERG_OUTPUT(myTime,myIter,myThid)
-              CALL ICEBERG_WRITE_PICKUP(myTime,myIter,myThid)
+c              CALL ICEBERG_WRITE_PICKUP(myTime,myIter,myThid)
       ENDIF
 #endif /*ALLOW_ICEBERG*/
 
