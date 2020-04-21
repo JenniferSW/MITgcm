@@ -17,18 +17,21 @@ C     !USES:
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #include "GRID.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     myThid ::  my Thread Id number
       INTEGER myThid
+
+      CHARACTER*(MAX_LEN_FNAM) tmpInitialFile
 CEOP
 
 #ifdef ALLOW_ICEBERG
 
 C     !LOCAL VARIABLES:
 C     === Local variables ===
-      INTEGER i,j,k,bi,bj
+      INTEGER i,j,k,bi,bj,iCl
 
       DO bj = myByLo(myThid), myByHi(myThid)
        DO bi = myBxLo(myThid), myBxHi(myThid)
@@ -39,7 +42,9 @@ C     3-dim.
          DO j=1-Oly,sNy+OLy
           DO i=1-Olx,sNx+Olx
 #ifdef ICEBERG_3D_STATE
-           myPa_StatScal1(i,j,k,bi,bj) = 0. _d 0
+           DO iCl = 1,ICEBERG_numClUsed
+            iceberg_distr(i,j,k,bi,bj,iCl) = 0. _d 0
+           ENDDO
            myPa_StatScal2(i,j,k,bi,bj) = 0. _d 0
            myPa_StatVelU (i,j,k,bi,bj) = 0. _d 0
            myPa_StatVelV (i,j,k,bi,bj) = 0. _d 0
@@ -76,11 +81,18 @@ C     this is done within IO routines => no longer needed
 c      _BARRIER
 
 #ifdef ICEBERG_3D_STATE
-       IF ( ICEBERG_initialFile .NE. ' ' ) THEN
-         CALL READ_FLD_XYZ_RL( ICEBERG_initialFile, ' ',
-     &                         myPa_StatScal1, 0, myThid )
-         CALL EXCH_3D_RL( myPa_StatScal1, Nr, myThid )
-       ENDIF
+c      IF (nIter0 .EQ.ICEBERG_Iter0) THEN
+       DO iCl = 1, ICEBERG_numClUsed
+        tmpInitialFile = ICEBERG_initialFile(iCl)
+        IF ( tmpInitialFile .NE. ' ' ) THEN
+         CALL READ_FLD_XYZ_RL( tmpInitialFile, ' ',
+     &                         iceberg_distr(1-OLx,1-OLy,1,1,1,iCl), 0,
+     &                         myThid )
+         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),
+     &                         Nr, myThid )
+        ENDIF
+       ENDDO
+c      ENDIF
        IF ( myPa_Scal2File .NE. ' ' ) THEN
          CALL READ_FLD_XYZ_RL( myPa_Scal2File, ' ',
      &                         myPa_StatScal2, 0, myThid )

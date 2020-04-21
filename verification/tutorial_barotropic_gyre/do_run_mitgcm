@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+# linking dependencies
+cd run
+ln -s ../build/mitgcmuv .
+ln -s ../input/* .
+
+# run mitgcm
+./mitgcmuv

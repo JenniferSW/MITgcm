@@ -10,6 +10,7 @@ C     === Global variables ===
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 
 C     !INPUT/OUTPUT PARAMETERS:

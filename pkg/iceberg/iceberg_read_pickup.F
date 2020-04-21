@@ -15,6 +15,7 @@ C     !USES:
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 
 C     !INPUT PARAMETERS:
@@ -22,6 +23,7 @@ C     myIter            :: time-step number
 C     myThid            :: thread number
       INTEGER myIter
       INTEGER myThid
+      
 
 #ifdef ALLOW_ICEBERG
 #if (defined ICEBERG_3D_STATE) || (defined ICEBERG_2D_STATE)
@@ -41,12 +43,13 @@ C     msgBuf      :: Informational/error message buffer
       INTEGER fp
       INTEGER filePrec, nbFields
       INTEGER missFldDim, nMissing
-      INTEGER j, nj, ioUnit
+      INTEGER j, nj, ioUnit, iCl
       PARAMETER( missFldDim = 12 )
       CHARACTER*(10) suff
       CHARACTER*(MAX_LEN_FNAM) fn
       CHARACTER*(8) missFldList(missFldDim)
       CHARACTER*(MAX_LEN_MBUF) msgBuf
+      CHARACTER*8 pickup_distr
 CEOP
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
@@ -131,8 +134,17 @@ C---   New way to read ICEBERG pickup:
         nj = 0
 C---    read ICEBERG 3-D fields for restart
 #ifdef ICEBERG_3D_STATE
-        CALL READ_MFLDS_3D_RL( 'myPaSta1', myPa_StatScal1,
-     &                                 nj, fp, Nr, myIter, myThid )
+        DO iCl = 1,ICEBERG_numClUsed
+         WRITE(pickup_distr,'(A5,I2)') 'IBCL_', iCl
+         CALL READ_MFLDS_3D_RL( pickup_distr,
+     C                   iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),
+     &                   nj, fp, Nr, myIter, myThid )
+         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-Oly,1,1,1,iCl), 
+     &                   Nr, myThid )
+
+
+        ENDDO
+
         CALL READ_MFLDS_3D_RL( 'myPaSta2', myPa_StatScal2,
      &                                 nj, fp, Nr, myIter, myThid )
         CALL READ_MFLDS_3D_RL( 'myPaStaU', myPa_StatVelU,
@@ -178,7 +190,7 @@ C--    Check for missing fields:
 
 C--    Update overlap regions:
 #ifdef ICEBERG_3D_STATE
-        CALL EXCH_3D_RL( myPa_StatScal1, Nr, myThid )
+
         CALL EXCH_3D_RL( myPa_StatScal2, Nr, myThid )
         IF ( myPa_StaV_Cgrid ) THEN
          CALL EXCH_UV_3D_RL( myPa_StatVelU, myPa_StatVelV,

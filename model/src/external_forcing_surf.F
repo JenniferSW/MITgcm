@@ -37,6 +37,7 @@ C     === Global variables ===
 # include "tamc_keys.h"
 #endif
 #ifdef ALLOW_ICEBERG
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 #endif /*ALLOW_ICEBERG*/
 

@@ -15,7 +15,9 @@ C     !USES:
 #include "EEPARAMS.h"
 #include "SIZE.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
+
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     myThid ::  my Thread Id number

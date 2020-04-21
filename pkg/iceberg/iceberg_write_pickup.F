@@ -15,6 +15,7 @@ C !USES: ===============================================================
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 
 C !INPUT PARAMETERS: ===================================================
@@ -49,7 +50,7 @@ C     nWrFlds     :: number of fields being written
 C     listDim     :: dimension of "wrFldList" local array
 C     wrFldList   :: list of written fields
 C     msgBuf      :: Informational/error message buffer
-      INTEGER j, nj, fp, lChar
+      INTEGER j, nj, fp, lChar, iCl
       LOGICAL glf
       _RL     timList(1)
       CHARACTER*(MAX_LEN_FNAM) fn
@@ -57,6 +58,7 @@ C     msgBuf      :: Informational/error message buffer
       PARAMETER( listDim = 12 )
       CHARACTER*(8) wrFldList(listDim)
       CHARACTER*(MAX_LEN_MBUF) msgBuf
+      CHARACTER*8 fldname
 CEOP
 
         lChar = ILNBLNK(suff)
@@ -72,10 +74,16 @@ C       Firstly, write 3-D fields as consecutive records,
 
 #ifdef ICEBERG_3D_STATE
 C     record number < 0 : a hack not to write meta files now:
-        j = j + 1
-        CALL WRITE_REC_3D_RL( fn, fp, Nr,
-     &                        myPa_StatScal1, -j, myIter, myThid )
-        IF (j.LE.listDim) wrFldList(j) = 'myPaSta1'
+        DO iCl = 1, ICEBERG_numClUsed
+         WRITE(fldname,'(A5,I2)') 'IBCL_', iCl
+         j = j + 1
+         CALL WRITE_REC_3D_RL( fn, fp, Nr,
+     C                         iceberg_distr(1-OLx,1-OLy,1,1,1,iCl)
+     &                         , -j, myIter, myThid )
+         IF (j.LE.listDim) wrFldList(j) = fldname
+        ENDDO
+
+
 
         j = j + 1
         CALL WRITE_REC_3D_RL( fn, fp, Nr,

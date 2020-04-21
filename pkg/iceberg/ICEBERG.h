@@ -6,11 +6,13 @@ C     Package flag
       COMMON /MYPA_ICEBERG/
      &                     myPa_MNC, myPa_MDSIO
 
-C     Test Variable
-      CHARACTER*5 TestVar
+C     Number of size classes
+c      INTEGER ICEBERG_numCl
+c      PARAMETER(ICEBERG_numCl = 2)
+      
 
 
-C     MYPA parameters
+C     ICEBERG parameters
       LOGICAL myPa_StaV_Cgrid
       LOGICAL myPa_Tend_Cgrid
       LOGICAL myPa_applyTendT
@@ -21,15 +23,16 @@ C     MYPA parameters
 C-    additional parameters:
       LOGICAL myPa_doSwitch1
       LOGICAL myPa_doSwitch2
-      INTEGER myPa_index1
+      INTEGER ICEBERG_Iter0
       INTEGER myPa_index2
+      INTEGER ICEBERG_numClUsed
       _RL myPa_param1
       _RL myPa_param2
       CHARACTER*(MAX_LEN_FNAM) myPa_string1
       CHARACTER*(MAX_LEN_FNAM) myPa_string2
 
 C-    file names for initial conditions:
-      CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialFile
+      CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialFile(ICEBERG_numCl)
       CHARACTER*(MAX_LEN_FNAM) myPa_Scal2File
       CHARACTER*(MAX_LEN_FNAM) myPa_VelUFile
       CHARACTER*(MAX_LEN_FNAM) myPa_VelVFile
@@ -41,7 +44,8 @@ C-    file names for initial conditions:
      &       myPa_applyTendT, myPa_applyTendS,
      &       myPa_applyTendU, myPa_applyTendV,
      &       myPa_doSwitch1, myPa_doSwitch2
-      COMMON /MYPA_PARAMS_I/ myPa_index1, myPa_index2
+      COMMON /MYPA_PARAMS_I/ ICEBERG_Iter0, myPa_index2,
+     &       ICEBERG_numClUsed
       COMMON /MYPA_PARAMS_R/ myPa_param1, myPa_param2
       COMMON /MYPA_PARAMS_C/ myPa_string1, myPa_string2,
      &       ICEBERG_initialFile, myPa_Scal2File,
@@ -50,12 +54,13 @@ C-    file names for initial conditions:
 
 #ifdef ICEBERG_3D_STATE
 C     MYPA 3-dim. fields
-      _RL myPa_StatScal1(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
+      _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,
+     &  	      nSy,ICEBERG_numCl)
       _RL myPa_StatScal2(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL myPa_StatVelU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       _RL myPa_StatVelV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
       COMMON /MYPA_STATE_3D/
-     &    myPa_StatScal1, myPa_StatScal2,
+     &    iceberg_distr, myPa_StatScal2,
      &    myPa_StatVelU,  myPa_StatVelV
 #endif /* ICEBERG_3D_STATE */
 #ifdef ICEBERG_2D_STATE

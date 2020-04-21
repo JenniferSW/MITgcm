@@ -15,7 +15,9 @@ C     !USES:
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
+
 
 C     !INPUT PARAMETERS:
 C     myThid   :: my Thread Id number
@@ -51,8 +53,8 @@ C--  Print out some kee parameters :
      &  'myPa_applyTendV =',
      &  ' /* apply MYPA tendency to V momentum Eq.*/')
 C-   add some other as example:
-       CALL WRITE_0D_I( myPa_index1, INDEX_NONE, ' myPa_index1 =',
-     &  ' /* user defined parameter */')
+c       CALL WRITE_0D_I( myPa_index1, INDEX_NONE, ' myPa_index1 =',
+c     &  ' /* user defined parameter */')
        CALL WRITE_0D_RL( myPa_param1, INDEX_NONE, ' myPa_param1 =',
      &  ' /* user defined parameter */')
        CALL WRITE_0D_C( myPa_string1,-1,INDEX_NONE,'myPa_string1 =',

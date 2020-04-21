@@ -18,16 +18,19 @@ C     !USES:
 #include "PARAMS.h"
 C  put following include within #ifdef in case this file is copied to local
 C  code dir but pkg/iceberg is not compiled (missing file ICEBERG.h).
+#include "ICEBERG_SIZE.h"
 #ifdef ALLOW_ICEBERG
 #include "ICEBERG.h"
 #endif
+
 
 C     !INPUT PARAMETERS:
 C     myTime   :: Current time of simulation ( s )
 C     myIter   :: Current iteration number in simulation
 C     myThid   :: my Thread Id number
       _RL     myTime
-      INTEGER myIter, myThid
+      INTEGER myIter, myThid, iCl
+      CHARACTER*8 diagName
 CEOP
 
 #ifdef ALLOW_ICEBERG
@@ -37,8 +40,14 @@ C     !LOCAL VARIABLES:
       IF ( useDiagnostics ) THEN
 
 #ifdef ICEBERG_3D_STATE
-         CALL DIAGNOSTICS_FILL( myPa_StatScal1,'TestCall',
-     &                          0,Nr, 0, 1, 1, myThid )
+c     Loop over iceberg size classes and write them to diagnostics
+         DO iCl = 1, ICEBERG_numClUsed
+           WRITE(diagName,'(A5,I1,A2)') 'IBCL_', iCl, '  '
+
+           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
+     &                            diagName,0,Nr, 0, 1, 1, myThid )
+         ENDDO
+
          CALL DIAGNOSTICS_FILL( mypa_StatScal2,'MYPaSta2',
      &                          0,Nr, 0, 1, 1, myThid )
          CALL DIAGNOSTICS_FILL( mypa_StatVelU, 'MYPaStaU',

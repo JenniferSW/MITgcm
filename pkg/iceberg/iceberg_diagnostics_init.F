@@ -14,6 +14,7 @@ C     !USES:
       IMPLICIT NONE
 #include "EEPARAMS.h"
 #include "SIZE.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 
 C     !INPUT/OUTPUT PARAMETERS:
@@ -38,17 +39,20 @@ C     diagTitle :: local string (80c): description of field in diagnostic
       CHARACTER*16  diagUnits
       CHARACTER*(80) diagTitle
 
+      INTEGER iCl
+      iCl = 1
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
-c     IF ( useDiagnotics ) THEN
-
-        diagName  = 'TestCall'
-        diagTitle = 'Test Variable for package ICEBERG'
-        diagUnits = 'none            '
-        diagCode  = 'SM      MR      '
-        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
-     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
-
+c     IF ( useDiagnostics ) THEN
+        DO iCl = 1, ICEBERG_numClUsed
+          WRITE(diagName,'(A5,I1,A2)') 'IBCL_',iCl,'  '
+          WRITE(diagTitle,'(A,I2)') 'Iceberg distribution for class'
+     &          ,iCl
+          diagUnits = 'none            '
+          diagCode  = 'SM      MR      '
+          CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I            diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+        ENDDO
 c        diagName  = 'MYPaSta2'
 c        diagTitle = 'Scalar state variable 2 for package ICEBERG'
 c        diagUnits = 'unit            '

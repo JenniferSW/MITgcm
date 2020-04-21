@@ -8,30 +8,36 @@ C     !INTERFACE:
       SUBROUTINE ICEBERG_MNC_INIT( myThid )
 
 C     !DESCRIPTION:
-C     Initialize MNC lookup tables for Mypackage.
+C     Initialize MNC lookup tables for Iceberg package.
 
 C     !USES:
       IMPLICIT NONE
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 
 C     !INPUT PARAMETERS:
       INTEGER myThid
+      INTEGER iCl
+      CHARACTER*8 ClassName
 CEOP
 
 #ifdef ALLOW_ICEBERG
 #ifdef ALLOW_MNC
 
       IF (useMNC) THEN
-
-        CALL MNC_CW_ADD_VNAME('myPa_StatScal1',
-     &      'Cen_xy_Hn__L__t', 4,5,myThid)
-        CALL MNC_CW_ADD_VATTR_TEXT('myPa_StatScal1',
-     &      'units','[unit]', myThid)
-        CALL MNC_CW_ADD_VATTR_TEXT('myPa_StatScal1','description',
-     &      'scalar state variable myPa_StatScal1',myThid)
+c     fill in iceberg distribution in for using mnc
+        DO iCl = 1, ICEBERG_numClUsed
+          WRITE(ClassName,'(A5,I2)') 'IBCL_',iCl
+          CALL MNC_CW_ADD_VNAME(ClassName,
+     &        'Cen_xy_Hn__L__t', 4,5,myThid)
+          CALL MNC_CW_ADD_VATTR_TEXT(ClassName,
+     &        'units','[unit]', myThid)
+          CALL MNC_CW_ADD_VATTR_TEXT(ClassName,'class border',
+     &        'fill in border of classes',myThid)
+        ENDDO
 
         CALL MNC_CW_ADD_VNAME('myPa_StatScal2',
      &      'Cen_xy_Hn__L__t', 4,5,myThid)

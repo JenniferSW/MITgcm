@@ -15,6 +15,7 @@ C     !USES:
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 
 C     !INPUT PARAMETERS:
@@ -27,7 +28,7 @@ C     !LOCAL VARIABLES:
 C     msgBuf     :: Informational/error message buffer
 C     iUnit      :: Work variable for IO unit number
       CHARACTER*(MAX_LEN_MBUF) msgBuf
-      INTEGER iUnit
+      INTEGER iUnit, iCl
 
       NAMELIST /ICEBERG_PARM01/
      &       myPa_MNC,
@@ -35,8 +36,8 @@ C     iUnit      :: Work variable for IO unit number
      &       myPa_applyTendT, myPa_applyTendS,
      &       myPa_applyTendU, myPa_applyTendV,
      &       myPa_doSwitch1,  myPa_doSwitch2,
-     &       myPa_index1,     myPa_index2,
-     &       myPa_param1,     myPa_param2,
+     &       ICEBERG_Iter0,     myPa_index2,
+     &       ICEBERG_numClUsed,     myPa_param2,
      &       myPa_string1,    myPa_string2,
      &       ICEBERG_initialFile,  myPa_Scal2File,
      &       myPa_VelUFile,   myPa_VelVFile,
@@ -65,14 +66,16 @@ C--   Default values for ICEBERG
 C-    additional parameters:
       myPa_doSwitch1   = .FALSE.
       myPa_doSwitch2   = .FALSE.
-      myPa_index1      = 0
+      ICEBERG_Iter0      = 0
       myPa_index2      = 0
-      myPa_param1      = 0. _d 0
+      ICEBERG_numClUsed      = 1
       myPa_param2      = 0. _d 0
       myPa_string1     = ' '
       myPa_string2     = ' '
 C-    file names for initial conditions:
-      ICEBERG_initialFile   = ' '
+      DO iCl = 1, ICEBERG_numCl
+        ICEBERG_initialFile(iCl)   = ' '
+      ENDDO
       myPa_Scal2File   = ' '
       myPa_VelUFile    = ' '
       myPa_VelVFile    = ' '

@@ -14,7 +14,9 @@ C !USES: ===============================================================
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
+
 
 C !INPUT PARAMETERS: ===================================================
 C myTime    :: Current time in simulation
@@ -28,11 +30,13 @@ C !OUTPUT PARAMETERS: ==================================================
       
 C !LOCAL VARIABLES: ====================================================
 C bi,bj     :: Tile indices
-      INTEGER bi, bj, i, j, k
+      INTEGER bi, bj, i, j, k, iCl
+      CHARACTER*8 diagName
 CEOP
       bi = 1
       bj = 1
       k = 1
+      iCl = 1
 c      i = 1
 c      j = 1
 
@@ -41,7 +45,7 @@ c         DO k=1,Nr
            DO j=1-Oly,sNy+Oly
             DO i=1-Olx,sNx+Olx
 #ifdef ICEBERG_3D_STATE
-             mypa_StatScal1(i,j,k,bi,bj) = 999.
+c             iceberg_distr(i,j,k,bi,bj,iCl) = 999.
 #endif /* ICEBERG_3D_STATE */
             ENDDO
            ENDDO
@@ -52,8 +56,11 @@ c#ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN
 
 c#ifdef ICEBERG_3D_STATE
-         CALL DIAGNOSTICS_FILL( mypa_StatScal1,'TestCall',
-     &                          0,Nr, 0, 1, 1, myThid )
+         DO iCl = 1, ICEBERG_numClUsed
+           WRITE(diagName,'(A5,I1,A2)') 'IBCL_', iCl,'  '
+           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
+     &                            diagName,0,Nr, 0, 1, 1, myThid )
+         ENDDO
 c#endif /* ICEBERG_3D_STATE */
 
       ENDIF
