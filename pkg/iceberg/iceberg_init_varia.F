@@ -25,6 +25,7 @@ C     myThid ::  my Thread Id number
       INTEGER myThid
 
       CHARACTER*(MAX_LEN_FNAM) tmpInitialFile
+      CHARACTER*(MAX_LEN_FNAM) msgBuf
 CEOP
 
 #ifdef ALLOW_ICEBERG
@@ -81,7 +82,7 @@ C     this is done within IO routines => no longer needed
 c      _BARRIER
 
 #ifdef ICEBERG_3D_STATE
-c      IF (nIter0 .EQ.ICEBERG_Iter0) THEN
+      IF (nIter0 .EQ.ICEBERG_Iter0) THEN
        DO iCl = 1, ICEBERG_numClUsed
         tmpInitialFile = ICEBERG_initialFile(iCl)
         IF ( tmpInitialFile .NE. ' ' ) THEN
@@ -90,9 +91,18 @@ c      IF (nIter0 .EQ.ICEBERG_Iter0) THEN
      &                         myThid )
          CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),
      &                         Nr, myThid )
+        ELSE
+                WRITE(msgBuf,'(A)') 'Not enough input files for iceberg
+     &           classes. Make sure every iceberg class has one input
+     &           file read in data.iceberg'
+                CALL PRINT_ERROR(msgBuf,myThid)
+                STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
         ENDIF
        ENDDO
-c      ENDIF
+      ENDIF
+      
+
+
        IF ( myPa_Scal2File .NE. ' ' ) THEN
          CALL READ_FLD_XYZ_RL( myPa_Scal2File, ' ',
      &                         myPa_StatScal2, 0, myThid )

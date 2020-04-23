@@ -31,8 +31,9 @@ C !OUTPUT PARAMETERS: ==================================================
 C !LOCAL VARIABLES: ====================================================
 C bi,bj     :: Tile indices
       INTEGER bi, bj, i, j, k, iCl
-      CHARACTER*8 diagName
 CEOP
+
+
       bi = 1
       bj = 1
       k = 1
@@ -57,9 +58,9 @@ c#ifdef ALLOW_DIAGNOSTICS
 
 c#ifdef ICEBERG_3D_STATE
          DO iCl = 1, ICEBERG_numClUsed
-           WRITE(diagName,'(A5,I1,A2)') 'IBCL_', iCl,'  '
            CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
-     &                            diagName,0,Nr, 0, 1, 1, myThid )
+     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1, 
+     &                            myThid )
          ENDDO
 c#endif /* ICEBERG_3D_STATE */
 

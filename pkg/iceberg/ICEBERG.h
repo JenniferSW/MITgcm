@@ -6,10 +6,6 @@ C     Package flag
       COMMON /MYPA_ICEBERG/
      &                     myPa_MNC, myPa_MDSIO
 
-C     Number of size classes
-c      INTEGER ICEBERG_numCl
-c      PARAMETER(ICEBERG_numCl = 2)
-      
 
 
 C     ICEBERG parameters
@@ -21,6 +17,10 @@ C     ICEBERG parameters
       LOGICAL myPa_applyTendV
 
 C-    additional parameters:
+c     ICEBERG_ITER0   :: iteration number to start iceberg drift
+c     ICEBERG_numClUsed :: Number of icebergs used in the simulation
+c     ICEBERG_ClLbl   :: Labels for diagnostics output
+
       LOGICAL myPa_doSwitch1
       LOGICAL myPa_doSwitch2
       INTEGER ICEBERG_Iter0
@@ -28,10 +28,12 @@ C-    additional parameters:
       INTEGER ICEBERG_numClUsed
       _RL myPa_param1
       _RL myPa_param2
-      CHARACTER*(MAX_LEN_FNAM) myPa_string1
+      CHARACTER*(8) ICEBERG_ClLbl(ICEBERG_numCl)
       CHARACTER*(MAX_LEN_FNAM) myPa_string2
 
 C-    file names for initial conditions:
+C     ICEBERG_initialFile   :: File with initial conditions for icebergs
+
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialFile(ICEBERG_numCl)
       CHARACTER*(MAX_LEN_FNAM) myPa_Scal2File
       CHARACTER*(MAX_LEN_FNAM) myPa_VelUFile
@@ -47,13 +49,15 @@ C-    file names for initial conditions:
       COMMON /MYPA_PARAMS_I/ ICEBERG_Iter0, myPa_index2,
      &       ICEBERG_numClUsed
       COMMON /MYPA_PARAMS_R/ myPa_param1, myPa_param2
-      COMMON /MYPA_PARAMS_C/ myPa_string1, myPa_string2,
+      COMMON /MYPA_PARAMS_C/ ICEBERG_ClLbl, myPa_string2,
      &       ICEBERG_initialFile, myPa_Scal2File,
      &       myPa_VelUFile,  myPa_VelVFile,
      &       myPa_Surf1File, myPa_Surf2File
 
 #ifdef ICEBERG_3D_STATE
-C     MYPA 3-dim. fields
+C     ICEBERG (3D) fields
+C     iceberg_distr    :: field for iceberg distribution
+
       _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,
      &  	      nSy,ICEBERG_numCl)
       _RL myPa_StatScal2(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)

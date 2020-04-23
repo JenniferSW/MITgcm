@@ -30,7 +30,6 @@ C     myIter   :: Current iteration number in simulation
 C     myThid   :: my Thread Id number
       _RL     myTime
       INTEGER myIter, myThid, iCl
-      CHARACTER*8 diagName
 CEOP
 
 #ifdef ALLOW_ICEBERG
@@ -42,10 +41,9 @@ C     !LOCAL VARIABLES:
 #ifdef ICEBERG_3D_STATE
 c     Loop over iceberg size classes and write them to diagnostics
          DO iCl = 1, ICEBERG_numClUsed
-           WRITE(diagName,'(A5,I1,A2)') 'IBCL_', iCl, '  '
-
            CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
-     &                            diagName,0,Nr, 0, 1, 1, myThid )
+     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
+     &                             myThid )
          ENDDO
 
          CALL DIAGNOSTICS_FILL( mypa_StatScal2,'MYPaSta2',

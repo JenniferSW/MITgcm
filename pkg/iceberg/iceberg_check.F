@@ -57,8 +57,8 @@ c       CALL WRITE_0D_I( myPa_index1, INDEX_NONE, ' myPa_index1 =',
 c     &  ' /* user defined parameter */')
        CALL WRITE_0D_RL( myPa_param1, INDEX_NONE, ' myPa_param1 =',
      &  ' /* user defined parameter */')
-       CALL WRITE_0D_C( myPa_string1,-1,INDEX_NONE,'myPa_string1 =',
-     &  ' /* user defined parameter */')
+c       CALL WRITE_0D_C( myPa_string1,-1,INDEX_NONE,'myPa_string1 =',
+c     &  ' /* user defined parameter */')
 
 C--  Check parameters:
 

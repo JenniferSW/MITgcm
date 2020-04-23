@@ -38,7 +38,7 @@ C     iUnit      :: Work variable for IO unit number
      &       myPa_doSwitch1,  myPa_doSwitch2,
      &       ICEBERG_Iter0,     myPa_index2,
      &       ICEBERG_numClUsed,     myPa_param2,
-     &       myPa_string1,    myPa_string2,
+c     &       myPa_string1,    myPa_string2,
      &       ICEBERG_initialFile,  myPa_Scal2File,
      &       myPa_VelUFile,   myPa_VelVFile,
      &       myPa_Surf1File,  myPa_Surf2File
@@ -68,9 +68,9 @@ C-    additional parameters:
       myPa_doSwitch2   = .FALSE.
       ICEBERG_Iter0      = 0
       myPa_index2      = 0
-      ICEBERG_numClUsed      = 1
+      ICEBERG_numClUsed = -1
       myPa_param2      = 0. _d 0
-      myPa_string1     = ' '
+c      myPa_string1     = ' '
       myPa_string2     = ' '
 C-    file names for initial conditions:
       DO iCl = 1, ICEBERG_numCl
@@ -102,6 +102,39 @@ C     Close the open data file
 #else
       CLOSE(iUnit,STATUS='DELETE')
 #endif /* SINGLE_DISK_IO */
+
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+C Create parameters resutling from input parameters
+
+
+C     If ICEBERG_numClUsed is not set the value from ICEBERG_SIZE is
+C     used and error handling if no icebergs are used
+
+      IF (ICEBERG_numClUsed .LT. 0) THEN
+        ICEBERG_numClUsed = ICEBERG_numCl
+      ELSE IF (ICEBERG_numClUsed .EQ. 0) THEN
+              WRITE(msgBuf,'(A)') 'Seems like you do not use
+     & icebergs in the model. Set ICEBERG_numClUsed > 0 or remove the iceberg
+     & package from data.pkg.'
+              STOP 'ABNORMAL END: ICEBERG_READPARMS'
+      ENDIF
+
+C     Error handling: Do not use more size classes than introduced
+      IF (ICEBERG_numClUsed .GT. ICEBERG_numCl) THEN
+              WRITE(msgBuf,'(A)') 'You try to use more size classes than
+     & implemented in ICEBERG_SIZE.h. ICEBERG_numClUsed has to be
+     & smaller or equal ICEBERG_numCl.'
+              CALL PRINT_ERROR(msgBuf, myThid)
+              STOP 'ABNORMAL END: ICEBERG_READPARMS'
+      ENDIF
+
+
+C     Create diagnostics labels
+      IF (ICEBERG_numClUsed .GT. 0) THEN
+         CALL ICEBERG_SET_CLASS_LABELS(ICEBERG_ClLbl, ICEBERG_numClUsed,
+     C                    myThid)
+      ENDIF
+
 
 C     Make sure that we locally honor the global MNC on/off flag
       myPa_MNC = myPa_MNC .AND. useMNC

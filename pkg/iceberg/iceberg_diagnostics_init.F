@@ -44,14 +44,14 @@ C     diagTitle :: local string (80c): description of field in diagnostic
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 c     IF ( useDiagnostics ) THEN
-        DO iCl = 1, ICEBERG_numClUsed
-          WRITE(diagName,'(A5,I1,A2)') 'IBCL_',iCl,'  '
+        DO iCl = 1, ICEBERG_numCl
           WRITE(diagTitle,'(A,I2)') 'Iceberg distribution for class'
      &          ,iCl
           diagUnits = 'none            '
           diagCode  = 'SM      MR      '
           CALL DIAGNOSTICS_ADDTOLIST( diagNum,
-     I            diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+     I            ICEBERG_ClLbl(iCl), diagCode, diagUnits, diagTitle, 
+     &            0, myThid )
         ENDDO
 c        diagName  = 'MYPaSta2'
 c        diagTitle = 'Scalar state variable 2 for package ICEBERG'
