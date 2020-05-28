@@ -38,6 +38,10 @@ C     iUnit      :: Work variable for IO unit number
      &       myPa_doSwitch1,  myPa_doSwitch2,
      &       ICEBERG_Iter0,     myPa_index2,
      &       ICEBERG_numClUsed,     myPa_param2,
+C HINT if not used later ICEBERG_deltaTtherm has to be deleted
+
+     &       ICEBERG_deltaTtherm,
+     &       SEAICEmultiDimAdvection,ICEBERGadvScheme,
 c     &       myPa_string1,    myPa_string2,
      &       ICEBERG_initialFile,  myPa_Scal2File,
      &       myPa_VelUFile,   myPa_VelVFile,
@@ -70,6 +74,9 @@ C-    additional parameters:
       myPa_index2      = 0
       ICEBERG_numClUsed = -1
       myPa_param2      = 0. _d 0
+      ICEBERG_deltaTtherm = dTtracerLev(1)
+      SEAICEmultiDimAdvection = .TRUE.
+      ICEBERGadvScheme = 77
 c      myPa_string1     = ' '
       myPa_string2     = ' '
 C-    file names for initial conditions:
@@ -109,7 +116,6 @@ C Create parameters resutling from input parameters
 
 C     If ICEBERG_numClUsed is not set the value from ICEBERG_SIZE is
 C     used and error handling if no icebergs are used
-
       IF (ICEBERG_numClUsed .LT. 0) THEN
         ICEBERG_numClUsed = ICEBERG_numCl
       ELSE IF (ICEBERG_numClUsed .EQ. 0) THEN

@@ -103,6 +103,12 @@ C                    and stagger/synchronous TimeStep
        ENDIF
 #endif /* ALLOW_THSICE */
 
+#ifdef ALLOW_ICEBERG
+       IF ( seqFlag.EQ.0 .AND. useICEBERG ) THEN
+         CALL ICEBERG_DIAGNOSTICS_STATE( myTime, myIter, myThid)
+       ENDIF
+#endif /* ALLOW_ICEBERG*/
+
 #ifdef ALLOW_STREAMICE
        IF ( seqFlag.EQ.2 .AND. useStreamIce ) THEN
          CALL STREAMICE_DIAGNOSTICS_STATE( myTime, myIter, myThid )

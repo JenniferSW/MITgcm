@@ -5,3 +5,27 @@ Package ``ICEBERG'' is a template for implementing a new package.
 It shows how, ideally, the package should interact with the
 MITgcm kernel on various levels (initialisation, time-stepping,
 post-processing).
+
+Package 'ICEBERG' is a template for iceberg drift and melting.
+
+The package works with an iceberg distribution and treats the icebergs not seperately but as a concentration
+within a grid cell.
+It is possible to define different size classes for the icebergs which are read in from.
+for every size class a single input file is needed.
+It is also possible to delay the start of iceberg drift with an own start time.
+The parts of reading in input files, implementing size classes and starting the
+drift at a certain time step is based on the PTRACERS package.
+The parameters introduced in this step are
+(data.iceberg)
+ICEBERG_numClUsed  ::  number of iceberg size classes used in the simulation (default 1)
+ICEBERG_initialFile  ::  File with input data for one size class (add one for each size class)
+ICEBERG_Iter0  ::  set to time step when iceberg should be included in the model run (default 0)
+
+(ICEBERG_SIZE.h)
+ICEBERG_numCl  ::  number of iceberg classes that are implemented while compiling the model code
+
+
+
+The advection of the icebergs is based on the seaice advection from package SEAICE
+and GAD_Advection.
+

@@ -26,6 +26,8 @@ C     myThid ::  my Thread Id number
 
       CHARACTER*(MAX_LEN_FNAM) tmpInitialFile
       CHARACTER*(MAX_LEN_FNAM) msgBuf
+      REAL bla1
+
 CEOP
 
 #ifdef ALLOW_ICEBERG
@@ -87,9 +89,25 @@ c      _BARRIER
         tmpInitialFile = ICEBERG_initialFile(iCl)
         IF ( tmpInitialFile .NE. ' ' ) THEN
          CALL READ_FLD_XYZ_RL( tmpInitialFile, ' ',
-     &                         iceberg_distr(1-OLx,1-OLy,1,1,1,iCl), 0,
+     &                         iceberg_distr, 0,
      &                         myThid )
-         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),
+
+      bla1 = 0
+      DO j=1-Oly,sNy+OLy
+         DO i=1-Olx,sNx+Olx
+             bla1 = bla1 + iceberg_distr(i,j,1,1,1,1)
+             IF (iceberg_distr(i,j,1,1,1,1) .NE. 0) THEN
+               PRINT *, 'debug coor', i,j
+             ENDIF
+         ENDDO
+      ENDDO
+
+      PRINT *, 'debug iceberg_distr', bla1
+
+
+
+c         _EXCH_XYZ_RL(iceberg_distr(1-OLx,1-OLy,1,1,1,iCl) , myThid)
+         CALL EXCH_3D_RL( iceberg_distr,
      &                         Nr, myThid )
         ELSE
                 WRITE(msgBuf,'(A)') 'Not enough input files for iceberg
@@ -100,7 +118,7 @@ c      _BARRIER
         ENDIF
        ENDDO
       ENDIF
-      
+
 
 
        IF ( myPa_Scal2File .NE. ' ' ) THEN

@@ -492,7 +492,7 @@ CADJ STORE uvel, vvel        = comlev1, key=ikey_dynamics, kind=isbyte
 C     compute temperature and (virtual) salt flux at the
 C     shelf-ice ocean interface
        CALL TIMER_START('SHELFICE_THERMODYNAMICS [DO_OCEANIC_PHYS]',
-     &       myThid)
+     &      myThid)
        CALL SHELFICE_THERMODYNAMICS( myTime, myIter, myThid )
        CALL TIMER_STOP( 'SHELFICE_THERMODYNAMICS [DO_OCEANIC_PHYS]',
      &      myThid)

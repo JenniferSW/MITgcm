@@ -40,7 +40,7 @@ C     diagTitle :: local string (80c): description of field in diagnostic
       CHARACTER*(80) diagTitle
 
       INTEGER iCl
-      iCl = 1
+
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 
 c     IF ( useDiagnostics ) THEN
@@ -49,6 +49,7 @@ c     IF ( useDiagnostics ) THEN
      &          ,iCl
           diagUnits = 'none            '
           diagCode  = 'SM      MR      '
+C TODO fill unit and diagCode
           CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I            ICEBERG_ClLbl(iCl), diagCode, diagUnits, diagTitle, 
      &            0, myThid )

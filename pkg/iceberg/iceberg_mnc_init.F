@@ -29,6 +29,7 @@ CEOP
 
       IF (useMNC) THEN
 c     fill in iceberg distribution in for using mnc
+C TODO fill in border of classes as Attribute Text
         DO iCl = 1, ICEBERG_numClUsed
           WRITE(ClassName,'(A5,I2)') 'IBCL_',iCl
           CALL MNC_CW_ADD_VNAME(ClassName,

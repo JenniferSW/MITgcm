@@ -30,6 +30,8 @@ C     myIter   :: Current iteration number in simulation
 C     myThid   :: my Thread Id number
       _RL     myTime
       INTEGER myIter, myThid, iCl
+      INTEGER i,j
+      REAL*8 bla1
 CEOP
 
 #ifdef ALLOW_ICEBERG
@@ -40,7 +42,19 @@ C     !LOCAL VARIABLES:
 
 #ifdef ICEBERG_3D_STATE
 c     Loop over iceberg size classes and write them to diagnostics
+      bla1 = 0
+      DO j=1-Oly,sNy+OLy
+         DO i=1-Olx,sNx+Olx
+             bla1 = bla1 + iceberg_distr(i,j,1,1,1,1)
+         ENDDO
+      ENDDO
+
+      PRINT *, 'iceberg_distr', bla1
+
+
+
          DO iCl = 1, ICEBERG_numClUsed
+C HINT indices for layers are only done for surface layer
            CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                             myThid )

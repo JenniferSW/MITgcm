@@ -51,18 +51,19 @@ c             iceberg_distr(i,j,k,bi,bj,iCl) = 999.
             ENDDO
            ENDDO
 c          ENDDO
+c      CALL ICEBERG_ADV(myTime, myIter, myThid)
 
-       
 c#ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN
 
-c#ifdef ICEBERG_3D_STATE
+#ifdef ICEBERG_3D_STATE
          DO iCl = 1, ICEBERG_numClUsed
            CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
-     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1, 
+     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                            myThid )
          ENDDO
-c#endif /* ICEBERG_3D_STATE */
+
+#endif /* ICEBERG_3D_STATE */
 
       ENDIF
 c#endif /*ALLOW_DIAGNOSTICS*/

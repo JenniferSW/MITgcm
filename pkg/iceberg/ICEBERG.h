@@ -20,16 +20,29 @@ C-    additional parameters:
 c     ICEBERG_ITER0   :: iteration number to start iceberg drift
 c     ICEBERG_numClUsed :: Number of icebergs used in the simulation
 c     ICEBERG_ClLbl   :: Labels for diagnostics output
+c     ICEBERG_deltaTtherm :: Seaice timestep for thermodynamic equations (s)
+c     SEAICEmultiDimAdvection - dummy at the moment
+C
+      LOGICAL SEAICEmultiDimAdvection
+      INTEGER ICEBERGadvScheme
+
 
       LOGICAL myPa_doSwitch1
       LOGICAL myPa_doSwitch2
       INTEGER ICEBERG_Iter0
       INTEGER myPa_index2
       INTEGER ICEBERG_numClUsed
+      _RL ICEBERG_deltaTtherm
       _RL myPa_param1
       _RL myPa_param2
       CHARACTER*(8) ICEBERG_ClLbl(ICEBERG_numCl)
       CHARACTER*(MAX_LEN_FNAM) myPa_string2
+
+
+/* TODO read in size class borders for each class that can be applied by class number
+     Best to have a left and a right border and if one is not read it is the border
+     of the previous of following size class or a default minimum or maximum
+*/
 
 C-    file names for initial conditions:
 C     ICEBERG_initialFile   :: File with initial conditions for icebergs
@@ -45,10 +58,13 @@ C     ICEBERG_initialFile   :: File with initial conditions for icebergs
      &       myPa_StaV_Cgrid, myPa_Tend_Cgrid,
      &       myPa_applyTendT, myPa_applyTendS,
      &       myPa_applyTendU, myPa_applyTendV,
-     &       myPa_doSwitch1, myPa_doSwitch2
-      COMMON /MYPA_PARAMS_I/ ICEBERG_Iter0, myPa_index2,
+     &       myPa_doSwitch1, myPa_doSwitch2,
+     &       SEAICEmultiDimAdvection
+      COMMON /MYPA_PARAMS_I/ ICEBERGadvScheme,
+     &       ICEBERG_Iter0, myPa_index2,
      &       ICEBERG_numClUsed
-      COMMON /MYPA_PARAMS_R/ myPa_param1, myPa_param2
+      COMMON /MYPA_PARAMS_R/ ICEBERG_deltaTtherm,
+     &       myPa_param1, myPa_param2
       COMMON /MYPA_PARAMS_C/ ICEBERG_ClLbl, myPa_string2,
      &       ICEBERG_initialFile, myPa_Scal2File,
      &       myPa_VelUFile,  myPa_VelVFile,
