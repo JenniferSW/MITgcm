@@ -21,6 +21,8 @@ core
 *.pyc
 # OSX system files
 .DS_store
+# Jetbrains IDE
+.idea/
 
 /doc/_build/
 
