@@ -33,6 +33,7 @@ C     myThid               :: thread number
 C     !LOCAL VARIABLES:
 C     i,j,k,bi,bj,iTracer  :: loop indices
       INTEGER i,j,k,bi,bj,iTracer
+      REAL bla1
 #ifdef PTRACERS_ALLOW_DYN_STATE
       INTEGER n
 #endif
@@ -103,6 +104,22 @@ C     Now read initial conditions and always exchange
         ENDIF
        ENDDO
       ENDIF
+
+      DO bj = myByLo(myThid), myByHi(myThid)
+       DO bi = myBxLo(myThid), myBxHi(myThid)
+        DO j = 1-OLy,sNy+OLy
+         DO i = 1-OLx,sNx+Olx
+           bla1 = bla1 + pTracer(i,j,1,bi,bj,1)
+
+           IF (pTracer(i,j,1,bi,bj,1) .NE. 0) THEN
+            PRINT *, 'debug coor', i, j
+           ENDIF
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
+       PRINT *, 'debug iceberg_distr' , bla1
+
 
 C     Apply mask
       DO iTracer = 1, PTRACERS_numInUse

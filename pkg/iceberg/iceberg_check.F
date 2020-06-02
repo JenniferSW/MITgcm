@@ -36,42 +36,28 @@ C     msgBuf   :: Informational/error message buffer
      &                     SQUEEZE_RIGHT , 1)
 
 C--  Print out some kee parameters :
-       CALL WRITE_0D_L( myPa_StaV_Cgrid, INDEX_NONE,
-     &  'myPa_StaV_Cgrid =', ' /* state vector on C-grid */')
-       CALL WRITE_0D_L( myPa_Tend_Cgrid, INDEX_NONE,
-     &  'myPa_Tend_Cgrid =', ' /* vector tendency on C-grid */')
-       CALL WRITE_0D_L( myPa_applyTendT, INDEX_NONE,
-     &  'myPa_applyTendT =',
-     &  ' /* apply MYPA tendency to Temperature Eq.*/')
-       CALL WRITE_0D_L( myPa_applyTendS, INDEX_NONE,
-     &  'myPa_applyTendS =',
-     &  ' /* apply MYPA tendency to Salinity Eq.*/')
-       CALL WRITE_0D_L( myPa_applyTendU, INDEX_NONE,
-     &  'myPa_applyTendU =',
-     &  ' /* apply MYPA tendency to U momentum Eq.*/')
-       CALL WRITE_0D_L( myPa_applyTendV, INDEX_NONE,
-     &  'myPa_applyTendV =',
-     &  ' /* apply MYPA tendency to V momentum Eq.*/')
+       CALL WRITE_0D_L( ICEBERG_numClUsed, INDEX_NONE,
+     &  'ICEBERG_numClUsed =', ' /* number of used size classes */')
+       CALL WRITE_0D_L( ICEBERG_Iter0, INDEX_NONE,
+     &  'ICEBERG_Iter0 =', ' /* Start time of iceberg simulation */')
+
 C-   add some other as example:
-c       CALL WRITE_0D_I( myPa_index1, INDEX_NONE, ' myPa_index1 =',
+c       CALL WRITE_0D_RL( myPa_param1, INDEX_NONE, ' myPa_param1 =',
 c     &  ' /* user defined parameter */')
-       CALL WRITE_0D_RL( myPa_param1, INDEX_NONE, ' myPa_param1 =',
-     &  ' /* user defined parameter */')
-c       CALL WRITE_0D_C( myPa_string1,-1,INDEX_NONE,'myPa_string1 =',
-c     &  ' /* user defined parameter */')
+
 
 C--  Check parameters:
 
 C-     Put stops here if some flags are wrongly chosen.
 C-     For example, require this package to use tempStepping
-       IF ( .NOT.tempStepping .AND. myPa_applyTendT ) THEN
-        WRITE(msgBuf,'(A)') 'An example requirement is:'
-        CALL PRINT_ERROR( msgBuf , 1)
-        WRITE(msgBuf,'(A)') 'myPa_applyTendT needs tempStepping=.true.'
-        CALL PRINT_ERROR( msgBuf , 1)
-        CALL ALL_PROC_DIE( 0 )
-        STOP 'ABNORMAL END: S/R ICEBERG_CHECK'
-       ENDIF
+c       IF ( .NOT.tempStepping .AND. myPa_applyTendT ) THEN
+c        WRITE(msgBuf,'(A)') 'An example requirement is:'
+c        CALL PRINT_ERROR( msgBuf , 1)
+c        WRITE(msgBuf,'(A)') 'myPa_applyTendT needs tempStepping=.true.'
+c        CALL PRINT_ERROR( msgBuf , 1)
+c        CALL ALL_PROC_DIE( 0 )
+c        STOP 'ABNORMAL END: S/R ICEBERG_CHECK'
+c       ENDIF
 
       _END_MASTER(myThid)
 

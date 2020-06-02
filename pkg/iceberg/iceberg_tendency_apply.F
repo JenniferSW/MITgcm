@@ -51,24 +51,24 @@ CEOP
 C     !LOCAL VARIABLES:
       INTEGER i, j
 
-      IF ( myPa_applyTendU .AND. myPa_Tend_Cgrid ) THEN
-        DO j=jMin,jMax
-         DO i=iMin,iMax
-          gU_arr(i,j) = gU_arr(i,j)
-     &     + maskW(i,j,k,bi,bj) * myPa_TendVelU(i,j,k,bi,bj)
-         ENDDO
-        ENDDO
-      ELSEIF ( myPa_applyTendU ) THEN
+c      IF ( myPa_applyTendU .AND. myPa_Tend_Cgrid ) THEN
+c        DO j=jMin,jMax
+c         DO i=iMin,iMax
+c          gU_arr(i,j) = gU_arr(i,j)
+c     &     + maskW(i,j,k,bi,bj) * myPa_TendVelU(i,j,k,bi,bj)
+c         ENDDO
+c        ENDDO
+c      ELSEIF ( myPa_applyTendU ) THEN
 C--   Assume Agrid position:
-        DO j=jMin,jMax
-         DO i=iMin,iMax
-          gU_arr(i,j) = gU_arr(i,j)
-     &     + maskW(i,j,k,bi,bj)*( myPa_TendVelU(i-1,j,k,bi,bj)
-     &                           +myPa_TendVelU( i ,j,k,bi,bj)
-     &                          )*0.5 _d 0
-         ENDDO
-        ENDDO
-      ENDIF
+c        DO j=jMin,jMax
+c         DO i=iMin,iMax
+c          gU_arr(i,j) = gU_arr(i,j)
+c     &     + maskW(i,j,k,bi,bj)*( myPa_TendVelU(i-1,j,k,bi,bj)
+c     &                           +myPa_TendVelU( i ,j,k,bi,bj)
+c     &                          )*0.5 _d 0
+c         ENDDO
+c        ENDDO
+c      ENDIF
 
 #endif /* ICEBERG_TENDENCY */
 
@@ -120,24 +120,24 @@ CEOP
 C     !LOCAL VARIABLES:
       INTEGER i, j
 
-      IF ( myPa_applyTendV .AND. myPa_Tend_Cgrid ) THEN
-        DO j=jMin,jMax
-         DO i=iMin,iMax
-          gV_arr(i,j) = gV_arr(i,j)
-     &     + maskS(i,j,k,bi,bj) * myPa_TendVelV(i,j,k,bi,bj)
-         ENDDO
-        ENDDO
-      ELSEIF ( myPa_applyTendV ) THEN
+c      IF ( myPa_applyTendV .AND. myPa_Tend_Cgrid ) THEN
+c        DO j=jMin,jMax
+c         DO i=iMin,iMax
+c          gV_arr(i,j) = gV_arr(i,j)
+c     &     + maskS(i,j,k,bi,bj) * myPa_TendVelV(i,j,k,bi,bj)
+c         ENDDO
+c        ENDDO
+c      ELSEIF ( myPa_applyTendV ) THEN
 C--   Assume Agrid position:
-        DO j=jMin,jMax
-         DO i=iMin,iMax
-          gV_arr(i,j) = gV_arr(i,j)
-     &     + maskS(i,j,k,bi,bj)*( myPa_TendVelV(i,j-1,k,bi,bj)
-     &                           +myPa_TendVelV(i, j ,k,bi,bj)
-     &                          )*0.5 _d 0
-         ENDDO
-        ENDDO
-      ENDIF
+c        DO j=jMin,jMax
+c         DO i=iMin,iMax
+c          gV_arr(i,j) = gV_arr(i,j)
+c     &     + maskS(i,j,k,bi,bj)*( myPa_TendVelV(i,j-1,k,bi,bj)
+c     &                           +myPa_TendVelV(i, j ,k,bi,bj)
+c     &                          )*0.5 _d 0
+c         ENDDO
+c        ENDDO
+c      ENDIF
 
 #endif /* ICEBERG_TENDENCY */
 
@@ -188,14 +188,14 @@ CEOP
 C     !LOCAL VARIABLES:
       INTEGER i, j
 
-      IF ( myPa_applyTendT ) THEN
-        DO j=jMin,jMax
-         DO i=iMin,iMax
-          gT_arr(i,j) = gT_arr(i,j)
-     &     + maskC(i,j,k,bi,bj) * myPa_TendScal1(i,j,k,bi,bj)
-         ENDDO
-        ENDDO
-      ENDIF
+c      IF ( myPa_applyTendT ) THEN
+c        DO j=jMin,jMax
+c         DO i=iMin,iMax
+c          gT_arr(i,j) = gT_arr(i,j)
+c     &     + maskC(i,j,k,bi,bj) * myPa_TendScal1(i,j,k,bi,bj)
+c         ENDDO
+c        ENDDO
+c      ENDIF
 
 #endif /* ICEBERG_TENDENCY */
 
@@ -246,14 +246,14 @@ CEOP
 C     !LOCAL VARIABLES:
       INTEGER i, j
 
-      IF ( myPa_applyTendS ) THEN
-        DO j=jMin,jMax
-         DO i=iMin,iMax
-          gS_arr(i,j) = gS_arr(i,j)
-     &     + maskC(i,j,k,bi,bj) * myPa_TendScal2(i,j,k,bi,bj)
-         ENDDO
-        ENDDO
-      ENDIF
+c      IF ( myPa_applyTendS ) THEN
+c        DO j=jMin,jMax
+c         DO i=iMin,iMax
+c          gS_arr(i,j) = gS_arr(i,j)
+c     &     + maskC(i,j,k,bi,bj) * myPa_TendScal2(i,j,k,bi,bj)
+c         ENDDO
+c        ENDDO
+c      ENDIF
 
 #endif /* ICEBERG_TENDENCY */
 

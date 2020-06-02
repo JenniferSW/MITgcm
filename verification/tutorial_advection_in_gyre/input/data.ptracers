@@ -11,6 +11,6 @@
  PTRACERS_diffK4=0.E9,
  PTRACERS_diffKr=0.,
  PTRACERS_Iter0=259200,
- PTRACERS_initialFile(1)='dye.bin',
+ PTRACERS_initialFile(1)='test_dye.bin',
  PTRACERS_names(1)='Dye',
  &

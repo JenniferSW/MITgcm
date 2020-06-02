@@ -37,7 +37,6 @@ CEOP
       bi = 1
       bj = 1
       k = 1
-      iCl = 1
 c      i = 1
 c      j = 1
 
@@ -53,7 +52,7 @@ c             iceberg_distr(i,j,k,bi,bj,iCl) = 999.
 c          ENDDO
 
        
-c#ifdef ALLOW_DIAGNOSTICS
+#ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN
 
 c#ifdef ICEBERG_3D_STATE
@@ -65,7 +64,7 @@ c#ifdef ICEBERG_3D_STATE
 c#endif /* ICEBERG_3D_STATE */
 
       ENDIF
-c#endif /*ALLOW_DIAGNOSTICS*/
+#endif /*ALLOW_DIAGNOSTICS*/
 
       
 

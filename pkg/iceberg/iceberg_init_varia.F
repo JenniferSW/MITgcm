@@ -24,7 +24,7 @@ C     !INPUT/OUTPUT PARAMETERS:
 C     myThid ::  my Thread Id number
       INTEGER myThid
 
-      CHARACTER*(MAX_LEN_FNAM) tmpInitialFile
+
       CHARACTER*(MAX_LEN_FNAM) msgBuf
 CEOP
 
@@ -32,7 +32,11 @@ CEOP
 
 C     !LOCAL VARIABLES:
 C     === Local variables ===
+      CHARACTER*(MAX_LEN_FNAM) tmpInitialFile
+
       INTEGER i,j,k,bi,bj,iCl
+
+      REAL bla1
 
       DO bj = myByLo(myThid), myByHi(myThid)
        DO bi = myBxLo(myThid), myBxHi(myThid)
@@ -46,15 +50,10 @@ C     3-dim.
            DO iCl = 1,ICEBERG_numClUsed
             iceberg_distr(i,j,k,bi,bj,iCl) = 0. _d 0
            ENDDO
-           myPa_StatScal2(i,j,k,bi,bj) = 0. _d 0
-           myPa_StatVelU (i,j,k,bi,bj) = 0. _d 0
-           myPa_StatVelV (i,j,k,bi,bj) = 0. _d 0
+
 #endif /* ICEBERG_3D_STATE */
 #ifdef ICEBERG_TENDENCY
-           myPa_TendScal1(i,j,k,bi,bj) = 0. _d 0
-           myPa_TendScal2(i,j,k,bi,bj) = 0. _d 0
-           myPa_TendVelU (i,j,k,bi,bj) = 0. _d 0
-           myPa_TendVelV (i,j,k,bi,bj) = 0. _d 0
+
 #endif /* ICEBERG_TENDENCY */
           ENDDO
          ENDDO
@@ -62,12 +61,7 @@ C     3-dim.
 
 C     2-dim.
 #ifdef ICEBERG_2D_STATE
-        DO j=1-Oly,sNy+OLy
-         DO i=1-Olx,sNx+Olx
-          myPa_Surf1(i,j,bi,bj) = 0. _d 0
-          myPa_Surf2(i,j,bi,bj) = 0. _d 0
-         ENDDO
-        ENDDO
+
 #endif /* ICEBERG_2D_STATE */
 
 C- end bi,bj loops
@@ -84,13 +78,32 @@ c      _BARRIER
 #ifdef ICEBERG_3D_STATE
       IF (nIter0 .EQ.ICEBERG_Iter0) THEN
        DO iCl = 1, ICEBERG_numClUsed
+
         tmpInitialFile = ICEBERG_initialFile(iCl)
         IF ( tmpInitialFile .NE. ' ' ) THEN
          CALL READ_FLD_XYZ_RL( tmpInitialFile, ' ',
-     &                         iceberg_distr(1-OLx,1-OLy,1,1,1,iCl), 0,
+     &                         iceberg_distr, 0,
      &                         myThid )
-         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),
+c         _EXCH_XYZ_RL(iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),myThid)
+         CALL EXCH_XYZ_RL( iceberg_distr,
      &                         Nr, myThid )
+
+
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO j = 1-OLy,sNy+OLy
+            DO i = 1-OLx,sNx+Olx
+              bla1 = bla1 + iceberg_distr(i,j,1,bi,bj,iCl)
+
+              IF (iceberg_distr(i,j,1,bi,bj,iCl) .NE. 0) THEN
+               PRINT *, 'debug coor', i, j
+              ENDIF
+            ENDDO
+           ENDDO
+          ENDDO
+         ENDDO
+         PRINT *, 'debug iceberg_distr' , bla1
+
         ELSE
                 WRITE(msgBuf,'(A)') 'Not enough input files for iceberg
      &           classes. Make sure every iceberg class has one input
@@ -100,47 +113,11 @@ c      _BARRIER
         ENDIF
        ENDDO
       ENDIF
-      
 
-
-       IF ( myPa_Scal2File .NE. ' ' ) THEN
-         CALL READ_FLD_XYZ_RL( myPa_Scal2File, ' ',
-     &                         myPa_StatScal2, 0, myThid )
-         CALL EXCH_3D_RL( myPa_StatScal2, Nr, myThid )
-       ENDIF
-
-       IF ( myPa_VelUFile .NE. ' ' ) THEN
-         CALL READ_FLD_XYZ_RL( myPa_VelUFile, ' ',
-     &                         myPa_StatVelU, 0, myThid )
-       ENDIF
-       IF ( myPa_VelVFile .NE. ' ' ) THEN
-         CALL READ_FLD_XYZ_RL( myPa_VelVFile, ' ',
-     &                         myPa_StatVelV, 0, myThid )
-       ENDIF
-       IF ( myPa_VelUFile .NE. ' ' .OR.
-     &      myPa_VelVFile .NE. ' ' ) THEN
-        IF ( myPa_StaV_Cgrid ) THEN
-         CALL EXCH_UV_3D_RL( myPa_StatVelU, myPa_StatVelV,
-     &                       .TRUE., Nr, myThid )
-        ELSE
-C-      Assume Agrid position:
-         CALL EXCH_UV_AGRID_3D_RL( myPa_StatVelU, myPa_StatVelV,
-     &                       .TRUE., Nr, myThid )
-        ENDIF
-       ENDIF
 #endif /* ICEBERG_3D_STATE */
 
 #ifdef ICEBERG_2D_STATE
-       IF ( myPa_Surf1File .NE. ' ' ) THEN
-         CALL READ_FLD_XY_RL( myPa_Surf1File,' ',
-     &                        myPa_Surf1, 0, myThid )
-         CALL EXCH_XY_RL( myPa_Surf1, myThid )
-       ENDIF
-       IF ( myPa_Surf2File .NE. ' ' ) THEN
-         CALL READ_FLD_XY_RL( myPa_Surf2File,' ',
-     &                        myPa_Surf2, 0, myThid )
-         CALL EXCH_XY_RL( myPa_Surf2, myThid )
-       ENDIF
+
 #endif /* ICEBERG_2D_STATE */
 
       ELSE
