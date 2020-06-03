@@ -502,7 +502,7 @@ C     shelf-ice ocean interface
 #ifdef ALLOW_ICEBERG
       IF ( useICEBERG ) THEN
               CALL TIMER_START('ICEBERG [DO_OCEANIC_PHYS]',myThid)
-              CALL ICEBERG_CALC_RHS(myTime,myIter,myThid)
+              CALL ICEBERG_CALC_RHS( myTime, myIter, myThid )
               CALL TIMER_STOP('ICEBERG [DO_OCEANIC_PHYS]',myThid)
       ENDIF
 #endif

@@ -77,6 +77,7 @@ C     record number < 0 : a hack not to write meta files now:
         DO iCl = 1, ICEBERG_numClUsed
          WRITE(fldname,'(A5,I2)') 'IBCL_', iCl
          j = j + 1
+
          CALL WRITE_REC_3D_RL( fn, fp, Nr,
      C                         iceberg_distr(1-OLx,1-OLy,1,1,1,iCl)
      &                         , -j, myIter, myThid )
@@ -84,37 +85,13 @@ C     record number < 0 : a hack not to write meta files now:
         ENDDO
 
 
-
-        j = j + 1
-        CALL WRITE_REC_3D_RL( fn, fp, Nr,
-     &                        myPa_StatScal2, -j, myIter, myThid )
-        IF (j.LE.listDim) wrFldList(j) = 'myPaSta2'
-
-        j = j + 1
-        CALL WRITE_REC_3D_RL( fn, fp, Nr,
-     &                        myPa_StatVelU, -j, myIter, myThid )
-        IF (j.LE.listDim) wrFldList(j) = 'myPaStaU'
-        j = j + 1
-        CALL WRITE_REC_3D_RL( fn, fp, Nr,
-     &                        myPa_StatVelV, -j, myIter, myThid )
-        IF (j.LE.listDim) wrFldList(j) = 'myPaStaV'
 #endif /* ICEBERG_3D_STATE */
 
 C-    switch to 2-D fields:
         nj = -j*Nr
 
 #ifdef ICEBERG_2D_STATE
-        j = j + 1
-        nj = nj-1
-        CALL WRITE_REC_3D_RL( fn, fp, 1,
-     &                        myPa_Surf1, nj, myIter, myThid )
-        IF (j.LE.listDim) wrFldList(j) = 'myPaSur1'
 
-        j = j + 1
-        nj = nj-1
-        CALL WRITE_REC_3D_RL( fn, fp, 1,
-     &                        myPa_Surf2, nj, myIter, myThid )
-        IF (j.LE.listDim) wrFldList(j) = 'myPaSur2'
 #endif /* ICEBERG_2D_STATE */
 
 C--------------------------

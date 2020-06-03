@@ -31,21 +31,13 @@ C     iUnit      :: Work variable for IO unit number
       INTEGER iUnit, iCl
 
       NAMELIST /ICEBERG_PARM01/
-     &       myPa_MNC,
-     &       myPa_StaV_Cgrid, myPa_Tend_Cgrid,
-     &       myPa_applyTendT, myPa_applyTendS,
-     &       myPa_applyTendU, myPa_applyTendV,
-     &       myPa_doSwitch1,  myPa_doSwitch2,
-     &       ICEBERG_Iter0,     myPa_index2,
-     &       ICEBERG_numClUsed,     myPa_param2,
+     &       ICEBERG_Iter0,
+     &       ICEBERG_numClUsed,
 C HINT if not used later ICEBERG_deltaTtherm has to be deleted
 
      &       ICEBERG_deltaTtherm,
      &       SEAICEmultiDimAdvection,ICEBERGadvScheme,
-c     &       myPa_string1,    myPa_string2,
-     &       ICEBERG_initialFile,  myPa_Scal2File,
-     &       myPa_VelUFile,   myPa_VelVFile,
-     &       myPa_Surf1File,  myPa_Surf2File
+     &       ICEBERG_initialFile
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -60,34 +52,18 @@ C     print a (weak) warning if data.iceberg is found
       _BEGIN_MASTER(myThid)
 
 C--   Default values for ICEBERG
-      myPa_MNC         = useMNC
-      myPa_StaV_Cgrid  = .TRUE.
-      myPa_Tend_Cgrid  = .TRUE.
-      myPa_applyTendT  = .FALSE.
-      myPa_applyTendS  = .FALSE.
-      myPa_applyTendU  = .FALSE.
-      myPa_applyTendV  = .FALSE.
+
 C-    additional parameters:
-      myPa_doSwitch1   = .FALSE.
-      myPa_doSwitch2   = .FALSE.
       ICEBERG_Iter0      = 0
-      myPa_index2      = 0
       ICEBERG_numClUsed = -1
-      myPa_param2      = 0. _d 0
       ICEBERG_deltaTtherm = dTtracerLev(1)
       SEAICEmultiDimAdvection = .TRUE.
       ICEBERGadvScheme = 77
-c      myPa_string1     = ' '
-      myPa_string2     = ' '
+
 C-    file names for initial conditions:
       DO iCl = 1, ICEBERG_numCl
         ICEBERG_initialFile(iCl)   = ' '
       ENDDO
-      myPa_Scal2File   = ' '
-      myPa_VelUFile    = ' '
-      myPa_VelVFile    = ' '
-      myPa_Surf1File   = ' '
-      myPa_Surf2File   = ' '
 
       WRITE(msgBuf,'(A)') 'ICEBERG_READPARMS: opening data.iceberg'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
@@ -143,12 +119,12 @@ C     Create diagnostics labels
 
 
 C     Make sure that we locally honor the global MNC on/off flag
-      myPa_MNC = myPa_MNC .AND. useMNC
+
 #ifndef ALLOW_MNC
 C     Fix to avoid running without getting any output:
-      myPa_MNC = .FALSE.
+
 #endif
-      myPa_MDSIO = (.NOT. myPa_MNC) .OR. outputTypesInclusive
+
 
       _END_MASTER(myThid)
 

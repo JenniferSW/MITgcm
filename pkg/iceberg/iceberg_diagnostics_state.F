@@ -29,13 +29,18 @@ C     myTime   :: Current time of simulation ( s )
 C     myIter   :: Current iteration number in simulation
 C     myThid   :: my Thread Id number
       _RL     myTime
-      INTEGER myIter, myThid, iCl
+      INTEGER myIter, myThid
+
       INTEGER i,j
       REAL*8 bla1
 CEOP
 
 #ifdef ALLOW_ICEBERG
 C     !LOCAL VARIABLES:
+c     iCl  ::  loop parameter for size classes
+
+      INTEGER iCl
+
 
 #ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN
@@ -60,19 +65,10 @@ C HINT indices for layers are only done for surface layer
      &                             myThid )
          ENDDO
 
-         CALL DIAGNOSTICS_FILL( mypa_StatScal2,'MYPaSta2',
-     &                          0,Nr, 0, 1, 1, myThid )
-         CALL DIAGNOSTICS_FILL( mypa_StatVelU, 'MYPaStaU',
-     &                          0,Nr, 0, 1, 1, myThid )
-         CALL DIAGNOSTICS_FILL( mypa_StatVelV, 'MYPaStaV',
-     &                          0,Nr, 0, 1, 1, myThid )
 #endif /* ICEBERG_3D_STATE */
 
 #ifdef ICEBERG_2D_STATE
-         CALL DIAGNOSTICS_FILL( mypa_Surf1 ,   'MYPaSur1',
-     &                          0, 1, 0, 1, 1, myThid )
-         CALL DIAGNOSTICS_FILL( mypa_Surf2 ,   'MYPaSur2',
-     &                          0, 1, 0, 1, 1, myThid )
+
 #endif /* ICEBERG_2D_STATE */
 
       ENDIF

@@ -139,26 +139,15 @@ C---    read ICEBERG 3-D fields for restart
          CALL READ_MFLDS_3D_RL( pickup_distr,
      C                   iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),
      &                   nj, fp, Nr, myIter, myThid )
-         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-Oly,1,1,1,iCl), 
+         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-Oly,1,1,1,iCl),
      &                   Nr, myThid )
-
-
         ENDDO
 
-        CALL READ_MFLDS_3D_RL( 'myPaSta2', myPa_StatScal2,
-     &                                 nj, fp, Nr, myIter, myThid )
-        CALL READ_MFLDS_3D_RL( 'myPaStaU', myPa_StatVelU,
-     &                                 nj, fp, Nr, myIter, myThid )
-        CALL READ_MFLDS_3D_RL( 'myPaStaV', myPa_StatVelV,
-     &                                 nj, fp, Nr, myIter, myThid )
 #endif /* ICEBERG_3D_STATE */
         nj = nj*Nr
 C---    read ICEBERG 2-D fields for restart
 #ifdef ICEBERG_2D_STATE
-        CALL READ_MFLDS_3D_RL( 'myPaSur1', myPa_Surf1,
-     &                                 nj, fp, 1 , myIter, myThid )
-        CALL READ_MFLDS_3D_RL( 'myPaSur2', myPa_Surf2,
-     &                                 nj, fp, 1 , myIter, myThid )
+
 #endif /* ICEBERG_2D_STATE */
 
 C--    end: new way to read pickup file
@@ -191,19 +180,10 @@ C--    Check for missing fields:
 C--    Update overlap regions:
 #ifdef ICEBERG_3D_STATE
 
-        CALL EXCH_3D_RL( myPa_StatScal2, Nr, myThid )
-        IF ( myPa_StaV_Cgrid ) THEN
-         CALL EXCH_UV_3D_RL( myPa_StatVelU, myPa_StatVelV,
-     &                       .TRUE., Nr, myThid )
-        ELSE
-C-      Assume Agrid position:
-         CALL EXCH_UV_AGRID_3D_RL( myPa_StatVelU, myPa_StatVelV,
-     &                       .TRUE., Nr, myThid )
-        ENDIF
+
 #endif /* ICEBERG_3D_STATE */
 #ifdef ICEBERG_2D_STATE
-        CALL EXCH_XY_RL( myPa_Surf1, myThid )
-        CALL EXCH_XY_RL( myPa_Surf2, myThid )
+
 #endif /* ICEBERG_2D_STATE */
 
 #endif /* ICEBERG_3D_STATE or ICEBERG_2D_STATE */

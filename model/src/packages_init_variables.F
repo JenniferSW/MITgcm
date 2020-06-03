@@ -337,7 +337,7 @@ C--   Initialise float position
 
 #ifdef ALLOW_ICEBERG
       IF (useICEBERG) THEN
-              CALL ICEBERG_INIT_VARIA(myThid)
+              CALL ICEBERG_INIT_VARIA( myThid )
       ENDIF
 #endif /*ALLOW_ICEBERG*/
 
