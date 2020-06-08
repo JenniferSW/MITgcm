@@ -82,10 +82,13 @@ C HINT at the moment the velocities are taken from the model as the surface velo
        DO bi=myBxLo(myThid),myBxHi(myThid)
         DO j=1-OLy,sNy+OLy
          DO i=1-OLx,sNx+OLx
-          uc(i,j,bi,bj)=uVel(i,j,1,bi,bj)
-          vc(i,j,bi,bj)=vVel(i,j,1,bi,bj)
+          uc(i,j,bi,bj)=uVel(i,j,1,bi,bj)*10000000
+          vc(i,j,bi,bj)=vVel(i,j,1,bi,bj)*10000000
          ENDDO
         ENDDO
+
+        PRINT *,'debug velocities u', uc
+        PRINT*, 'debug velocities v', vc
 
 C-    compute cell areas used by all tracers
         DO j=1-OLy,sNy+OLy
@@ -146,6 +149,8 @@ C uc, vc filled with ocean surface velocity
 C
 C dummy variables - uTrans, vTrans, recip_heff, afx, afy
 
+
+
           CALL ICEBERG_ADVECTION(
      I         GAD_HEFF, ICEBERGadvScheme,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
@@ -174,8 +179,7 @@ C HINT Maybe diagnostics has to be moved into bi, bj loop
        PRINT *, 'foobar'
        PRINT *, gFld(i,j)
        DO iCl = 1, ICEBERG_numClUsed
-           CALL DIAGNOSTICS_FILL(gFld(i,j),
-c           iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
+           CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                            myThid )
        ENDDO

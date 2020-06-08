@@ -9,22 +9,22 @@ c     &                     myPa_MNC, myPa_MDSIO
 
 
 C     ICEBERG parameters
-C TODO sort parameters into ICEBERG and additional parameters
-
-
-C-    additional parameters:
+/* TODO sort parameters into ICEBERG and additional parameters */
 c     ICEBERG_ITER0   :: iteration number to start iceberg drift
 c     ICEBERG_numClUsed :: Number of icebergs used in the simulation
-c     ICEBERG_ClLbl   :: Labels for diagnostics output
 c     ICEBERG_deltaTtherm :: Seaice timestep for thermodynamic equations (s)
-c     SEAICEmultiDimAdvection - dummy at the moment
-C
-      LOGICAL SEAICEmultiDimAdvection
-      INTEGER ICEBERGadvScheme
-
+c     ICEBERGadvScheme  ::  Scheme for calculating the advection
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
+      INTEGER ICEBERGadvScheme
+
+
+C-    additional parameters:
+c     ICEBERG_ClLbl   :: Labels for diagnostics output
+c     SEAICEmultiDimAdvection - dummy at the moment
+C
+      LOGICAL SEAICEmultiDimAdvection
       _RL ICEBERG_deltaTtherm
       CHARACTER*(8) ICEBERG_ClLbl(ICEBERG_numCl)
 

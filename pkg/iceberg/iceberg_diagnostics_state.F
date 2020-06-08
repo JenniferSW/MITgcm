@@ -32,7 +32,7 @@ C     myThid   :: my Thread Id number
       INTEGER myIter, myThid
 
       INTEGER i,j
-      REAL*8 bla1
+
 CEOP
 
 #ifdef ALLOW_ICEBERG
@@ -47,16 +47,6 @@ c     iCl  ::  loop parameter for size classes
 
 #ifdef ICEBERG_3D_STATE
 c     Loop over iceberg size classes and write them to diagnostics
-      bla1 = 0
-      DO j=1-Oly,sNy+OLy
-         DO i=1-Olx,sNx+Olx
-             bla1 = bla1 + iceberg_distr(i,j,1,1,1,1)
-         ENDDO
-      ENDDO
-
-      PRINT *, 'iceberg_distr', bla1
-
-
 
          DO iCl = 1, ICEBERG_numClUsed
 C HINT indices for layers are only done for surface layer

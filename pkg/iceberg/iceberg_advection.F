@@ -147,8 +147,7 @@ C      EXTERNAL    SEAICE_DIAG_SUFX
       LOGICAL dBug
       INTEGER ioUnit
       _RL tmpFac
-      REAL bla1
-      REAL bla2
+
 CEOP
 
 c      PRINT *, 'adv uFld', uFld
@@ -295,21 +294,13 @@ C     Content of CALC_COMMON_FACTORS, adapted for 2D fields
 C--   Get temporary terms used by tendency routines
 
 
-      bla1 = 0.0
-      bla2 = 0.0
+
 C--   Make local copy of sea-ice field and mask West & South
 C from GAD_ADVECTION adapted for SIMask
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
          localTij(i,j)=iceFld(i,j)
 
-
-
-c         bla1 = bla1 + iceFld(i,j)
-c         bla2 = bla2 + localTij(i,j)
-c         IF ( iceFld(i,j) .GT. 0) THEN
-c          PRINT *, 'Iceberg at', i, j, iceFld(i,j)
-c         ENDIF
 
 #ifdef ALLOW_OBCS
 C SImaskU is maskW at the Surface
@@ -332,8 +323,6 @@ c         maskLocS(i,j) = SIMaskV(i,j,bi,bj)
        ENDDO
       ENDDO
 
-      PRINT *, 'adv bla1', bla1
-      PRINT *, 'adv bla2', bla2
 
 
 #ifdef ALLOW_AUTODIFF_TAMC

@@ -50,7 +50,7 @@ c             iceberg_distr(i,j,k,bi,bj,iCl) = 999.
             ENDDO
            ENDDO
 c          ENDDO
-c      CALL ICEBERG_ADV(myTime, myIter, myThid)
+      CALL ICEBERG_ADV(myTime, myIter, myThid)
 
        
 #ifdef ALLOW_DIAGNOSTICS
