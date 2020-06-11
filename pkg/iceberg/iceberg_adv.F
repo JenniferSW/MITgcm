@@ -57,10 +57,7 @@ C     xA,yA     :: "areas" of X and Y face of tracer cells
       INTEGER i, j, bi, bj, iCl, it
       INTEGER GAD_HEFF
 
-c#ifdef SEAICE_ITD
-c#endif /* SEAICE_ITD */
-c#ifdef ALLOW_SITRACER
-c#endif /* ALLOW_SITRACER */
+
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL afx       (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -87,24 +84,22 @@ C HINT at the moment the velocities are taken from the model as the surface velo
          ENDDO
         ENDDO
 
-        PRINT *,'debug velocities u', uc
-        PRINT*, 'debug velocities v', vc
 
 C-    compute cell areas used by all tracers
         DO j=1-OLy,sNy+OLy
          DO i=1-OLx,sNx+OLx
-          xA(i,j,bi,bj) = 1. _d 0
-          yA(i,j,bi,bj) = 1. _d 0
+c          xA(i,j,bi,bj) = 1. _d 0
+c          yA(i,j,bi,bj) = 1. _d 0
 
 
-c          xA(i,j,bi,bj) = _dyG(i,j,bi,bj)*SIMaskU(i,j,bi,bj)
-c          yA(i,j,bi,bj) = _dxG(i,j,bi,bj)*SIMaskV(i,j,bi,bj)
+          xA(i,j,bi,bj) = _dyG(i,j,bi,bj)*maskW(i,j,1,bi,bj)
+          yA(i,j,bi,bj) = _dxG(i,j,bi,bj)*maskS(i,j,1,bi,bj)
          ENDDO
         ENDDO
        ENDDO
       ENDDO
 
-      IF ( SEAICEmultiDimAdvection ) THEN
+
 C  TODO replace dummy variable also in ICEBERG.h
 
       DO bj=myByLo(myThid),myByHi(myThid)
@@ -127,14 +122,14 @@ C
         ENDDO
 
 C-    Calculate "volume transports" through tracer cell faces.
-C TODO loop over size classes
-        iCl = 1
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-          uTrans(i,j) = uc(i,j,bi,bj)*xA(i,j,bi,bj)
-          vTrans(i,j) = vc(i,j,bi,bj)*yA(i,j,bi,bj)
+C TODO customize velocities for iceberg and then later for size classes
+        DO iCl = 1, ICEBERG_numClUsed
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           uTrans(i,j) = uc(i,j,bi,bj)*xA(i,j,bi,bj)
+           vTrans(i,j) = vc(i,j,bi,bj)*yA(i,j,bi,bj)
+          ENDDO
          ENDDO
-        ENDDO
 C C TODO customize ICEBERG_ADVECTION
 C ICEBERG_ADVECTION(tracerIdentity, advectionScheme, uFld, vFl, uTrans, vTrans
 C                   iceFld, r_hFld, gFld, afx, afy, bi, bj, myTime, myIter, myThid)
@@ -144,55 +139,34 @@ C iceFld - input iceberg distribution field
 C r_hFld - ????? input reciprocal of ice thickness
 C gFld - output tendency of icebergs used to do the advection
 C afx, afy - horizontal advective flux
-
-C uc, vc filled with ocean surface velocity
-C
-C dummy variables - uTrans, vTrans, recip_heff, afx, afy
-
-
-
-          CALL ICEBERG_ADVECTION(
+           CALL ICEBERG_ADVECTION(
      I         GAD_HEFF, ICEBERGadvScheme,
      I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I         uTrans, vTrans, iceberg_distr(1-OLx,1-OLy,1,bi,bj,iCl),
+     I         uTrans, vTrans, iceberg_distr(1-OLx,1-OLy,bi,bj,iCl),
      I         recip_heff,
      O         gFld, afx, afy,
      I         bi, bj, myTime, myIter, myThid )
 C     now do the "explicit" time step
-          DO j=1,sNy
-           DO i=1,sNx
-            iceberg_distr(i,j,1,bi,bj,iCl) =
-     &           iceberg_distr(i,j,1,bi,bj,iCl) + ICEBERG_deltaTtherm
+           DO j=1,sNy
+            DO i=1,sNx
+             iceberg_distr(i,j,bi,bj,iCl) =
+     &           iceberg_distr(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
      &           * gFld(i,j)
 
+            ENDDO
            ENDDO
-          ENDDO
-
-C        ENDIF
-
-
+        ENDDO
 C---   end bi,bj loops
         ENDDO
        ENDDO
 C HINT Maybe diagnostics has to be moved into bi, bj loop
 
-       PRINT *, 'foobar'
-       PRINT *, gFld(i,j)
        DO iCl = 1, ICEBERG_numClUsed
-           CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
+           CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                            myThid )
        ENDDO
 
-
-C      ENDDO
-
-
-C      ELSE
-C       STOP 'undefined advection scheme'
-
-C--   end if multiDimAdvection
-      ENDIF
 
       RETURN
       END

@@ -45,21 +45,15 @@ c     iCl  ::  loop parameter for size classes
 #ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN
 
-#ifdef ICEBERG_3D_STATE
+
 c     Loop over iceberg size classes and write them to diagnostics
 
          DO iCl = 1, ICEBERG_numClUsed
 C HINT indices for layers are only done for surface layer
-           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
+           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                             myThid )
          ENDDO
-
-#endif /* ICEBERG_3D_STATE */
-
-#ifdef ICEBERG_2D_STATE
-
-#endif /* ICEBERG_2D_STATE */
 
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */

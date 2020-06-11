@@ -46,15 +46,12 @@ C     3-dim.
         DO k=1,Nr
          DO j=1-Oly,sNy+OLy
           DO i=1-Olx,sNx+Olx
-#ifdef ICEBERG_3D_STATE
+
            DO iCl = 1,ICEBERG_numClUsed
-            iceberg_distr(i,j,k,bi,bj,iCl) = 0. _d 0
+            iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
            ENDDO
 
-#endif /* ICEBERG_3D_STATE */
-#ifdef ICEBERG_TENDENCY
 
-#endif /* ICEBERG_TENDENCY */
           ENDDO
          ENDDO
         ENDDO
@@ -75,21 +72,23 @@ C     Prevent loading of new data before everyone has finished initialisation
 C     this is done within IO routines => no longer needed
 c      _BARRIER
 
-#ifdef ICEBERG_3D_STATE
+
       IF (nIter0 .EQ.ICEBERG_Iter0) THEN
        DO iCl = 1, ICEBERG_numClUsed
 
         tmpInitialFile = ICEBERG_initialFile(iCl)
         IF ( tmpInitialFile .NE. ' ' ) THEN
-         CALL READ_FLD_XYZ_RL( tmpInitialFile, ' ',
+c         CALL READ_FLD_XYZ_RL( tmpInitialFile, ' ',
+c     &                         iceberg_distr, 0,
+c     &                         myThid )
+         CALL READ_FLD_XY_RL( tmpInitialFile, ' ',
      &                         iceberg_distr, 0,
      &                         myThid )
-
       bla1 = 0
       DO j=1-Oly,sNy+OLy
          DO i=1-Olx,sNx+Olx
-             bla1 = bla1 + iceberg_distr(i,j,1,1,1,1)
-             IF (iceberg_distr(i,j,1,1,1,1) .NE. 0) THEN
+             bla1 = bla1 + iceberg_distr(i,j,1,1,1)
+             IF (iceberg_distr(i,j,1,1,1) .NE. 0) THEN
                PRINT *, 'debug coor', i,j
              ENDIF
          ENDDO
@@ -99,9 +98,9 @@ c      _BARRIER
 
 
 
-c         _EXCH_XYZ_RL(iceberg_distr(1-OLx,1-OLy,1,1,1,iCl) , myThid)
-         CALL EXCH_3D_RL( iceberg_distr,
-     &                         Nr, myThid )
+         _EXCH_XY_RL(iceberg_distr , myThid)
+c         CALL EXCH_3D_RL( iceberg_distr,
+c     &                         Nr, myThid )
         ELSE
                 WRITE(msgBuf,'(A)') 'Not enough input files for iceberg
      &           classes. Make sure every iceberg class has one input
@@ -112,11 +111,6 @@ c         _EXCH_XYZ_RL(iceberg_distr(1-OLx,1-OLy,1,1,1,iCl) , myThid)
        ENDDO
       ENDIF
 
-#endif /* ICEBERG_3D_STATE */
-
-#ifdef ICEBERG_2D_STATE
-
-#endif /* ICEBERG_2D_STATE */
 
       ELSE
 C--   restart from a pickup:

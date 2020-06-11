@@ -137,9 +137,9 @@ C---    read ICEBERG 3-D fields for restart
         DO iCl = 1,ICEBERG_numClUsed
          WRITE(pickup_distr,'(A5,I2)') 'IBCL_', iCl
          CALL READ_MFLDS_3D_RL( pickup_distr,
-     C                   iceberg_distr(1-OLx,1-OLy,1,1,1,iCl),
+     C                   iceberg_distr(1-OLx,1-OLy,1,1,iCl),
      &                   nj, fp, Nr, myIter, myThid )
-         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-Oly,1,1,1,iCl),
+         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-Oly,1,1,iCl),
      &                   Nr, myThid )
         ENDDO
 

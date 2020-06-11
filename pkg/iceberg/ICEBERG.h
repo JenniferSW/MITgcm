@@ -22,9 +22,7 @@ c     ICEBERGadvScheme  ::  Scheme for calculating the advection
 
 C-    additional parameters:
 c     ICEBERG_ClLbl   :: Labels for diagnostics output
-c     SEAICEmultiDimAdvection - dummy at the moment
 C
-      LOGICAL SEAICEmultiDimAdvection
       _RL ICEBERG_deltaTtherm
       CHARACTER*(8) ICEBERG_ClLbl(ICEBERG_numCl)
 
@@ -39,8 +37,8 @@ C     ICEBERG_initialFile   :: File with initial conditions for icebergs
 
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialFile(ICEBERG_numCl)
 
-      COMMON /ICEBERG_PARAMS_L/
-     &       SEAICEmultiDimAdvection
+c      COMMON /ICEBERG_PARAMS_L/
+
       COMMON /ICEBERG_PARAMS_I/ ICEBERGadvScheme,
      &       ICEBERG_Iter0,
      &       ICEBERG_numClUsed
@@ -51,20 +49,21 @@ C     ICEBERG_initialFile   :: File with initial conditions for icebergs
 
 #ifdef ICEBERG_3D_STATE
 C     ICEBERG (3D) fields
-C     iceberg_distr    :: field for iceberg distribution
-
-      _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,
-     &  	      nSy,ICEBERG_numCl)
 
 C- Common Block for 3D fields
-      COMMON /ICEBERG_STATE_3D/
-     &    iceberg_distr
+c      COMMON /ICEBERG_STATE_3D/
+
 
 #endif /* ICEBERG_3D_STATE */
+
 #ifdef ICEBERG_2D_STATE
 C     Iceberg 2-dim. fields
+C     iceberg_distr    :: field for iceberg distribution
 
-c      COMMON /ICEBERG_STATE_2D/
+      _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy,ICEBERG_numCl)
+      COMMON /ICEBERG_STATE_2D/
+     &    iceberg_distr
 
 #endif /* ICEBERG_2D_STATE */
 

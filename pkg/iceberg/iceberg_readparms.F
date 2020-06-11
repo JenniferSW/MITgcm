@@ -36,7 +36,7 @@ C     iUnit      :: Work variable for IO unit number
 C HINT if not used later ICEBERG_deltaTtherm has to be deleted
 
      &       ICEBERG_deltaTtherm,
-     &       SEAICEmultiDimAdvection,ICEBERGadvScheme,
+     &       ICEBERGadvScheme,
      &       ICEBERG_initialFile
 
       IF (.NOT.useICEBERG) THEN
@@ -57,7 +57,6 @@ C-    additional parameters:
       ICEBERG_Iter0      = 0
       ICEBERG_numClUsed = -1
       ICEBERG_deltaTtherm = dTtracerLev(1)
-      SEAICEmultiDimAdvection = .TRUE.
       ICEBERGadvScheme = 77
 
 C-    file names for initial conditions:

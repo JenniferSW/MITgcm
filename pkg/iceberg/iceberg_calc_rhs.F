@@ -41,29 +41,18 @@ c      i = 1
 c      j = 1
 
 C--   Calculate custom tendency terms ...
-c         DO k=1,Nr
-           DO j=1-Oly,sNy+Oly
-            DO i=1-Olx,sNx+Olx
-#ifdef ICEBERG_3D_STATE
-c             iceberg_distr(i,j,k,bi,bj,iCl) = 999.
-#endif /* ICEBERG_3D_STATE */
-            ENDDO
-           ENDDO
-c          ENDDO
+
       CALL ICEBERG_ADV(myTime, myIter, myThid)
 
        
 #ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN
-
-#ifdef ICEBERG_3D_STATE
          DO iCl = 1, ICEBERG_numClUsed
-           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,1,iCl),
+           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                            myThid )
          ENDDO
 
-#endif /* ICEBERG_3D_STATE */
 
       ENDIF
 #endif /*ALLOW_DIAGNOSTICS*/

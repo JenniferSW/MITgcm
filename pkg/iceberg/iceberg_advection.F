@@ -19,13 +19,13 @@ C !INTERFACE: ==========================================================
      I     bi, bj, myTime, myIter, myThid)
 
 C !DESCRIPTION:
-C Calculates the tendency of a sea-ice field due to advection.
+C Calculates the tendency of a iceberg field due to advection.
 C It uses the multi-dimensional method given in \ref{sect:multiDimAdvection}
 C and can only be used for the non-linear advection schemes such as the
 C direct-space-time method and flux-limiters.
 C
 C This routine is an adaption of the GAD_ADVECTION for 2D-fields.
-C for Area, effective thickness or other "extensive" sea-ice field,
+C for Area, effective thickness or other "extensive" iceberg field,
 C  the contribution iceFld*div(u) (that is present in gad_advection)
 C  is not included here.
 C
@@ -72,9 +72,9 @@ C  extensiveFld    :: indicates to advect an "extensive" type of ice field
 C  uFld            :: (input) velocity, zonal component
 C  vFld            :: (input) velocity, meridional component
 C  uTrans,vTrans   :: (input) volume transports at U,V points
-C  iceFld          :: (input) sea-ice field
+C  iceFld          :: (input) field of iceberg distribution
 C  r_hFld          :: (input) reciprocal of ice-thickness (only used for "intensive"
-C                     type of sea-ice field)
+C                     type of iceberg field)
 C  bi,bj           ::  tile indices
 C  myTime          :: current time
 C  myIter          :: iteration number
@@ -106,11 +106,11 @@ C  maskLocW      :: 2-D array for mask at West points
 C  maskLocS      :: 2-D array for mask at South points
 C  iMin,iMax,    :: loop range for called routines
 C  jMin,jMax     :: loop range for called routines
-C [iMin,iMax]Upd :: loop range to update sea-ice field
-C [jMin,jMax]Upd :: loop range to update sea-ice field
+C [iMin,iMax]Upd :: loop range to update iceberg field
+C [jMin,jMax]Upd :: loop range to update iceberg field
 C  i,j,k         :: loop indices
 C  af            :: 2-D array for horizontal advective flux
-C  localTij      :: 2-D array, temporary local copy of sea-ice fld
+C  localTij      :: 2-D array, temporary local copy of iceberg fld
 C  calc_fluxes_X :: logical to indicate to calculate fluxes in X dir
 C  calc_fluxes_Y :: logical to indicate to calculate fluxes in Y dir
 C  interiorOnly  :: only update the interior of myTile, but not the edges
@@ -141,21 +141,12 @@ C     msgBuf     :: Informational/error message buffer
 #endif
 #ifdef ALLOW_DIAGNOSTICS
       CHARACTER*8 diagName
-C      CHARACTER*4 SEAICE_DIAG_SUFX, diagSufx
-C      EXTERNAL    SEAICE_DIAG_SUFX
 #endif
-      LOGICAL dBug
+
       INTEGER ioUnit
       _RL tmpFac
 
 CEOP
-
-c      PRINT *, 'adv uFld', uFld
-c      PRINT *, 'adv vFld', vFld
-c      PRINT *, 'adv uTrans', uTrans
-c      PRINT *, 'adv vTrans', vTrans
-c      PRINT *, 'adv iceFld', iceFld
-c      PRINT *, 'adv r_hFld', r_hFld
 
 
 
@@ -195,25 +186,6 @@ C Wenn die tracerNummer groeßer ist als die maximale Anzahl an Dingen, die uebe
           endif
 #endif /* ALLOW_AUTODIFF_TAMC */
 
-#ifdef ALLOW_DIAGNOSTICS
-C--   Set diagnostic suffix for the current tracer
-C Sets diagnostics "name" or prefix......for Iceberg class it is IBCL_
-C if necessary include function ICEBERG_DIAG_SUFX(iCl, myThid) in iceberg_diagnostics_init
-C but it could be enough to have the labels of the iceberg classes as saved before
-
-C      IF ( useDiagnostics ) THEN
-C        diagSufx = SEAICE_DIAG_SUFX( tracerIdentity, myThid )
-C      ENDIF
-#endif
-
-C commented out all debug variables as the iceberg pkg has no debug mode at the moment
-
-c      ioUnit = standardMessageUnit
-c      dBug = debugLevel.GE.debLevC
-c     &     .AND. myIter.EQ.nIter0
-c     &     .AND. ( tracerIdentity.EQ.GAD_HEFF .OR.
-c     &             tracerIdentity.EQ.GAD_QICE2 )
-c    &     .AND. tracerIdentity.EQ.GAD_HEFF
 
 C--   Set up work arrays with valid (i.e. not NaN) values
 C     These inital values do not alter the numerical results. They
@@ -223,7 +195,7 @@ C     uninitialised but inert locations.
 #ifdef ALLOW_AUTODIFF_TAMC
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
-C local copy of iceberg/seaice field
+C local copy of iceberg field
         localTij(i,j) = 0. _d 0
        ENDDO
       ENDDO
@@ -378,14 +350,10 @@ C--   not CubedSphere
         calc_fluxes_Y = .NOT.calc_fluxes_X
        ENDIF
 
-C commented out debugging as not yet included in iceberg
-C       IF (dBug.AND.bi.EQ.3 ) WRITE(ioUnit,*)'ICE_adv:',tracerIdentity,
-C     &   ipass,calc_fluxes_X,calc_fluxes_Y,overlapOnly,interiorOnly
-
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 C--   X direction
 
-C ?????????
+
 #ifdef ALLOW_AUTODIFF_TAMC
 CADJ STORE localTij(:,:)  =
 CADJ &     comlev1_bibj_k_gadice_pass, key=passkey, byte=isbyte
@@ -438,12 +406,6 @@ C Upwind 1st order (1) or 2nd order DST (Lax-Wendroff) (2)
           CALL GAD_DST2U1_ADV_X( bi,bj,k, advectionScheme, .TRUE.,
      I         ICEBERG_deltaTtherm, uTrans, uFld, localTij,
      O         af, myThid )
-C          IF ( dBug .AND. bi.EQ.3 ) THEN
-C            i=MIN(12,sNx)
-C            j=MIN(11,sNy)
-C            WRITE(ioUnit,'(A,1P4E14.6)') 'ICE_adv: xFx=', af(i+1,j),
-C     &        localTij(i,j), uTrans(i+1,j), af(i+1,j)/uTrans(i+1,j)
-C          ENDIF
 
 C flux limiter
          ELSEIF (advectionScheme.EQ.ENUM_FLUX_LIMIT) THEN
@@ -678,12 +640,7 @@ CADJ &     comlev1_bibj_k_gadice_pass, key=passkey, byte=isbyte
           CALL GAD_DST2U1_ADV_Y( bi,bj,k, advectionScheme, .TRUE.,
      I         ICEBERG_deltaTtherm, vTrans, vFld, localTij,
      O         af, myThid )
-C          IF ( dBug .AND. bi.EQ.3 ) THEN
-C            i=MIN(12,sNx)
-C            j=MIN(11,sNy)
-C            WRITE(ioUnit,'(A,1P4E14.6)') 'ICE_adv: yFx=', af(i,j+1),
-C     &        localTij(i,j), vTrans(i,j+1), af(i,j+1)/vTrans(i,j+1)
-C          ENDIF
+
          ELSEIF (advectionScheme.EQ.ENUM_FLUX_LIMIT) THEN
           CALL GAD_FLUXLIMIT_ADV_Y( bi,bj,k, .TRUE.,
      I         ICEBERG_deltaTtherm, vTrans, vFld, maskLocS, localTij,
@@ -854,7 +811,7 @@ C--   End of Y direction
 C--   End of ipass loop
       ENDDO
 
-c      PRINT *, 'adv local tij', localTij
+
 
 C-    explicit advection is done ; store tendency in gFld:
       DO j=1-OLy,sNy+OLy
@@ -863,18 +820,7 @@ C-    explicit advection is done ; store tendency in gFld:
        ENDDO
       ENDDO
 
-c      PRINT *, 'adv out gFld', gFld
-c      PRINT *, 'adv out afx', afx
-c      PRINT *, 'adv out afy', afy
 
-C      IF ( dBug .AND. bi.EQ.3 ) THEN
-c       i=MIN(12,sNx)
-c       j=MIN(11,sNy)
-c       tmpFac= ICEBERG_deltaTtherm*recip_rA(i,j,bi,bj)
-c       WRITE(ioUnit,'(A,1P4E14.6)') 'ICE_adv:',
-c     &      afx(i,j)*tmpFac,afx(i+1,j)*tmpFac,
-c     &      afy(i,j)*tmpFac,afy(i,j+1)*tmpFac
-c      ENDIF
 c TODO adapt diagnostics_fill for iceberg_distr
 c#ifdef ALLOW_DIAGNOSTICS
 c        IF ( useDiagnostics ) THEN
@@ -884,17 +830,6 @@ c         diagName = 'ADVy'//diagSufx
 c         CALL DIAGNOSTICS_FILL(afy,diagName, k,1, 2,bi,bj, myThid)
 c        ENDIF
 c#endif
-
-c#ifdef ALLOW_DEBUG
-c      IF ( debugLevel .GE. debLevC
-c     &     .AND. tracerIdentity.EQ.GAD_HEFF
-c     &     .AND. k.LE.3 .AND. myIter.EQ.1+nIter0
-c     &     .AND. nPx.EQ.1 .AND. nPy.EQ.1
-c     &     .AND. useCubedSphereExchange ) THEN
-c       CALL DEBUG_CS_CORNER_UV( ' afx,afy from ICEBERG_ADVECTION',
-c     &      afx,afy, k, standardMessageUnit,bi,bj,myThid )
-c      ENDIF
-c#endif /* ALLOW_DEBUG */
 
 #endif /* ALLOW_GENERIC_ADVDIFF */
       RETURN
