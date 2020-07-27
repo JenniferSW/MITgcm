@@ -49,7 +49,6 @@ c     iCl  ::  loop parameter for size classes
 c     Loop over iceberg size classes and write them to diagnostics
 
          DO iCl = 1, ICEBERG_numClUsed
-C HINT indices for layers are only done for surface layer
            CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                             myThid )

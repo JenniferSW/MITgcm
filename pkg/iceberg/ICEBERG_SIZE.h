@@ -3,7 +3,7 @@
 CBOP
 C     !ROUTINE: ICEBERG_SIZE.h
 C     !INTERFACE:
-C #include PTRACERS_SIZE.h
+C #include ICEBERG_SIZE.h
 
 
 C     !DESPCRIPTION
@@ -13,8 +13,8 @@ C     variables relying on the size class number. (default is 1)
 
 
 C    Number of size classes
-c      INTEGER ICEBERG_numCl
-c      PARAMETER(ICEBERG_numCl = 1)
+      INTEGER ICEBERG_numCl
+      PARAMETER(ICEBERG_numCl = 1)
 
 CEOP
 #endif

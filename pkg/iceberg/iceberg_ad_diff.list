@@ -4,3 +4,4 @@ iceberg_calc_rhs.f
 iceberg_forcing_surf.f
 iceberg_adv.f
 iceberg_advection.f
+iceberg_mom_eq.f

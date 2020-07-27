@@ -73,7 +73,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
       GAD_HEFF = 1
 C--   get surface velocities from MITgcm
 C TODO calculate the velocity from momentum equation
-C HINT at the moment the velocities are taken from the model as the surface velocities
 
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -100,7 +99,7 @@ c          yA(i,j,bi,bj) = 1. _d 0
       ENDDO
 
 
-C  TODO replace dummy variable also in ICEBERG.h
+
 
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)

@@ -9,21 +9,51 @@ c     &                     myPa_MNC, myPa_MDSIO
 
 
 C     ICEBERG parameters
-/* TODO sort parameters into ICEBERG and additional parameters */
 c     ICEBERG_ITER0   :: iteration number to start iceberg drift
 c     ICEBERG_numClUsed :: Number of icebergs used in the simulation
-c     ICEBERG_deltaTtherm :: Seaice timestep for thermodynamic equations (s)
+
 c     ICEBERGadvScheme  ::  Scheme for calculating the advection
+C     ICEBERG_rhoAir  :: density of the air
+c     ICEBERG_rhoOcean  :: density of sea water
+c     ICEBERG_rhoSeaice  ::  density of sea ice
+c     ICEBERG_AirDrag  ::  air drag coefficient
+c     ICEBERG_OceanDrag ::  ocean drag coefficient
+c     ICEBERG_SeaiceDrag  ::  sea ice drag coefficient
+c     ICEEBERG_gravity  ::  gravitational acceleration
+C
+c     ICEBERG_mass  ::  mass of iceberg in cell
+c     ICEBERG_waveampl ::  wave amplitude (calculated f)
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
       INTEGER ICEBERGadvScheme
 
+      _RL ICEBERG_rhoAir
+      _RL ICEBERG_rhoOcean
+      _RL ICEBERG_rhoSeaice
+      _RL ICEBERG_AirDrag
+      _RL ICEBERG_OceanDrag
+      _RL ICEBERG_SeaiceDrag
+      _RL ICEBERG_gravity
+
+/* TODO prove whether these have to be fields or not */
+      _RL ICEBERG_mass
+      _RL ICEBERG_waveampl
+
+
+
+/* TODO see seaice package for wind or air velocity */
+      _RL WINDX      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL WINDY      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+
+
 
 C-    additional parameters:
+c     ICEBERG_deltaTtherm :: Seaice timestep for thermodynamic equations (s)
 c     ICEBERG_ClLbl   :: Labels for diagnostics output
 C
       _RL ICEBERG_deltaTtherm
+
       CHARACTER*(8) ICEBERG_ClLbl(ICEBERG_numCl)
 
 
@@ -42,7 +72,13 @@ c      COMMON /ICEBERG_PARAMS_L/
       COMMON /ICEBERG_PARAMS_I/ ICEBERGadvScheme,
      &       ICEBERG_Iter0,
      &       ICEBERG_numClUsed
-      COMMON /ICEBERG_PARAMS_R/ ICEBERG_deltaTtherm
+      COMMON /ICEBERG_PARAMS_R/ ICEBERG_deltaTtherm,
+     &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
+     &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
+     &       ICEBERG_gravity, ICEBERG_mass, ICEBERG_waveampl,
+     &       WINDX, WINDY
+
+
 
       COMMON /ICEBERG_PARAMS_C/ ICEBERG_ClLbl,
      &       ICEBERG_initialFile
