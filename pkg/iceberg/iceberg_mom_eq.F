@@ -74,13 +74,16 @@ C  -M * f * k x v_i
 
 c   *------- Ocean Drag -------*
 C   Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocean -v_i)
+c    Fw = 1/2 * ICEBERG_rhoOcean * ICEBERG_OceanDrag *
 
 c   *------ Atmosphere Drag ------*
 C   Fa = 1/2 * rho_atm * C_atm * A_atm * |v_atm - v_i| (v_atm -v_i)
+c   Fa = 1/2 * ICEBERG_rhoAir * ICEBERG_AirDrag *
+
 
 c   *------ Seaice Drag ------*
 c   Fs = 1/2 * rho_sice * C_sice * A_sice * |v_sice - v_i| (v_sice - v_i
-
+c   Fs = 1/2 * ICEBERG_rhoSeaice * ICEBERG_SeaiceDrag
 
 c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a * L v_air/|v_air|

@@ -39,20 +39,51 @@ C     diagTitle :: local string (80c): description of field in diagnostic
       CHARACTER*16  diagCode
       CHARACTER*16  diagUnits
       CHARACTER*(80) diagTitle
+      CHARACTER*(18) diagLabel
 
       INTEGER iCl
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+C TODO Fix Diagnostics Names to maximum of 8 Characters
 
       IF ( useDiagnostics ) THEN
+C Diagnostics for iceberg distribution
         DO iCl = 1, ICEBERG_numCl
           WRITE(diagTitle,'(A,I2)') 'Iceberg distribution for class'
      &          ,iCl
-          diagUnits = 'none            '
+          diagUnits = 'm               '
           diagCode  = 'SM      MR      '
+          WRITE(diagLabel,'(A,A)') 'IB_distr_',ICEBERG_ClLbl(iCl)
+          PRINT *, 'debug diagnostics ' ,diagLabel
 C TODO fill unit and diagCode
           CALL DIAGNOSTICS_ADDTOLIST( diagNum,
-     I            ICEBERG_ClLbl(iCl), diagCode, diagUnits, diagTitle, 
+     I            diagLabel, diagCode, diagUnits, diagTitle,
+     &            0, myThid )
+        ENDDO
+
+C Diagnostics for iceberg area
+        DO iCl = 1, ICEBERG_numCl
+          WRITE(diagTitle,'(A,I2)') 'Iceberg fraction area for class'
+     &          ,iCl
+          diagUnits = 'none            '
+          diagCode  = 'SM      MR      '
+          WRITE(diagLabel,'(A,A)') 'IB_area_',ICEBERG_ClLbl(iCl)
+C TODO fill unit and diagCode
+          CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I            diagLabel, diagCode, diagUnits, diagTitle,
+     &            0, myThid )
+        ENDDO
+
+
+        DO iCl = 1, ICEBERG_numCl
+          WRITE(diagTitle,'(A,I2)') 'Iceberg mean height for class'
+     &          ,iCl
+          diagUnits = 'm               '
+          diagCode  = 'SM      MR      '
+          WRITE(diagLabel,'(A,A)') 'IB_height_',ICEBERG_ClLbl(iCl)
+C TODO fill unit and diagCode
+          CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I            diagLabel, diagCode, diagUnits, diagTitle,
      &            0, myThid )
         ENDDO
 

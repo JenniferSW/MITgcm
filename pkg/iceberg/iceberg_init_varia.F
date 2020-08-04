@@ -32,34 +32,30 @@ CEOP
 
 C     !LOCAL VARIABLES:
 C     === Local variables ===
-      CHARACTER*(MAX_LEN_FNAM) tmpInitialFile
+      CHARACTER*(MAX_LEN_FNAM) tmpInitialArea
+      CHARACTER*(MAX_LEN_FNAM) tmpInitialHeight
+
 
       INTEGER i,j,k,bi,bj,iCl
 
-      REAL bla1
+
 
       DO bj = myByLo(myThid), myByHi(myThid)
        DO bi = myBxLo(myThid), myBxHi(myThid)
 
 C     Initialize arrays in common blocks :
-C     3-dim.
-        DO k=1,Nr
+C     2-dim.
+
          DO j=1-Oly,sNy+OLy
           DO i=1-Olx,sNx+Olx
-
            DO iCl = 1,ICEBERG_numClUsed
             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
            ENDDO
-
-
           ENDDO
          ENDDO
-        ENDDO
 
-C     2-dim.
-#ifdef ICEBERG_2D_STATE
-
-#endif /* ICEBERG_2D_STATE */
 
 C- end bi,bj loops
        ENDDO
@@ -73,43 +69,57 @@ C     this is done within IO routines => no longer needed
 c      _BARRIER
 
 
-      IF (nIter0 .EQ.ICEBERG_Iter0) THEN
+      IF (nIter0 .EQ. ICEBERG_Iter0) THEN
        DO iCl = 1, ICEBERG_numClUsed
 
-        tmpInitialFile = ICEBERG_initialFile(iCl)
-        IF ( tmpInitialFile .NE. ' ' ) THEN
-c         CALL READ_FLD_XYZ_RL( tmpInitialFile, ' ',
-c     &                         iceberg_distr, 0,
-c     &                         myThid )
-         CALL READ_FLD_XY_RL( tmpInitialFile, ' ',
-     &                         iceberg_distr, 0,
-     &                         myThid )
-      bla1 = 0
-      DO j=1-Oly,sNy+OLy
-         DO i=1-Olx,sNx+Olx
-             bla1 = bla1 + iceberg_distr(i,j,1,1,1)
-             IF (iceberg_distr(i,j,1,1,1) .NE. 0) THEN
-               PRINT *, 'debug coor', i,j
-             ENDIF
-         ENDDO
-      ENDDO
+        tmpInitialArea = ICEBERG_initialArea(iCl)
+        tmpInitialHeight = ICEBERG_initialHeight(iCl)
 
-      PRINT *, 'debug iceberg_distr', bla1
-
-
-
-         _EXCH_XY_RL(iceberg_distr , myThid)
-c         CALL EXCH_3D_RL( iceberg_distr,
-c     &                         Nr, myThid )
-        ELSE
-                WRITE(msgBuf,'(A)') 'Not enough input files for iceberg
-     &           classes. Make sure every iceberg class has one input
-     &           file read in data.iceberg'
-                CALL PRINT_ERROR(msgBuf,myThid)
-                STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
+        IF ( tmpInitialArea.EQ.' ' ) THEN
+            WRITE(msgBuf,'(A)') 'Not enough input files for ICEBERG
+     &      AREA. Make sure every iceberg class has one input
+     &      file to be read in data.iceberg'
+            CALL PRINT_ERROR(msgBuf,myThid)
+            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
         ENDIF
+
+        IF ( tmpInitialHeight.EQ.' ' ) THEN
+            WRITE(msgBuf,'(A)') 'Not enough input files for ICEBERG
+     &      HEIGHT. Make sure every iceberg class has one input
+     &      file to be read in data.iceberg'
+            CALL PRINT_ERROR(msgBuf,myThid)
+            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
+        ENDIF
+
+
+        CALL READ_FLD_XY_RL( tmpInitialArea, ' ',
+     &                       iceberg_area(1-OLx,1-OLy,1,1,iCl), 0,
+     &                       myThid )
+        CALL READ_FLD_XY_RL( tmpInitialHeight, ' ',
+     &                       iceberg_height(1-OLx,1-OLy,1,1,iCl), 0,
+     &                       myThid )
+
+
+        _EXCH_XY_RL(iceberg_area , myThid)
+        _EXCH_XY_RL(iceberg_area , myThid)
+
        ENDDO
       ENDIF
+
+
+      DO bj = myByLo(myThid), myByHi(myThid)
+       DO bi = myBxLo(myThid), myBxHi(myThid)
+         DO j=1-Oly,sNy+OLy
+          DO i=1-Olx,sNx+Olx
+
+           DO iCl = 1,ICEBERG_numClUsed
+            iceberg_distr(i,j,bi,bj,iCl) =
+     &      iceberg_height(i,j,bi,bj,iCL) * iceberg_area(i,j,bi,bj,iCL)
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
 
 
       ELSE

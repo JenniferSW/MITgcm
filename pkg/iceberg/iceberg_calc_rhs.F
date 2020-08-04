@@ -44,7 +44,12 @@ C--   Calculate custom tendency terms ...
 
       CALL ICEBERG_ADV(myTime, myIter, myThid)
 
-       
+#ifdef ICEBERG_USE_CLASS_LOGIC
+      PRINT *, 'WE USE CLASS LOGIC'
+#else
+      PRINT *, 'WE DONT USE CLASS LOGIC'
+#endif
+
 #ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) THEN
          DO iCl = 1, ICEBERG_numClUsed

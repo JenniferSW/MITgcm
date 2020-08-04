@@ -278,7 +278,6 @@ C from GAD_ADVECTION adapted for SIMask
 C SImaskU is maskW at the Surface
 C SIMaskU(i,j,bi,bj)  :: maskW(i,j,kSurface,bi,bj) with kSurface as Nr or 1
 C SIMaskV(i,j,bi,bj)  :: maskS(i,j,kSurface,bi,bj)
-C TODO define SImask
 C maskInW :: West face 2-D Interior mask (i.e., zero on and beyond OB)
 C         maskLocW(i,j) = SIMaskU(i,j,bi,bj)*maskInW(i,j,bi,bj)
          maskLocW(i,j) = maskW(i,j,1,bi,bj)*maskInW(i,j,bi,bj)
@@ -821,7 +820,7 @@ C-    explicit advection is done ; store tendency in gFld:
       ENDDO
 
 
-c TODO adapt diagnostics_fill for iceberg_distr
+
 c#ifdef ALLOW_DIAGNOSTICS
 c        IF ( useDiagnostics ) THEN
 c         diagName = ICEBERG_ClLbl(tracerIdentity)

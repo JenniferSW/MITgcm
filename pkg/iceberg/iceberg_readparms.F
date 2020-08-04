@@ -37,7 +37,8 @@ C HINT if not used later ICEBERG_deltaTtherm has to be deleted
 
      &       ICEBERG_deltaTtherm,
      &       ICEBERGadvScheme,
-     &       ICEBERG_initialFile
+     &       ICEBERG_initialArea,
+     &       ICEBERG_initialHeight
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -61,7 +62,8 @@ C-    additional parameters:
 
 C-    file names for initial conditions:
       DO iCl = 1, ICEBERG_numCl
-        ICEBERG_initialFile(iCl)   = ' '
+        ICEBERG_initialArea(iCl)   = ' '
+        ICEBERG_initialHeight(iCl) = ' '
       ENDDO
 
       WRITE(msgBuf,'(A)') 'ICEBERG_READPARMS: opening data.iceberg'

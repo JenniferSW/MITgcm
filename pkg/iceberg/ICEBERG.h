@@ -57,15 +57,14 @@ C
       CHARACTER*(8) ICEBERG_ClLbl(ICEBERG_numCl)
 
 
-/* TODO read in size class borders for each class that can be applied by class number
-     Best to have a left and a right border and if one is not read it is the border
-     of the previous of following size class or a default minimum or maximum
-*/
+
 
 C-    file names for initial conditions:
-C     ICEBERG_initialFile   :: File with initial conditions for icebergs
+C     ICEBERG_initialArea   :: File with initial fractional iceberg cover at cell centers
+C     ICEBERG_initialHeight :: File with initial mean iceberg height at cell centers
 
-      CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialFile(ICEBERG_numCl)
+      CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialArea(ICEBERG_numCl)
+      CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialHeight(ICEBERG_numCl)
 
 c      COMMON /ICEBERG_PARAMS_L/
 
@@ -81,7 +80,7 @@ c      COMMON /ICEBERG_PARAMS_L/
 
 
       COMMON /ICEBERG_PARAMS_C/ ICEBERG_ClLbl,
-     &       ICEBERG_initialFile
+     &       ICEBERG_initialArea, ICEBERG_initialHeight
 
 #ifdef ICEBERG_3D_STATE
 C     ICEBERG (3D) fields
@@ -94,12 +93,22 @@ c      COMMON /ICEBERG_STATE_3D/
 
 #ifdef ICEBERG_2D_STATE
 C     Iceberg 2-dim. fields
-C     iceberg_distr    :: field for iceberg distribution
+C     iceberg_distr    :: field for iceberg distribution/effective height (m)
+C                         - actual height is iceberg_distr/iceberg_area
+C     iceberg_area     ::  field for fractional area covered by icebergs
+C                         - here 0 is no cover and 1 is 100% cover
+C     iceberg_height  ::  field for mean iceberg height in grid cell (m)
+
 
       _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
      &  	      nSy,ICEBERG_numCl)
+      _RL iceberg_area(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy,ICEBERG_numCl)
+      _RL iceberg_height(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy,ICEBERG_numCl)
       COMMON /ICEBERG_STATE_2D/
-     &    iceberg_distr
+     &    iceberg_distr,
+     &    iceberg_area, iceberg_height
 
 #endif /* ICEBERG_2D_STATE */
 

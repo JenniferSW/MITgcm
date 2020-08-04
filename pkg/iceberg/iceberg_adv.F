@@ -55,7 +55,7 @@ C     afy       :: horizontal advective flux, y direction
 C     gFld      :: tendency of seaice field
 C     xA,yA     :: "areas" of X and Y face of tracer cells
       INTEGER i, j, bi, bj, iCl, it
-      INTEGER GAD_HEFF
+      INTEGER GAD_HEFF, GAD_AREA
 
 
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -66,11 +66,14 @@ C     xA,yA     :: "areas" of X and Y face of tracer cells
       _RS xA        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RS yA        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL recip_heff(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+
+      CHARACTER*(18) diagLabel
       CHARACTER*(MAX_LEN_MBUF) msgBuf
 CEOP
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
       GAD_HEFF = 1
+      GAD_AREA = 2
 C--   get surface velocities from MITgcm
 C TODO calculate the velocity from momentum equation
 
@@ -121,7 +124,6 @@ C
         ENDDO
 
 C-    Calculate "volume transports" through tracer cell faces.
-C TODO customize velocities for iceberg and then later for size classes
         DO iCl = 1, ICEBERG_numClUsed
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
@@ -130,6 +132,9 @@ C TODO customize velocities for iceberg and then later for size classes
           ENDDO
          ENDDO
 C C TODO customize ICEBERG_ADVECTION
+C HINT GAD_HEFF is a tracer identifier to customize the diagnostics; at the moment it is not used for icebergs but
+C       it coul be used to save the tendency for icebergs and fractional area
+
 C ICEBERG_ADVECTION(tracerIdentity, advectionScheme, uFld, vFl, uTrans, vTrans
 C                   iceFld, r_hFld, gFld, afx, afy, bi, bj, myTime, myIter, myThid)
 C uFld, vFld - input velocity to use for iceberg
@@ -154,6 +159,26 @@ C     now do the "explicit" time step
 
             ENDDO
            ENDDO
+
+C fractional area
+           CALL ICEBERG_ADVECTION(
+     I         GAD_AREA, ICEBERGadvScheme,
+     I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
+     I         uTrans, vTrans, iceberg_area(1-OLx,1-OLy,bi,bj,iCl),
+     I         recip_heff,
+     O         gFld, afx, afy,
+     I         bi, bj, myTime, myIter, myThid )
+
+           DO j=1,sNy
+            DO i=1,sNx
+             iceberg_area(i,j,bi,bj,iCl) =
+     &           iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
+     &           * gFld(i,j)
+
+            ENDDO
+           ENDDO
+
+
         ENDDO
 C---   end bi,bj loops
         ENDDO
@@ -161,11 +186,18 @@ C---   end bi,bj loops
 C HINT Maybe diagnostics has to be moved into bi, bj loop
 
        DO iCl = 1, ICEBERG_numClUsed
+           WRITE(diagLabel,'(A,A)') 'IB_distr_',ICEBERG_ClLbl(iCl)
            CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                            myThid )
        ENDDO
 
+       DO iCl = 1, ICEBERG_numClUsed
+           WRITE(diagLabel,'(A,A)') 'IB_area_',ICEBERG_ClLbl(iCl)
+           CALL DIAGNOSTICS_FILL(iceberg_area(1-Olx,1-Oly,1,1,iCl),
+     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
+     &                            myThid )
+       ENDDO
 
       RETURN
       END

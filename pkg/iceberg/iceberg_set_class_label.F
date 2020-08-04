@@ -41,11 +41,11 @@ CEOP
         IF (iCl .LT. 10) THEN
 c       if number of size class is lower than 10 a '0' has to be added
 c       to the label
-          WRITE(outLbl(iCl),'(A6,I1,A1)') 'IBCL_0', iCl, ' '
+          WRITE(outLbl(iCl),'(A4,I1,A1)') 'CL_0', iCl, ' '
 
         ELSE
 C       otherwise the label is just the number of the size class
-          WRITE(outLbl(iCl),'(A5,I2,A1)') 'IBCL_', iCl, ' '
+          WRITE(outLbl(iCl),'(A3,I2,A1)') 'CL_', iCl, ' '
         
         ENDIF
       ENDDO
