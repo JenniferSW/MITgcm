@@ -106,13 +106,13 @@ c      _BARRIER
        ENDDO
       ENDIF
 
+C Calculate effective iceberg thickness from fraction area and height
 
-      DO bj = myByLo(myThid), myByHi(myThid)
-       DO bi = myBxLo(myThid), myBxHi(myThid)
-         DO j=1-Oly,sNy+OLy
-          DO i=1-Olx,sNx+Olx
-
-           DO iCl = 1,ICEBERG_numClUsed
+      DO iCl = 1,ICEBERG_numClUsed
+       DO bj = myByLo(myThid), myByHi(myThid)
+        DO bi = myBxLo(myThid), myBxHi(myThid)
+          DO j=1-Oly,sNy+OLy
+           DO i=1-Olx,sNx+Olx
             iceberg_distr(i,j,bi,bj,iCl) =
      &      iceberg_height(i,j,bi,bj,iCL) * iceberg_area(i,j,bi,bj,iCL)
            ENDDO
@@ -120,6 +120,23 @@ c      _BARRIER
          ENDDO
         ENDDO
        ENDDO
+
+C Initialize iceberg mass fields
+
+
+       DO bj = myByLo(myThid), myByHi(myThid)
+        DO bi = myBxLo(myThid), myBxHi(myThid)
+          DO j=1-Oly,sNy+OLy
+           DO i=1-Olx,sNx+Olx
+            iceberg_MassC(i,j,bi,bj) = 0. _d 0
+            iceberg_MassU(i,j,bi,bj) = 0. _d 0
+            iceberg_MassV(i,j,bi,bj) = 0. _d 0
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+
+
 
 
       ELSE

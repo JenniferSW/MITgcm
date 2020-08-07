@@ -68,9 +68,13 @@ C     ICEBERG_initialHeight :: File with initial mean iceberg height at cell cen
 
 c      COMMON /ICEBERG_PARAMS_L/
 
+C Common Block for integer parameters
+
       COMMON /ICEBERG_PARAMS_I/ ICEBERGadvScheme,
      &       ICEBERG_Iter0,
      &       ICEBERG_numClUsed
+
+C Common block for real parameters
       COMMON /ICEBERG_PARAMS_R/ ICEBERG_deltaTtherm,
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
@@ -78,7 +82,7 @@ c      COMMON /ICEBERG_PARAMS_L/
      &       WINDX, WINDY
 
 
-
+C Common Block for Character Variables and file names
       COMMON /ICEBERG_PARAMS_C/ ICEBERG_ClLbl,
      &       ICEBERG_initialArea, ICEBERG_initialHeight
 
@@ -91,6 +95,7 @@ c      COMMON /ICEBERG_STATE_3D/
 
 #endif /* ICEBERG_3D_STATE */
 
+/* QUESTION kann ifdef 2D STate weg? */
 #ifdef ICEBERG_2D_STATE
 C     Iceberg 2-dim. fields
 C     iceberg_distr    :: field for iceberg distribution/effective height (m)
@@ -98,7 +103,9 @@ C                         - actual height is iceberg_distr/iceberg_area
 C     iceberg_area     ::  field for fractional area covered by icebergs
 C                         - here 0 is no cover and 1 is 100% cover
 C     iceberg_height  ::  field for mean iceberg height in grid cell (m)
-
+C     iceberg_MassC   ::  iceberg Mass at cell center
+C     iceberg_MassU   ::  iceberg Mass at U grid point
+C     iceberg_MassV   ::  iceberg Mass at V grid point
 
       _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
      &  	      nSy,ICEBERG_numCl)
@@ -106,6 +113,14 @@ C     iceberg_height  ::  field for mean iceberg height in grid cell (m)
      &  	      nSy,ICEBERG_numCl)
       _RL iceberg_height(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
      &  	      nSy,ICEBERG_numCl)
+      _RL iceberg_MassC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy)
+      _RL iceberg_MassU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy)
+      _RL iceberg_MassV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy)
+
+
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_distr,
      &    iceberg_area, iceberg_height

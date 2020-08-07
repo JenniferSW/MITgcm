@@ -37,8 +37,10 @@ C HINT if not used later ICEBERG_deltaTtherm has to be deleted
 
      &       ICEBERG_deltaTtherm,
      &       ICEBERGadvScheme,
-     &       ICEBERG_initialArea,
-     &       ICEBERG_initialHeight
+     &       ICEBERG_initialArea, ICEBERG_initialHeight,
+     &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
+     &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
+     &       ICEBERG_gravity
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -53,6 +55,19 @@ C     print a (weak) warning if data.iceberg is found
       _BEGIN_MASTER(myThid)
 
 C--   Default values for ICEBERG
+C     Iceberg_rhoAir :: density of air from seaice pkg default
+C
+C
+C
+C
+
+      ICEBERG_rhoAir = 1.3
+      ICEBERG_rhoOcean = 1026.0
+      ICEBERG_rhoSeaice = 0.91
+      ICEBERG_AirDrag = 1.3
+      ICEBERG_OceanDrag = 0.9
+      ICEBERG_SeaiceDrag = 0.91
+      ICEBERG_gravity = 9.81
 
 C-    additional parameters:
       ICEBERG_Iter0      = 0

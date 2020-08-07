@@ -16,6 +16,7 @@ C     | SUBROUTINE ICEBERG_ADVDIFF
 C     | o driver for different advection routines
 C     |   calls an adaption of gad_advection to call different
 C     |   advection routines of pkg/generic_advdiff
+C     | o the advection runs for every iceberg class separately in a loop
 C     *===========================================================*
 C \ev
 
@@ -72,59 +73,61 @@ C     xA,yA     :: "areas" of X and Y face of tracer cells
 CEOP
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+C TODO introduce GAD-Identifier for diagnostics
       GAD_HEFF = 1
       GAD_AREA = 2
 C--   get surface velocities from MITgcm
 C TODO calculate the velocity from momentum equation
+      DO iCl = 1, ICEBERG_numClUsed
+        CALL ICEBERG_MOM_EQ(uc,vc,iCl,myTime, myIter, myThid)
 
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-          uc(i,j,bi,bj)=uVel(i,j,1,bi,bj)*10000000
-          vc(i,j,bi,bj)=vVel(i,j,1,bi,bj)*10000000
-         ENDDO
-        ENDDO
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+c         DO j=1-OLy,sNy+OLy
+c          DO i=1-OLx,sNx+OLx
+c           uc(i,j,bi,bj)=uc(i,j,bi,bj)*10000000
+c           vc(i,j,bi,bj)=vc(i,j,bi,bj)*10000000
+c          ENDDO
+c         ENDDO
 
 
 C-    compute cell areas used by all tracers
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-c          xA(i,j,bi,bj) = 1. _d 0
-c          yA(i,j,bi,bj) = 1. _d 0
-
-
-          xA(i,j,bi,bj) = _dyG(i,j,bi,bj)*maskW(i,j,1,bi,bj)
-          yA(i,j,bi,bj) = _dxG(i,j,bi,bj)*maskS(i,j,1,bi,bj)
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+c           xA(i,j,bi,bj) = 1. _d 0
+c           yA(i,j,bi,bj) = 1. _d 0
+           xA(i,j,bi,bj) = _dyG(i,j,bi,bj)*maskW(i,j,1,bi,bj)
+           yA(i,j,bi,bj) = _dxG(i,j,bi,bj)*maskS(i,j,1,bi,bj)
+          ENDDO
          ENDDO
+C         End bi, bj loops
         ENDDO
        ENDDO
-      ENDDO
 
 
 
 
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
 C---   loops on tile indices bi,bj
 
 #ifdef ALLOW_AUTODIFF_TAMC
 C     Initialise for TAF
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-          gFld(i,j)       = 0. _d 0
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           gFld(i,j)       = 0. _d 0
+          ENDDO
          ENDDO
-        ENDDO
 C
 #endif /* ALLOW_AUTODIFF_TAMC */
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-          recip_heff(i,j)    = 1. _d 0
+         DO j=1-OLy,sNy+OLy
+          DO i=1-OLx,sNx+OLx
+           recip_heff(i,j)    = 1. _d 0
+          ENDDO
          ENDDO
-        ENDDO
 
 C-    Calculate "volume transports" through tracer cell faces.
-        DO iCl = 1, ICEBERG_numClUsed
+
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
            uTrans(i,j) = uc(i,j,bi,bj)*xA(i,j,bi,bj)
@@ -143,62 +146,67 @@ C iceFld - input iceberg distribution field
 C r_hFld - ????? input reciprocal of ice thickness
 C gFld - output tendency of icebergs used to do the advection
 C afx, afy - horizontal advective flux
-           CALL ICEBERG_ADVECTION(
-     I         GAD_HEFF, ICEBERGadvScheme,
-     I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I         uTrans, vTrans, iceberg_distr(1-OLx,1-OLy,bi,bj,iCl),
-     I         recip_heff,
-     O         gFld, afx, afy,
-     I         bi, bj, myTime, myIter, myThid )
-C     now do the "explicit" time step
-           DO j=1,sNy
-            DO i=1,sNx
-             iceberg_distr(i,j,bi,bj,iCl) =
-     &           iceberg_distr(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
-     &           * gFld(i,j)
 
-            ENDDO
-           ENDDO
+         CALL ICEBERG_ADVECTION(
+     I        GAD_HEFF, ICEBERGadvScheme,
+     I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
+     I        uTrans, vTrans, iceberg_distr(1-OLx,1-OLy,bi,bj,iCl),
+     I        recip_heff,
+     O        gFld, afx, afy,
+     I        bi, bj, myTime, myIter, myThid )
+C     now do the "explicit" time step
+         DO j=1,sNy
+          DO i=1,sNx
+              iceberg_distr(i,j,bi,bj,iCl) =
+     &            iceberg_distr(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
+     &            * gFld(i,j)
+          ENDDO
+         ENDDO
+
 
 C fractional area
-           CALL ICEBERG_ADVECTION(
-     I         GAD_AREA, ICEBERGadvScheme,
-     I         uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
-     I         uTrans, vTrans, iceberg_area(1-OLx,1-OLy,bi,bj,iCl),
-     I         recip_heff,
-     O         gFld, afx, afy,
-     I         bi, bj, myTime, myIter, myThid )
 
-           DO j=1,sNy
-            DO i=1,sNx
-             iceberg_area(i,j,bi,bj,iCl) =
-     &           iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
-     &           * gFld(i,j)
 
-            ENDDO
+
+         CALL ICEBERG_ADVECTION(
+     I        GAD_AREA, ICEBERGadvScheme,
+     I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
+     I        uTrans, vTrans, iceberg_area(1-OLx,1-OLy,bi,bj,iCl),
+     I        recip_heff,
+     O        gFld, afx, afy,
+     I        bi, bj, myTime, myIter, myThid )
+
+         DO j=1,sNy
+          DO i=1,sNx
+              iceberg_area(i,j,bi,bj,iCl) =
+     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
+     &            * gFld(i,j)
            ENDDO
+          ENDDO
 
 
-        ENDDO
 C---   end bi,bj loops
         ENDDO
        ENDDO
+
+
 C HINT Maybe diagnostics has to be moved into bi, bj loop
 
-       DO iCl = 1, ICEBERG_numClUsed
+
+
            WRITE(diagLabel,'(A,A)') 'IB_distr_',ICEBERG_ClLbl(iCl)
            CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                            myThid )
-       ENDDO
 
-       DO iCl = 1, ICEBERG_numClUsed
+
+
            WRITE(diagLabel,'(A,A)') 'IB_area_',ICEBERG_ClLbl(iCl)
            CALL DIAGNOSTICS_FILL(iceberg_area(1-Olx,1-Oly,1,1,iCl),
      &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
      &                            myThid )
-       ENDDO
 
+      ENDDO
       RETURN
       END
 
