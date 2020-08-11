@@ -78,6 +78,19 @@ C TODO introduce GAD-Identifier for diagnostics
       GAD_AREA = 2
 C--   get surface velocities from MITgcm
 C TODO calculate the velocity from momentum equation
+
+c TODO uc & vc definition the right place???
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        DO j=1-OLy,sNy+OLy
+         DO i=1-OLx,sNx+OLx
+          uc(i,j,bi,bj) = 0
+          vc(i,j,bi,bj) = 0
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
+
       DO iCl = 1, ICEBERG_numClUsed
         CALL ICEBERG_MOM_EQ(uc,vc,iCl,myTime, myIter, myThid)
 

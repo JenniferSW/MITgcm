@@ -114,7 +114,7 @@ C Calculate effective iceberg thickness from fraction area and height
           DO j=1-Oly,sNy+OLy
            DO i=1-Olx,sNx+Olx
             iceberg_distr(i,j,bi,bj,iCl) =
-     &      iceberg_height(i,j,bi,bj,iCL) * iceberg_area(i,j,bi,bj,iCL)
+     &      iceberg_height(i,j,bi,bj,iCl) * iceberg_area(i,j,bi,bj,iCl)
            ENDDO
           ENDDO
          ENDDO

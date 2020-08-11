@@ -60,7 +60,7 @@ C     nCl       :: number of class the velocity is calculated for
 C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
-C     iCl        :: Loop counter for iceberg size classes
+C     nCl       :: Loop counter for iceberg size classes
 C     u_temp
       INTEGER i, j, bi, bj
       _RL utemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -102,7 +102,7 @@ C
 
                 iceberg_MassC(i,j,bi,bj) =
      &                 ICEBERG_rhoSeaice * iceberg_distr(i,j,bi,bj,nCl)
-                iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice* 0.5 *
+                iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_distr(i,j,bi,bj,nCl)
      &                 + iceberg_distr(i-1,j,bi,bj,nCl))
                 iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
@@ -174,10 +174,22 @@ C   *------ Euler Forward Step ------*
 c   v_i[n+1] = v_i[n] + dv_i * dt
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
-                uc(i,j,bi,bj) = utemp(i,j,bi,bj) + dudt(i,j,bi,bj)
+                IF (iceberg_MassU(i,j,bi,bj) .EQ. 0) THEN
+                 uc(i,j,bi,bj) = 0
+                ELSE
+                 uc(i,j,bi,bj) = utemp(i,j,bi,bj)
+     &              + dudt(i,j,bi,bj) / iceberg_MassU(i,j,bi,bj)
      &              * ICEBERG_deltaTtherm
-                vc(i,j,bi,bj) = vtemp(i,j,bi,bj) + dvdt(i,j,bi,bj)
+                ENDIF
+
+                IF (iceberg_MassV(i,j,bi,bj) .EQ. 0) THEN
+                 vc(i,j,bi,bj) = 0
+                ELSE
+                 vc(i,j,bi,bj) = vtemp(i,j,bi,bj)
+     &              + dvdt(i,j,bi,bj) / iceberg_MassV(i,j,bi,bj)
      &              * ICEBERG_deltaTtherm
+                ENDIF
+
               ENDDO
             ENDDO
 
