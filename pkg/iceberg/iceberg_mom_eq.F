@@ -174,7 +174,7 @@ C   *------ Euler Forward Step ------*
 c   v_i[n+1] = v_i[n] + dv_i * dt
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
-                IF (iceberg_MassU(i,j,bi,bj) .EQ. 0) THEN
+                IF (iceberg_MaskU(i,j,bi,bj) .EQ. 0) THEN
                  uc(i,j,bi,bj) = 0
                 ELSE
                  uc(i,j,bi,bj) = utemp(i,j,bi,bj)
@@ -182,7 +182,7 @@ c   v_i[n+1] = v_i[n] + dv_i * dt
      &              * ICEBERG_deltaTtherm
                 ENDIF
 
-                IF (iceberg_MassV(i,j,bi,bj) .EQ. 0) THEN
+                IF (iceberg_MaskV(i,j,bi,bj) .EQ. 0) THEN
                  vc(i,j,bi,bj) = 0
                 ELSE
                  vc(i,j,bi,bj) = vtemp(i,j,bi,bj)

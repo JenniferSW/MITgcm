@@ -121,7 +121,7 @@ C Calculate effective iceberg thickness from fraction area and height
         ENDDO
        ENDDO
 
-C Initialize iceberg mass fields
+C Initialize iceberg mass fields and masks
 
 
        DO bj = myByLo(myThid), myByHi(myThid)
@@ -131,6 +131,10 @@ C Initialize iceberg mass fields
             iceberg_MassC(i,j,bi,bj) = 0. _d 0
             iceberg_MassU(i,j,bi,bj) = 0. _d 0
             iceberg_MassV(i,j,bi,bj) = 0. _d 0
+
+            iceberg_MaskC(i,j,bi,bj) = 0. _d 0
+            iceberg_MaskU(i,j,bi,bj) = 0. _d 0
+            iceberg_MaskV(i,j,bi,bj) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO

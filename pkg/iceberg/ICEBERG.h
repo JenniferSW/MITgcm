@@ -106,6 +106,9 @@ C     iceberg_height  ::  field for mean iceberg height in grid cell (m)
 C     iceberg_MassC   ::  iceberg Mass at cell center
 C     iceberg_MassU   ::  iceberg Mass at U grid point
 C     iceberg_MassV   ::  iceberg Mass at V grid point
+C     iceberg_MaskC   ::  iceberg Mask to identify cell with icebergs and without (center)
+C     iceberg_MaskU   ::  iceberg Mask to identify cell with and without icebergs (U point)
+C     iceberg_MaskV   ::  iceberg Mask to identify cell with and without icebergs (V point)
 
       _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
      &  	      nSy,ICEBERG_numCl)
@@ -118,6 +121,12 @@ C     iceberg_MassV   ::  iceberg Mass at V grid point
       _RL iceberg_MassU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
      &  	      nSy)
       _RL iceberg_MassV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy)
+      _RL iceberg_MaskC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy)
+      _RL iceberg_MaskU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
+     &  	      nSy)
+      _RL iceberg_MaskV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
      &  	      nSy)
 
 
