@@ -111,7 +111,6 @@ C QUESTION maybe here we schould take the half and set a minimum value for calcu
             IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) .AND.
      &           (maskU(i,j,bi,bj) .GT. 0. _d 0) ) THEN
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
-             PRINT*, 'debug Mask', maskU(i,j,bi,bj)
             ELSE
              iceberg_MaskU(i,j,bi,bj) = 0. _d 0
             ENDIF
@@ -134,8 +133,11 @@ C QUESTION maybe here we schould take the half and set a minimum value for calcu
          ENDDO
         ENDDO
 
-
-        CALL ICEBERG_MOM_EQ(uc,vc,iCl,myTime, myIter, myThid)
+        CALL ICEBERG_MOM_EQ(
+     O              uc,vc,
+     I              iCl,
+     I              iceberg_MaskU, iceberg_MaskV,
+     I              myTime, myIter, myThid)
 
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)

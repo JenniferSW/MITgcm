@@ -3,4 +3,3 @@ TODO set up a tamc.h with maxpass, maxcube, ...etc.
 
 TODO what do the different advection schemes do? (what advcetion scheme is which?)
 
-TODO does GAD_advection part also need some specialties?
