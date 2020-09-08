@@ -108,6 +108,7 @@ C QUESTION maybe here we schould take the half and set a minimum value for calcu
             maskU(i,j,bi,bj) =
      &         iceberg_distr(i,j,bi,bj,iCl)
      &         + iceberg_distr(i-1,j,bi,bj,iCl)
+
             IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) .AND.
      &           (maskU(i,j,bi,bj) .GT. 0. _d 0) ) THEN
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
@@ -190,6 +191,9 @@ C-    Calculate "volume transports" through tracer cell faces.
           DO i=1-OLx,sNx+OLx
            uTrans(i,j) = uc(i,j,bi,bj)*xA(i,j,bi,bj)
            vTrans(i,j) = vc(i,j,bi,bj)*yA(i,j,bi,bj)
+           IF(uc(i,j,bi,bj).GT.0) THEN
+           PRINT*,'debug uc', uc(i,j,bi,bj)
+           ENDIF
           ENDDO
          ENDDO
 

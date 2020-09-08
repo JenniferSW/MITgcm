@@ -1,0 +1,48 @@
+#!/bin/bash
+
+WORKDIR=$(pwd)
+
+echo "# Locating directories"
+
+if [ ! -d "run" -o ! -d "input" -o ! -d "build" ]; then
+
+  echo "= Direcotries not found!"
+  echo "> Go to parent directory"
+
+  WORKDIR="$WORKDIR/.."
+  cd $WORKDIR
+
+  if [ ! -d "run" -o ! -d "input" -o ! -d "build" ]; then
+    exit 1
+  fi
+fi
+
+
+echo "= Required directories found."
+echo "= Working now in $(pwd)"
+
+
+
+#
+# Link input and build artifact
+#
+
+echo "> Link inputs and artifacts"
+
+cd run
+ln -s ../input/* .
+ln -s ../build/mitgcmuv .
+
+echo "= Links created"
+
+#
+# Run
+#
+
+echo "> Run model"
+
+
+./mitgcmuv > output.txt
+
+echo "= Run finished"
+

@@ -119,11 +119,23 @@ C
 C     HINT this Enddo maybe has to be shifted behind the calculation
               ENDDO
             ENDDO
+
+
 c   *------- Coriolis Force -------*
 C  Fc = -M * f * k x v_i
 C _fCori  ::  Makro from model for Coriolis parameter at cell center
+C           DO j=1-OLy+1,sNy+OLy
+C              DO i=1-OLx+1,sNx+OLx
+C                Fcu(i,j,bi,bj) = iceberg_MassU(i,j,bi,bj)
+C     &            * _fCori
+C     &            * vtemp(i,j,bi,bj)
 
 
+C                Fcv(i,j,bi,bj) = - iceberg_MassV(i,j,bi,bj)
+C     &            * _fCori
+C     &            * utemp(i,j,bi,bj)
+C              ENDDO
+C            ENDDO
 
 
 c   *------- Ocean Drag -------*
@@ -161,44 +173,105 @@ c HINT Same as Fwu and Fwv but instead of uVel and vVel we need WINDX and WINDY?
      &            * ICEBERG_AirDrag
      &            * 0.5 * ( iceberg_area(i,j,bi,bj,nCl)
      &            + iceberg_area(i-1,j,bi,bj,nCl) )
-     &            * ABS( UWIND(i,j,1,bi,bj)-utemp(i,j,bi,bj) )
-     &            * (UWIND(i,j,1,bi,bj)-utemp(i,j,bi,bj))
+     &            * ABS( UWIND(i,j,bi,bj)-utemp(i,j,bi,bj) )
+     &            * (UWIND(i,j,bi,bj)-utemp(i,j,bi,bj))
+                IF (UWIND(i,j,bi,bj) .GT. 0) THEN
 
-
-
-                Fav(i,j,bi,bj) = 0.5 * ICEBERG_rhoOcean
-     &            * ICEBERG_OceanDrag
+                 PRINT *, 'debug uwind', UWIND(i,j,bi,bj)
+c              PRINT *, 'debug Vwind', Fau(i,j,bi,bj)
+                ENDIF
+                Fav(i,j,bi,bj) = 0.5 * ICEBERG_rhoAir
+     &            * ICEBERG_AirDrag
      &            * 0.5 * (iceberg_area(i,j,bi,bj,nCl)
      &            + iceberg_area(i,j-1,bi,bj,nCl))
-     &            * ABS( UWIND(i,j,1,bi,bj)-vtemp(i,j,bi,bj) )
-     &            * (UWIND(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
+     &            * ABS( VWIND(i,j,bi,bj)-vtemp(i,j,bi,bj) )
+     &            * (VWIND(i,j,bi,bj)-vtemp(i,j,bi,bj))
               ENDDO
             ENDDO
-#else
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
-                Fau(i,j,bi,bj) = taux0(i,j,bi,bj)
-                Fav(i,j,bi,bj) = 0. _d 0
-              ENDDO
-            ENDDO
+
 #endif /* ALLOW_EXF */
 
 
 c   *------ Seaice Drag ------*
 c   Fs = 1/2 * rho_sice * C_sice * A_sice * |v_sice - v_i| (v_sice - v_i
 c   Fs = 1/2 * ICEBERG_rhoSeaice * ICEBERG_SeaiceDrag
+C TODO define area for interaction with seaice
+C TODO include seaice package and seaice velocity
+C HINT have to identify if there is seaice (Mask) otherwise drag = 0
+
+
+C           DO j=1-OLy+1,sNy+OLy
+C              DO i=1-OLx+1,sNx+OLx
+C                IF (Seaice_maskU .EQ. 0.0) THEN
+C                 Fsu(i,j,bi,bj) = 0.5 * ICEBERG_rhoSeaice
+C     &             * ICEBERG_SeaiceDrag
+C     &             * 0.5 * ( iceberg_area(i,j,bi,bj,nCl)
+C     &             + iceberg_area(i-1,j,bi,bj,nCl) )
+C     &             * ABS( UICE(i,j,bi,bj)-utemp(i,j,bi,bj) )
+C     &             * (UICE(i,j,bi,bj)-utemp(i,j,bi,bj))
+C                 ELSE
+C                  Fsu(i,j,bi,bj) = 0. _d 0
+C                 ENDIF
+
+C                 IF (Seaice_maskV .EQ. 0.0) THEN
+C                  Fsv(i,j,bi,bj) = 0.5 * ICEBERG_rhoSeaice
+C     &             * ICEBERG_SeaiceDrag
+C     &             * 0.5 * (iceberg_area(i,j,bi,bj,nCl)
+C     &             + iceberg_area(i,j-1,bi,bj,nCl))
+C     &             * ABS( VICE(i,j,bi,bj)-vtemp(i,j,bi,bj) )
+C     &             * (VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
+C                 ELSE
+C                  Fsv(i,j,bi,bj) = 0. _d 0
+C                 ENDIF
+C              ENDDO
+C            ENDDO
+
 
 c   *------ Wave Radiation Force ------*
-c   Fr = 1/4 * rho_ocean * gravity * a * L v_air/|v_air|
+c   Fr = 1/4 * rho_ocean * gravity * a * L * v_air/|v_air|
+
+
+C           DO j=1-OLy+1,sNy+OLy
+C              DO i=1-OLx+1,sNx+OLx
+C                Fru(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
+C     &            * ICEBERG_gravity
+C     &            * 0.5 * (0.02025 * ABS( UWIND(i,j,bi,bj) ) ** 2 )
+C     &            + HINT length of iceberg ???
+C     &            * UWIND(i,j,bi,bj)/ ABS( UWIND(i,j,bi,bj)
+
+
+C                Frv(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
+C     &            * ICEBERG_gravity
+C     &            * 0.5 * (0.02025 * ABS( VWIND(i,j,bi,bj) ) ** 2 )
+C     &            + HINT length of iceberg ???
+C     &            * UWIND(i,j,bi,bj)/ ABS( UWIND(i,j,bi,bj)
+C              ENDDO
+C            ENDDO
+
+
 
 c   *------ Pressure Gradient Force ------*
-c   Fp = -M * Nabla P/rho_ocean
+c   Fp = -M * g * Nabla * sea surface slope
+C           DO j=1-OLy+1,sNy+OLy
+C              DO i=1-OLx+1,sNx+OLx
+C                Fpu(i,j,bi,bj) = iceberg_MassU(i,j,bi,bj)
+C     &            * ICEBERG_gravity
+C     &            + HINT sea surface slope ???
+
+
+C                Fpv(i,j,bi,bj) = iceberg_MassV(i,j,bi,bj)
+C     &            * ICEBERG_gravity
+C     &            + HINT sea surface slope ???
+C              ENDDO
+C            ENDDO
+
+
+
 
 C   *------ Momentum Equation ------*
 C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
-                PRINT*, 'debug Fau', Fau(i,j,bi,bj)
                 dudt(i,j,bi,bj) = Fwu(i,j,bi,bj) + Fau(i,j,bi,bj)
                 dvdt(i,j,bi,bj) = Fwv(i,j,bi,bj) + Fav(i,j,bi,bj)
               ENDDO
@@ -212,8 +285,9 @@ c   v_i[n+1] = v_i[n] + dv_i * dt
               DO i=1-OLx+1,sNx+OLx
                 IF (MaskU(i,j,bi,bj) .GT. 0. _d 0) THEN
                  uc(i,j,bi,bj) = utemp(i,j,bi,bj)
-     &              + dudt(i,j,bi,bj) / iceberg_MassU(i,j,bi,bj)
+     &              + dudt(i,j,bi,bj)/ iceberg_MassU(i,j,bi,bj)
      &              * ICEBERG_deltaTtherm
+c
                 ELSE
                  uc(i,j,bi,bj) = 0
 
@@ -221,8 +295,9 @@ c   v_i[n+1] = v_i[n] + dv_i * dt
 
                 IF (MaskV(i,j,bi,bj) .GT. 0) THEN
                  vc(i,j,bi,bj) = vtemp(i,j,bi,bj)
-     &              + dvdt(i,j,bi,bj) / iceberg_MassV(i,j,bi,bj)
+     &              + dvdt(i,j,bi,bj)/ iceberg_MassV(i,j,bi,bj)
      &              * ICEBERG_deltaTtherm
+c
                 ELSE
                  vc(i,j,bi,bj) = 0
                 ENDIF

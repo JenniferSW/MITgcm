@@ -1,0 +1,58 @@
+#!/bin/bash
+
+
+#
+# clean build directory 
+#
+
+echo "******** clean build directory ********"
+
+if [ ! -d "build" ] ; then
+   echo "no build directory found"
+   exit 1
+fi
+
+echo "Are you sure?" 
+echo "yes(y or enter) no(n)"
+#select yn in "yes (enter)" "n"
+
+
+  read yn
+  case $yn in
+	  y) rm build/*; echo "build directory is now empty";;
+    "") rm build/*; echo "build directory is now empty";;
+    n) echo "skipped build directory ";;
+	  * ) echo "Please answer with yes (y or enter) or no (n)";;
+  esac
+
+echo ""
+echo ""
+
+
+#
+# clean run directory
+#
+
+echo "******** clean run directory? ********"
+
+if  [ ! -d "run" ] ; then
+  echo "no run directory found"
+  exit 1
+fi
+
+
+echo "Are you sure?"
+echo "yes (y or enter)  no(n)"
+
+read ny
+case $ny in
+    y ) rm run/*; echo "run directory is now empty";;
+    "") rm run/*; echo "run directory is now empty";;
+    n ) echo "skipped run directory";;
+    * ) echo "Please answer with yes (y or enter) or no (n)";;
+esac
+
+
+
+echo "Done"
+

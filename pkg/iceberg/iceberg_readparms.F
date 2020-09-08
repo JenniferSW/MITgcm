@@ -56,10 +56,12 @@ C     print a (weak) warning if data.iceberg is found
 
 C--   Default values for ICEBERG
 C     Iceberg_rhoAir :: density of air from seaice pkg default
-C
-C
-C
-C
+C     ICEBERG_rhoOcean :: density of ocean water
+C     ICEBERG_rhoSeaice :: density of seaice
+C     ICEBERG_AirDrag :: air drag coefficient
+C     ICEBERG_OceanDrag :: ocean drag coefficient
+C     ICEBERG_SeaiceDrag :: seaice drag coefficient
+C     ICEBERG_gravity :: gravitational acceleration
 
       ICEBERG_rhoAir = 1.3
       ICEBERG_rhoOcean = 1026.0

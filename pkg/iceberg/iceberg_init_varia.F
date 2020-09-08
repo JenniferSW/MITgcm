@@ -126,8 +126,8 @@ C Initialize iceberg mass fields and masks
 
        DO bj = myByLo(myThid), myByHi(myThid)
         DO bi = myBxLo(myThid), myBxHi(myThid)
-          DO j=1-Oly,sNy+OLy
-           DO i=1-Olx,sNx+Olx
+         DO j=1-Oly,sNy+OLy
+          DO i=1-Olx,sNx+Olx
             iceberg_MassC(i,j,bi,bj) = 0. _d 0
             iceberg_MassU(i,j,bi,bj) = 0. _d 0
             iceberg_MassV(i,j,bi,bj) = 0. _d 0
@@ -135,10 +135,10 @@ C Initialize iceberg mass fields and masks
             iceberg_MaskC(i,j,bi,bj) = 0. _d 0
             iceberg_MaskU(i,j,bi,bj) = 0. _d 0
             iceberg_MaskV(i,j,bi,bj) = 0. _d 0
-           ENDDO
           ENDDO
          ENDDO
         ENDDO
+       ENDDO
 
 
 
