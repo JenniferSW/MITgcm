@@ -71,15 +71,15 @@ c      COMMON /ICEBERG_PARAMS_L/
 C Common Block for integer parameters
 
       COMMON /ICEBERG_PARAMS_I/ ICEBERGadvScheme,
-     &       ICEBERG_Iter0,
-     &       ICEBERG_numClUsed
+     &     ICEBERG_Iter0,
+     &     ICEBERG_numClUsed
 
 C Common block for real parameters
       COMMON /ICEBERG_PARAMS_R/ ICEBERG_deltaTtherm,
-     &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
-     &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
-     &       ICEBERG_gravity, ICEBERG_mass, ICEBERG_waveampl,
-     &       WINDX, WINDY
+     &     ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
+     &     ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
+     &     ICEBERG_gravity, ICEBERG_mass, ICEBERG_waveampl,
+     &     WINDX, WINDY
 
 
 C Common Block for Character Variables and file names
@@ -110,24 +110,18 @@ C     iceberg_MaskC   ::  iceberg Mask to identify cell with icebergs and withou
 C     iceberg_MaskU   ::  iceberg Mask to identify cell with and without icebergs (U point)
 C     iceberg_MaskV   ::  iceberg Mask to identify cell with and without icebergs (V point)
 
-      _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy,ICEBERG_numCl)
-      _RL iceberg_area(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy,ICEBERG_numCl)
-      _RL iceberg_height(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy,ICEBERG_numCl)
-      _RL iceberg_MassC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy)
-      _RL iceberg_MassU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy)
-      _RL iceberg_MassV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy)
-      _RL iceberg_MaskC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy)
-      _RL iceberg_MaskU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy)
-      _RL iceberg_MaskV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,
-     &  	      nSy)
+      _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+     &     ICEBERG_numCl)
+      _RL iceberg_area (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+     &     ICEBERG_numCl)
+      _RL iceberg_height(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+     &     ICEBERG_numCl)
+      _RL iceberg_MassC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL iceberg_MassU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL iceberg_MassV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL iceberg_MaskC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL iceberg_MaskU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL iceberg_MaskV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
 
       COMMON /ICEBERG_STATE_2D/

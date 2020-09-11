@@ -70,7 +70,7 @@ C     xA,yA     :: "areas" of X and Y face of tracer cells
       _RL maskU     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL maskV     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
-      CHARACTER*(18) diagLabel
+      CHARACTER*(8) diagName
       CHARACTER*(MAX_LEN_MBUF) msgBuf
 CEOP
 
@@ -98,8 +98,8 @@ c TODO uc & vc definition the right place???
 C-    Mask cells with icebergs (1) and without (0)
         DO bj=myByLo(myThid),myByHi(myThid)
          DO bi=myBxLo(myThid),myBxHi(myThid)
-          DO j=1-OLy,sNy+OLy
-           DO i=1-OLx,sNx+OLx
+          DO j=1-OLy+1,sNy+OLy
+           DO i=1-OLx+1,sNx+OLx
 C HINT iceberg_MaskU can be evaluated only by the added area, because when it is .gt. 0, then there is an iceberg anyway
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_area(i,j,bi,bj,iCl)
@@ -254,23 +254,17 @@ C---   end bi,bj loops
        ENDDO
 
 
-C HINT Maybe diagnostics has to be moved into bi, bj loop
-
-
-
-           WRITE(diagLabel,'(A,A)') 'IB_distr_',ICEBERG_ClLbl(iCl)
-           CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,iCl),
-     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
-     &                            myThid )
-
-
-
-           WRITE(diagLabel,'(A,A)') 'IB_area_',ICEBERG_ClLbl(iCl)
-           CALL DIAGNOSTICS_FILL(iceberg_area(1-Olx,1-Oly,1,1,iCl),
-     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
-     &                            myThid )
+CMLC     HINT Maybe diagnostics has to be moved into bi, bj loop
+CMLCML   correct, but maybe in the wrong place/subroutine?
+CML
+CML       WRITE(diagName,'(A8)') 'IBD'//ICEBERG_ClLbl(iCl)
+CML       CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,iCl),
+CML     &      diagName, 0, 1, 0, 1, 1, myThid )
+CML
+CML       WRITE(diagName,'(A8)') 'IBA'//ICEBERG_ClLbl(iCl)
+CML       CALL DIAGNOSTICS_FILL(iceberg_area(1-Olx,1-Oly,1,1,iCl),
+CML     &      diagName, 0, 1 , 0, 1, 1, myThid )
 
       ENDDO
       RETURN
       END
-

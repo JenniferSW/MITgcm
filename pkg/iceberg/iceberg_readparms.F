@@ -65,10 +65,10 @@ C     ICEBERG_gravity :: gravitational acceleration
 
       ICEBERG_rhoAir = 1.3
       ICEBERG_rhoOcean = 1026.0
-      ICEBERG_rhoSeaice = 0.91
-      ICEBERG_AirDrag = 1.3
-      ICEBERG_OceanDrag = 0.9
-      ICEBERG_SeaiceDrag = 0.91
+      ICEBERG_rhoSeaice = 910.0
+      ICEBERG_AirDrag = 1.3e-3
+      ICEBERG_OceanDrag = 0.9e-3
+      ICEBERG_SeaiceDrag = 0.91e-3
       ICEBERG_gravity = 9.81
 
 C-    additional parameters:

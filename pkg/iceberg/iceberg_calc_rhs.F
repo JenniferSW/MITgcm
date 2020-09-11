@@ -27,7 +27,7 @@ C myThid    :: my Thread Id number
 
 C !OUTPUT PARAMETERS: ==================================================
 
-      
+
 C !LOCAL VARIABLES: ====================================================
 C bi,bj     :: Tile indices
       INTEGER bi, bj, i, j, k, iCl
@@ -50,19 +50,19 @@ C--   Calculate custom tendency terms ...
       PRINT *, 'WE DONT USE CLASS LOGIC'
 #endif
 
-#ifdef ALLOW_DIAGNOSTICS
-      IF ( useDiagnostics ) THEN
-         DO iCl = 1, ICEBERG_numClUsed
-           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
-     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
-     &                            myThid )
-         ENDDO
+CML#ifdef ALLOW_DIAGNOSTICS
+CML      IF ( useDiagnostics ) THEN
+CML         DO iCl = 1, ICEBERG_numClUsed
+CML           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
+CML     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
+CML     &                            myThid )
+CML         ENDDO
+CML
+CML
+CML      ENDIF
+CML#endif /*ALLOW_DIAGNOSTICS*/
 
 
-      ENDIF
-#endif /*ALLOW_DIAGNOSTICS*/
-
-      
 
 
       RETURN
