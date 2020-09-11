@@ -31,9 +31,7 @@ C     myThid   :: my Thread Id number
       _RL     myTime
       INTEGER myIter, myThid
 
-      INTEGER i,j
-
-      CHARACTER*(18) diagLabel
+      CHARACTER*(8) diagName
 
 CEOP
 
@@ -50,27 +48,26 @@ c     iCl  ::  loop parameter for size classes
 
 c     Loop over iceberg size classes and write them to diagnostics
 
-         DO iCl = 1, ICEBERG_numClUsed
-           WRITE(diagLabel,'(A,A)') 'IB_distr_',ICEBERG_ClLbl(iCl)
-           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
-     &                            diagLabel,0,Nr, 0, 1, 1,
-     &                             myThid )
-         ENDDO
+       DO iCl = 1, ICEBERG_numClUsed
+        WRITE(diagName,'(A8)') 'IBD'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
+     &                         diagName,0,Nr, 0, 1, 1,
+     &                         myThid )
+       ENDDO
 
-         DO iCl = 1, ICEBERG_numClUsed
-           WRITE(diagLabel,'(A,A)') 'IB_area_',ICEBERG_ClLbl(iCl)
-           CALL DIAGNOSTICS_FILL( iceberg_area(1-Olx,1-Oly,1,1,iCl),
-     &                            diagLabel,0,Nr, 0, 1, 1,
-     &                             myThid )
-         ENDDO
+       DO iCl = 1, ICEBERG_numClUsed
+        WRITE(diagName,'(A8)') 'IBA'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_FILL( iceberg_area(1-Olx,1-Oly,1,1,iCl),
+     &                         diagName,0,Nr, 0, 1, 1,
+     &                         myThid )
+       ENDDO
 
-
-         DO iCl = 1, ICEBERG_numClUsed
-           WRITE(diagLabel,'(A,A)') 'IB_height_',ICEBERG_ClLbl(iCl)
-           CALL DIAGNOSTICS_FILL( iceberg_height(1-Olx,1-Oly,1,1,iCl),
-     &                            diagLabel,0,Nr, 0, 1, 1,
-     &                             myThid )
-         ENDDO
+       DO iCl = 1, ICEBERG_numClUsed
+        WRITE(diagName,'(A8)') 'IBH'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_FILL( iceberg_height(1-Olx,1-Oly,1,1,iCl),
+     &                         diagName,0,Nr, 0, 1, 1,
+     &                         myThid )
+       ENDDO
 
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
