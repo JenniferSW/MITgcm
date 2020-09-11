@@ -18,7 +18,7 @@
 #  fileFlags(n)     : specific code (8c string) for output file "n"
 #--------------------
  &DIAGNOSTICS_LIST
-   fields(1,1) = 'IB_distr_CL_01  '
+   fields(1,1) = 'IBDCL_01'
 #, 'IBCL_02 '
    fileName(1) = 'TestIB',
    frequency(1) = 1200.,
