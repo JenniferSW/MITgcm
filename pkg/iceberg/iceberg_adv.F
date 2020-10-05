@@ -69,6 +69,7 @@ C     xA,yA     :: "areas" of X and Y face of tracer cells
       _RL recip_heff(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL maskU     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL maskV     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL mask_C     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
       CHARACTER*(8) diagName
       CHARACTER*(MAX_LEN_MBUF) msgBuf
@@ -98,19 +99,22 @@ c TODO uc & vc definition the right place???
 C-    Mask cells with icebergs (1) and without (0)
         DO bj=myByLo(myThid),myByHi(myThid)
          DO bi=myBxLo(myThid),myBxHi(myThid)
-          DO j=1-OLy+1,sNy+OLy
-           DO i=1-OLx+1,sNx+OLx
+          DO j=1-OLy,sNy+OLy-1
+           DO i=1-OLx,sNx+OLx-1
+c           PRINT *, 'debug maskU',iceberg_MaskU(i,j,bi,bj),i,j
 C HINT iceberg_MaskU can be evaluated only by the added area, because when it is .gt. 0, then there is an iceberg anyway
+C HINT the margin that is not calculated right now has to be "exchanged" after calculating to update the margins
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_area(i,j,bi,bj,iCl)
-     &         + iceberg_area(i-1,j,bi,bj,iCl)
-C QUESTION maybe here we schould take the half and set a minimum value for calculating the  advection????
+     &         + iceberg_area(i+1,j,bi,bj,iCl)
+C QUESTION why does the filled maskU not account for this script?
             maskU(i,j,bi,bj) =
      &         iceberg_distr(i,j,bi,bj,iCl)
-     &         + iceberg_distr(i-1,j,bi,bj,iCl)
+     &         + iceberg_distr(i+1,j,bi,bj,iCl)
 
             IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) .AND.
      &           (maskU(i,j,bi,bj) .GT. 0. _d 0) ) THEN
+C             PRINT*,'debug mask',iceberg_distr(i,j,bi,bj,iCl), i,j
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
             ELSE
              iceberg_MaskU(i,j,bi,bj) = 0. _d 0
@@ -118,10 +122,10 @@ C QUESTION maybe here we schould take the half and set a minimum value for calcu
 
             iceberg_MaskV(i,j,bi,bj) =
      &         iceberg_area(i,j,bi,bj,iCl)
-     &         + iceberg_area(i,j-1,bi,bj,iCl)
+     &         + iceberg_area(i,j+1,bi,bj,iCl)
             maskV(i,j,bi,bj) =
      &         iceberg_distr(i,j,bi,bj,iCl)
-     &         + iceberg_distr(i,j-1,bi,bj,iCl)
+     &         + iceberg_distr(i,j+1,bi,bj,iCl)
 
             IF ( (iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) .AND.
      &           (maskV(i,j,bi,bj) .GT. 0. _d 0) ) THEN
@@ -129,6 +133,16 @@ C QUESTION maybe here we schould take the half and set a minimum value for calcu
             ELSE
              iceberg_MaskV(i,j,bi,bj) = 0. _d 0
             ENDIF
+
+            iceberg_MaskC(i,j,bi,bj) = iceberg_distr(i,j,bi,bj,iCl)
+            mask_C(i,j,bi,bj) = iceberg_area(i,j,bi,bj,iCl)
+            IF ( (iceberg_MaskC(i,j,bi,bj) .GT. 0. _d 0) .AND.
+     &           (mask_C(i,j,bi,bj) .GT. 0. _d 0) ) THEN
+             iceberg_MaskC(i,j,bi,bj) = 1. _d 0
+            ELSE
+             iceberg_MaskC(i,j,bi,bj) = 0. _d 0
+            ENDIF
+
            ENDDO
           ENDDO
          ENDDO
@@ -192,7 +206,6 @@ C-    Calculate "volume transports" through tracer cell faces.
            uTrans(i,j) = uc(i,j,bi,bj)*xA(i,j,bi,bj)
            vTrans(i,j) = vc(i,j,bi,bj)*yA(i,j,bi,bj)
            IF(uc(i,j,bi,bj).GT.0) THEN
-           PRINT*,'debug uc', uc(i,j,bi,bj)
            ENDIF
           ENDDO
          ENDDO

@@ -99,8 +99,8 @@ CEOP
         DO bj=myByLo(myThid),myByHi(myThid)
           DO bi=myBxLo(myThid),myBxHi(myThid)
 
-           DO j = 1-OLy+1, sNy+OLy
-            DO i = 1-OLx+1, sNx+OLx
+           DO j = 1-OLy, sNy+OLy
+            DO i = 1-OLx, sNx+OLx
               utemp(i,j,bi,bj) = uc(i,j,bi,bj)
               vtemp(i,j,bi,bj) = vc(i,j,bi,bj)
 
@@ -109,17 +109,17 @@ CEOP
 
 C Set up mass per unit area
 C
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
+            DO j=1-OLy,sNy+OLy-1
+              DO i=1-OLx,sNx+OLx-1
 
                 iceberg_MassC(i,j,bi,bj) =
      &                 ICEBERG_rhoSeaice * iceberg_distr(i,j,bi,bj,nCl)
                 iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_distr(i,j,bi,bj,nCl)
-     &                 + iceberg_distr(i-1,j,bi,bj,nCl))
+     &                 + iceberg_distr(i+1,j,bi,bj,nCl))
                 iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_distr(i,j,bi,bj,nCl)
-     &                 + iceberg_distr(i,j-1,bi,bj,nCl))
+     &                 + iceberg_distr(i,j+1,bi,bj,nCl))
 
 C     HINT this Enddo maybe has to be shifted behind the calculation
               ENDDO
@@ -148,18 +148,20 @@ c   *------- Ocean Drag -------*
 C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocean -v_i)
 c   implicit: rhsw = 1/2* rho:ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
 
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
+            DO j=1-OLy,sNy+OLy-1
+              DO i=1-OLx,sNx+OLx-1
 C u/vVel and u/vtemp are both located on u/v Points and difference is interpolated to C-Points
                duw = 0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
-     &          + (uVel(i-1,j,1,bi,bj)-utemp(i-1,j,bi,bj)))
+     &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
                dvw = 0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
-     &          +(vVel(i,j-1,1,bi,bj)-vtemp(i,j-1,bi,bj)))
-C Calculate Norm on C-Point with constants for ocean stress
+     &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
+c Calculate Norm on C-Point with constants for ocean stress
                CDw(i,j) = 0.5 * ICEBERG_rhoOcean
      &            * ICEBERG_OceanDrag
      &            * iceberg_area(i,j,bi,bj,nCl)
      &            * sqrt(duw**2+dvw**2)
+
+
 C TODO Error appears when only running this section,
 C when everything from the sqrt downwards is commented, then the error disappears, so it is the sqrt
 C The values should not be able to get negative because of the square. Possibly there are NANs?
@@ -167,11 +169,11 @@ C Maybe Fortran cannot also not deal with sqrt(0)?
 
 C Fwu/v are calculated on C-Point for implicit scheme
 C iceberg_area is located on C-Points
-                Fwu(i,j,bi,bj) = CDw(i,j)
-     &            * 0.5 * ( uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj) )
+c                Fwu(i,j,bi,bj) = CDw(i,j)
+c     &            * 0.5 * ( uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj) )
 
-                Fwv(i,j,bi,bj) = CDw(i,j)
-     &            * 0.5 * ( vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj) )
+c                Fwv(i,j,bi,bj) = CDw(i,j)
+c     &            * 0.5 * ( vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj) )
               ENDDO
             ENDDO
 
@@ -300,34 +302,38 @@ c                + Fav(i,j,bi,bj)
 C   *------ Euler Forward Step ------*
 c   v_i[n+1] = v_i[n] + dv_i * dt
 C Calculated at C-Point
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
-                IF(MaskU(i,j,bi,bj) .EQ. 0.0
-     &             .AND. MaskU(i-1,j,bi,bj) .EQ. 0.0) THEN
+            DO j=1-OLy,sNy+OLy-1
+             DO i=1-OLx,sNx+OLx-1
+               IF(iceberg_MaskC(i,j,bi,bj) .EQ. 0.0) THEN
+C     &             .AND. iceberg_MaskU(i+1,j,bi,bj) .EQ. 0.0) THEN
                   uc(i,j,bi,bj) = 0. _d 0
                 ELSE
-                  uc(i,j,bi,bj) =
-     &              (iceberg_MassC(i,j,bi,bj)
-     &              * 0.5 * (utemp(i,j,bi,bj)+utemp(i+1,j,bi,bj))
-     &              - Fwu(i,j,bi,bj) * ICEBERG_deltaTtherm)
-     &              / (iceberg_MassC(i,j,bi,bj)
-     &              * ICEBERG_deltaTtherm * CDw(i,j))
+c                  PRINT * ,'debug mass',iceberg_MassC(i,j,bi,bj), i, j
+c                  PRINT*,'dbg mass',iceberg_distr(i,j,bi,bj,nCl)
+                  PRINT*,'mask', iceberg_MaskC(i,j,bi,bj), i, j
+                  PRINT*,'mask+1',iceberg_MaskC(i+1,j,bi,bj), i,j
+c                  uc(i,j,bi,bj) =
+c     &              (iceberg_MassC(i,j,bi,bj)
+c     &              * 0.5 * (utemp(i,j,bi,bj)+utemp(i+1,j,bi,bj))
+c     &              - Fwu(i,j,bi,bj) * ICEBERG_deltaTtherm)
+c     &              / (iceberg_MassC(i,j,bi,bj)
+c     &              * ICEBERG_deltaTtherm * CDw(i,j))
                 ENDIF
 
-                IF(MaskV(i,j,bi,bj) .EQ. 0.0
-     &             .AND. MaskV(i,j-1,bi,bj) .EQ. 0.0) THEN
-                  vc(i,j,bi,bj) = 0. _d 0
-                ELSE
-                  vc(i,j,bi,bj) =
-     &              (iceberg_MassC(i,j,bi,bj)
-     &              * 0.5 * (vtemp(i,j,bi,bj)+vtemp(i,j+1,bi,bj))
-     &              - Fwv(i,j,bi,bj) * ICEBERG_deltaTtherm)
-     &              / (iceberg_MassC(i,j,bi,bj)
-     &              * ICEBERG_deltaTtherm * CDw(i,j))
-                ENDIF
+c                IF(iceberg_MaskV(i,j,bi,bj) .EQ. 0.0
+c     &             .AND. iceberg_MaskV(i,j+1,bi,bj) .EQ. 0.0) THEN
+c                  vc(i,j,bi,bj) = 0. _d 0
+c                ELSE
+c                 vc(i,j,bi,bj) =
+c     &              (iceberg_MassC(i,j,bi,bj)
+c     &              * 0.5 * (vtemp(i,j,bi,bj)+vtemp(i,j+1,bi,bj))
+c     &              - Fwv(i,j,bi,bj) * ICEBERG_deltaTtherm)
+c     &              / (iceberg_MassC(i,j,bi,bj)
+c     &              * ICEBERG_deltaTtherm * CDw(i,j))
+c                ENDIF
 
-              ENDDO
-            ENDDO
+               ENDDO
+             ENDDO
 
           ENDDO
         ENDDO
