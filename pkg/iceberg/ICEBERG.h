@@ -122,14 +122,18 @@ C     iceberg_MaskV   ::  iceberg Mask to identify cell with and without iceberg
       _RL iceberg_MaskC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MaskU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MaskV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL iceberg_uvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+     &     ICEBERG_numCl)
+      _RL iceberg_vvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+     &     ICEBERG_numCl)
 
 
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_distr,
      &    iceberg_area, iceberg_height,
      &    iceberg_MassC, iceberg_MassU, iceberg_MassV,
-     &    iceberg_MaskC, iceberg_MaskU, iceberg_MaskV
-
+     &    iceberg_MaskC, iceberg_MaskU, iceberg_MaskV,
+     &    iceberg_uvel, iceberg_vvel
 #endif /* ICEBERG_2D_STATE */
 
 #ifdef ICEBERG_TENDENCY

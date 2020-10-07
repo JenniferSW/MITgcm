@@ -40,15 +40,12 @@ CEOP
 c      i = 1
 c      j = 1
 
-C--   Calculate custom tendency terms ...
+C--   Advect iceberg (effective height and fractional area)
 
-      CALL ICEBERG_ADV(myTime, myIter, myThid)
+      CALL ICEBERG_ADV(
+     I     iceberg_uvel, iceberg_vvel,myTime,
+     I     myIter, myThid)
 
-#ifdef ICEBERG_USE_CLASS_LOGIC
-      PRINT *, 'WE USE CLASS LOGIC'
-#else
-      PRINT *, 'WE DONT USE CLASS LOGIC'
-#endif
 
 CML#ifdef ALLOW_DIAGNOSTICS
 CML      IF ( useDiagnostics ) THEN

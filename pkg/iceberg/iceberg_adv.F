@@ -7,7 +7,7 @@ CBOP
 C !ROUTINE: ICEBERG_ADVDIFF
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_ADV(
+      SUBROUTINE ICEBERG_ADV(uc, vc,
      I                  myTime, myIter, myThid )
 
 C !DESCRIPTION: \bv
@@ -82,17 +82,17 @@ C TODO introduce GAD-Identifier for diagnostics
 C--   get surface velocities from MITgcm
 
 
-c TODO uc & vc definition the right place???
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
-        DO j=1-OLy,sNy+OLy
-         DO i=1-OLx,sNx+OLx
-          uc(i,j,bi,bj) = 0
-          vc(i,j,bi,bj) = 0
-         ENDDO
-        ENDDO
-       ENDDO
-      ENDDO
+c not needed anymore because of global velocity variables
+c      DO bj=myByLo(myThid),myByHi(myThid)
+c       DO bi=myBxLo(myThid),myBxHi(myThid)
+c        DO j=1-OLy,sNy+OLy
+c         DO i=1-OLx,sNx+OLx
+c          uc(i,j,bi,bj) = 1
+c          vc(i,j,bi,bj) = 1
+c         ENDDO
+c        ENDDO
+c       ENDDO
+c      ENDDO
 
       DO iCl = 1, ICEBERG_numClUsed
 
@@ -103,7 +103,7 @@ C-    Mask cells with icebergs (1) and without (0)
            DO i=1-OLx,sNx+OLx-1
 c           PRINT *, 'debug maskU',iceberg_MaskU(i,j,bi,bj),i,j
 C HINT iceberg_MaskU can be evaluated only by the added area, because when it is .gt. 0, then there is an iceberg anyway
-C HINT the margin that is not calculated right now has to be "exchanged" after calculating to update the margins
+C QUESTION the margin that is not calculated right now has to be "exchanged" after calculating to update the margins ?
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_area(i,j,bi,bj,iCl)
      &         + iceberg_area(i+1,j,bi,bj,iCl)
@@ -114,7 +114,6 @@ C QUESTION why does the filled maskU not account for this script?
 
             IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) .AND.
      &           (maskU(i,j,bi,bj) .GT. 0. _d 0) ) THEN
-C             PRINT*,'debug mask',iceberg_distr(i,j,bi,bj,iCl), i,j
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
             ELSE
              iceberg_MaskU(i,j,bi,bj) = 0. _d 0
