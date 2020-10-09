@@ -6,7 +6,7 @@ echo "# Locating directories"
 
 if [ ! -d "run" -o ! -d "input" -o ! -d "build" ]; then
 
-  echo "= Direcotries not found!"
+  echo "= Directories not found!"
   echo "> Go to parent directory"
 
   WORKDIR="$WORKDIR/.."

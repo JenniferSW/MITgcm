@@ -101,7 +101,7 @@ c      _BARRIER
 
 
         _EXCH_XY_RL(iceberg_area , myThid)
-        _EXCH_XY_RL(iceberg_area , myThid)
+        _EXCH_XY_RL(iceberg_height , myThid)
 
        ENDDO
       ENDIF
@@ -115,6 +115,9 @@ C Calculate effective iceberg thickness from fraction area and height
            DO i=1-Olx,sNx+Olx
             iceberg_distr(i,j,bi,bj,iCl) =
      &      iceberg_height(i,j,bi,bj,iCl) * iceberg_area(i,j,bi,bj,iCl)
+
+            iceberg_uvel(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_vVel(i,j,bi,bj,iCl) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO
@@ -135,6 +138,7 @@ C Initialize iceberg mass fields and masks
             iceberg_MaskC(i,j,bi,bj) = 0. _d 0
             iceberg_MaskU(i,j,bi,bj) = 0. _d 0
             iceberg_MaskV(i,j,bi,bj) = 0. _d 0
+
           ENDDO
          ENDDO
         ENDDO

@@ -3,4 +3,5 @@
  useDiagnostics = .TRUE.,
  useICEBERG = .TRUE.,
  useEXF = .TRUE.,
+ useSEAICE = .TRUE.,
  &

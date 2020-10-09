@@ -8,7 +8,8 @@ experiment="test_iceberg"
 cd build
 
 ~/MITgcm_home/MITgcm/tools/genmake2 -rootdir=/home/jwesselbaum/MITgcm_home/MITgcm \
--mods=/home/jwesselbaum/MITgcm_home/$experiment/code \
+-mods=/home/jwesselbaum/MITgcm_home/MITgcm/verification/$experiment/code \
+-devel \
 -of \
 /home/jwesselbaum/MITgcm_home/MITgcm/tools/build_options/linux_amd64_gfortran_path
 

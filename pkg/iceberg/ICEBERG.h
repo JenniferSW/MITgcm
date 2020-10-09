@@ -42,12 +42,6 @@ c     ICEBERG_waveampl ::  wave amplitude (calculated f)
 
 
 
-/* TODO see seaice package for wind or air velocity */
-      _RL WINDX      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL WINDY      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-
-
-
 C-    additional parameters:
 c     ICEBERG_deltaTtherm :: Seaice timestep for thermodynamic equations (s)
 c     ICEBERG_ClLbl   :: Labels for diagnostics output
@@ -78,8 +72,8 @@ C Common block for real parameters
       COMMON /ICEBERG_PARAMS_R/ ICEBERG_deltaTtherm,
      &     ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &     ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
-     &     ICEBERG_gravity, ICEBERG_mass, ICEBERG_waveampl,
-     &     WINDX, WINDY
+     &     ICEBERG_gravity, ICEBERG_mass, ICEBERG_waveampl
+
 
 
 C Common Block for Character Variables and file names
