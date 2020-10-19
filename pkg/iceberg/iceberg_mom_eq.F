@@ -1,4 +1,7 @@
 #include "ICEBERG_OPTIONS.h"
+C     Without ALLOW_SEAICE, this would never work anyway.
+C     Needs to be checked in iceberg_check.F
+#include "SEAICE_OPTIONS.h"
 #ifdef ALLOW_AUTODIFF
 # include "AUTODIFF_OPTIONS.h"
 #endif
@@ -48,9 +51,9 @@ C     === Global variables ===
 # include "EXF_PARAM.h"
 #endif
 #ifdef ALLOW_SEAICE
-#include "SEAICE.h"
-#include "SEAICE_PARAMS.h"
 #include "SEAICE_SIZE.h"
+#include "SEAICE_PARAMS.h"
+#include "SEAICE.h"
 #endif
 
 C !INPUT/OUTPUT PARAMETERS: ===================================================
@@ -228,7 +231,7 @@ C TODO fix discretisation for norm
 
            DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
-                IF (seaiceMaskU .EQ. 0.0) THEN
+                IF (seaiceMaskU(i,j,bi,bj) .EQ. 0.0) THEN
                  Fsu(i,j,bi,bj) = 0.5 * ICEBERG_rhoSeaice
      &             * ICEBERG_SeaiceDrag
      &             * 0.5 * ( iceberg_area(i,j,bi,bj,nCl)
@@ -240,7 +243,7 @@ C TODO fix discretisation for norm
                   Fsu(i,j,bi,bj) = 0. _d 0
                  ENDIF
 
-                 IF (seaiceMaskV .EQ. 0.0) THEN
+                 IF (seaiceMaskV(i,j,bi,bj) .EQ. 0.0) THEN
                   Fsv(i,j,bi,bj) = 0.5 * ICEBERG_rhoSeaice
      &             * ICEBERG_SeaiceDrag
 C     &             * 0.5 * (iceberg_area(i,j,bi,bj,nCl)
