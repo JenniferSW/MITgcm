@@ -26,6 +26,7 @@
  nTimeSteps=10,
  deltaT=1200.0,
  deltaTtracer = 86400.,
+ forcing_In_AB = .FALSE.,
  pChkptFreq=31104000.0,
  chkptFreq=15552000.0,
  dumpFreq=15552000.0,

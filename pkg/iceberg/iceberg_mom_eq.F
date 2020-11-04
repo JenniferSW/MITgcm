@@ -82,6 +82,9 @@ C     u_temp
       _RL dvw
       _RL dua
       _RL dva
+      _RL dus
+      _RL dvs
+      _RL norm_a
       _RL utemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vtemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL Fcu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -118,18 +121,21 @@ CEOP
            ENDDO
 
 C Set up mass per unit area
-C
-            DO j=1-OLy,sNy+OLy-1
-              DO i=1-OLx,sNx+OLx-1
+C interpolation from c to u/v point
+C u-point -> 0.5*( c(i,j) + c(i-1,j))
+C v-point -> 0.5*( c(i,j) + c(i,j-1))
+
+            DO j=1-OLy+1,sNy+OLy
+              DO i=1-OLx+1,sNx+OLx
 
                 iceberg_MassC(i,j,bi,bj) =
      &                 ICEBERG_rhoSeaice * iceberg_distr(i,j,bi,bj,nCl)
                 iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_distr(i,j,bi,bj,nCl)
-     &                 + iceberg_distr(i+1,j,bi,bj,nCl))
+     &                 + iceberg_distr(i-1,j,bi,bj,nCl))
                 iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_distr(i,j,bi,bj,nCl)
-     &                 + iceberg_distr(i,j+1,bi,bj,nCl))
+     &                 + iceberg_distr(i,j-1,bi,bj,nCl))
 
 C     HINT this Enddo maybe has to be shifted behind the calculation
               ENDDO
@@ -137,163 +143,198 @@ C     HINT this Enddo maybe has to be shifted behind the calculation
 
 
 c   *------- Coriolis Force -------*
-C TODO adapt Coriolis with discretisation from seaice_evp
 C  Fc = -M * f * k x v_i[n]
 C _fCori  ::  Makro from model for Coriolis parameter at cell center
-C           DO j=1-OLy+1,sNy+OLy
-C              DO i=1-OLx+1,sNx+OLx
-C                Fcu(i,j,bi,bj) = iceberg_MassU(i,j,bi,bj)
-C     &            * _fCori
-C     &            * vtemp(i,j,bi,bj)
+C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
+C HINT section is working (compilable and run without error)
+           DO j=1-OLy,sNy+OLy-1
+             DO i=1-OLx,sNx+OLx-1
+                Fcu(i,j,bi,bj)=
+c     &             0.5 _d 0 * (
+     &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
+     &            * 0.5 _d 0*( vtemp(i  ,j,bi,bj)+vtemp(i  ,j+1,bi,bj) )
+c     &           + iceberg_MassC(i-1,j,bi,bj) * _fCori(i-1,j,bi,bj)
+c     &           * 0.5 _d 0*( vtemp(i-1,j,bi,bj)+vtemp(i-1,j+1,bi,bj) )
+c     &           )
+                Fcv(i,j,bi,bj)=
+c    &             0.5 _d 0*(
+     &            iceberg_MassC(i,j  ,bi,bj) * _fCori(i,j  ,bi,bj)
+     &            * 0.5 _d 0*( utemp(i,j  ,bi,bj)+utemp(i+1,  j,bi,bj) )
+c     &           + iceberg_MassC(i,j-1,bi,bj) * _fCori(i,j-1,bi,bj)
+c     &           * 0.5 _d 0*( utemp(i,j-1,bi,bj)+utemp(i+1,j-1,bi,bj) )
+c     &           )
+             ENDDO
+           ENDDO
 
-C                Fcv(i,j,bi,bj) = - iceberg_MassV(i,j,bi,bj)
-C     &            * _fCori
-C     &            * utemp(i,j,bi,bj)
-C              ENDDO
-C            ENDDO
-
-C HINT this section works alone
+C HINT this section is working (compilable and run without error)
 c   *------- Ocean Drag -------*
 C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocean -v_i)
 c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
+c rho ans C are constant over grid; no interpolation needed
+c A is calculated from area that is on c-points
+c only velocity has to be interpolated
 
-c            DO j=1-OLy,sNy+OLy-1
-c              DO i=1-OLx,sNx+OLx-1
+            DO j=1-OLy,sNy+OLy-1
+              DO i=1-OLx,sNx+OLx-1
 
 C u/vVel and u/vtemp are both located on u/v Points and difference is interpolated to C-Points
-C https://mitgcm.readthedocs.io/en/latest/phys_pkgs/exf.html?highlight=uwind#field-attributes
 
-c               duw = 0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
-c     &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
-c               PRINT *, 'debug duw', uVel(i,j,1,bi,bj)
-c               dvw = 0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
-c     &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
+
+               duw = 0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
+     &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
+               PRINT *, 'debug duw', uVel(i,j,1,bi,bj)
+               dvw = 0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
+     &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
 c Calculate Norm on C-Point with constants for ocean stress
-c               CDw(i,j) = 0.5 * ICEBERG_rhoOcean
-c     &            * ICEBERG_OceanDrag
-c     &            * iceberg_area(i,j,bi,bj,nCl)
-c     &            * sqrt(duw**2+dvw**2)
+               CDw(i,j) = 0.5 * ICEBERG_rhoOcean
+     &            * ICEBERG_OceanDrag
+     &            * iceberg_area(i,j,bi,bj,nCl)
+     &            * sqrt(duw**2+dvw**2)
 
 C Fwu/v are calculated on C-Point for implicit scheme
 C iceberg_area is located on C-Points
-c                IF (CDw(i,j) .NE. 0.0) THEN
-c                PRINT*,'debug CDw', uVel(i,j,1,bi,bj), i, j
-c                ENDIF
-c                Fwu(i,j,bi,bj) = CDw(i,j)
-c     &            * 0.5 * ( uVel(i,j,1,bi,bj) + uVel(i+1,j,1,bi,bj) )
-c
-c                Fwv(i,j,bi,bj) = CDw(i,j)
-c     &            * 0.5 * ( vVel(i,j,1,bi,bj) + vVel(i,j+1,1,bi,bj) )
-c              ENDDO
-c            ENDDO
+
+                Fwu(i,j,bi,bj) = CDw(i,j)
+     &            * 0.5 * ( uVel(i,j,1,bi,bj) + uVel(i+1,j,1,bi,bj) )
+
+                Fwv(i,j,bi,bj) = CDw(i,j)
+     &            * 0.5 * ( vVel(i,j,1,bi,bj) + vVel(i,j+1,1,bi,bj) )
+              ENDDO
+            ENDDO
 
 c   *------ Atmosphere Drag ------*
 C   Fa = 1/2 * rho_atm * C_atm * A_atm * |v_atm - v_i| (v_atm -v_i)
 C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
+C rho and C are constant over grid; no interpolation needed
+C A is calculated from area which is located on c-points
+C wind velocity is interpolated to c-points
 
-c HINT Same as Fwu and Fwv but instead of uVel and vVel we need WINDX and WINDY???
 C TODO this section is compilable
 #ifdef ALLOW_EXF
-c            DO j=1-OLy+1,sNy+OLy
-c              DO i=1-OLx+1,sNx+OLx
+            DO j=1-OLy+1,sNy+OLy
+              DO i=1-OLx+1,sNx+OLx
 C Uwind is located on southwest C-Grid U-point and Vwind is located on southwest C-Grid V-Point
-c                dua = 0.5 * (UWIND(i,j,bi,bj)
-c     &           + UWIND(i-1,j,bi,bj))
-c                dva = 0.5 * (VWIND(i,j,bi,bj)
-c     &            +VWIND(i,j-1,bi,bj))
+C https://mitgcm.readthedocs.io/en/latest/phys_pkgs/exf.html?highlight=uwind#field-attributes
+
+                dua = 0.5 * (UWIND(i,j,bi,bj)
+     &           + UWIND(i-1,j,bi,bj))
+                dva = 0.5 * (VWIND(i,j,bi,bj)
+     &            +VWIND(i,j-1,bi,bj))
 C Calculate Norm on C-Point with constant values for wind stress
-c                CDa(i,j) = 0.5 * ICEBERG_rhoAir
-c     &            * ICEBERG_AirDrag
-c     &            * iceberg_area(i,j,bi,bj,nCl)
-c     &            * sqrt(dua**2+dva**2)
+                CDa(i,j) = 0.5 * ICEBERG_rhoAir
+     &            * ICEBERG_AirDrag
+     &            * iceberg_area(i,j,bi,bj,nCl)
+     &            * sqrt(dua**2+dva**2)
 
-c                Fau(i,j,bi,bj) = CDa(i,j)
-c     &            * 0.5 * (UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj))
+                Fau(i,j,bi,bj) = CDa(i,j)
+     &            * 0.5 * (UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj))
 
-c                Fav(i,j,bi,bj) = CDa(i,j)
-c     &            * 0.5 * (VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj))
-c              ENDDO
-c            ENDDO
+                Fav(i,j,bi,bj) = CDa(i,j)
+     &            * 0.5 * (VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj))
+              ENDDO
+            ENDDO
 
 #endif /* ALLOW_EXF */
 
 
 c   *------ Seaice Drag ------*
-c   Fs = 1/2 * rho_sice * C_sice * A_sice * |v_sice - v_i| (v_sice - v_i
-c   Fs = 1/2 * ICEBERG_rhoSeaice * ICEBERG_SeaiceDrag
-C TODO define area for interaction with seaice
-C TODO include seaice package and seaice velocity
-C HINT have to identify if there is seaice (Mask) otherwise drag = 0
-C TODO fix discretisation for norm
+c   Fs = 1/2 * rho_sice * C_sice * A_sice * |v_sice - v_i| (v_sice - v_i)
+c   implicit: rhss = 1/2* rho_sice * C_sice * A_sice + |v_ice - v_i[n]| * v_ice
+C A_sice = L*h = length of iceberg * seaice thickness
+C length of iceberg = sqrt(iceberg_area * dxG**2)
+C seaice thickness = HEFF * AREA
+
+c rho and C are constant over grid; no interpolation needed
+c A is calculated from area that is on c-points
+c only velocity has to be interpolated
+
+
+C TODO fix problems with MDSIO_BUFF_3D
 #ifdef ALLOW_SEAICE
 
            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
-                IF (seaiceMaskU(i,j,bi,bj) .EQ. 0.0) THEN
-                 Fsu(i,j,bi,bj) = 0.5 * ICEBERG_rhoSeaice
-     &             * ICEBERG_SeaiceDrag
-     &             * 0.5 * ( iceberg_area(i,j,bi,bj,nCl)
-     &             + iceberg_area(i-1,j,bi,bj,nCl) )
-     &             * ABS( UICE(i,j,bi,bj)-utemp(i,j,bi,bj) )
-     &             * (UICE(i,j,bi,bj)-utemp(i,j,bi,bj))
-                  PRINT*,'debug seaice',Fsu(i,j,bi,bj)
-                 ELSE
-                  Fsu(i,j,bi,bj) = 0. _d 0
-                 ENDIF
+             DO i=1-OLx+1,sNx+OLx
 
-                 IF (seaiceMaskV(i,j,bi,bj) .EQ. 0.0) THEN
-                  Fsv(i,j,bi,bj) = 0.5 * ICEBERG_rhoSeaice
-     &             * ICEBERG_SeaiceDrag
-C     &             * 0.5 * (iceberg_area(i,j,bi,bj,nCl)
-C     &             + iceberg_area(i,j-1,bi,bj,nCl))
-C     &             * ABS( VICE(i,j,bi,bj)-vtemp(i,j,bi,bj) )
-C     &             * (VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
-                 ELSE
-C                  Fsv(i,j,bi,bj) = 0. _d 0
-                 ENDIF
-              ENDDO
-            ENDDO
+               dus = 0.5 * ((UICE(i,j,bi,bj)-utemp(i,j,bi,bj))
+     &          + (UICE(i-1,j,bi,bj)-utemp(i-1,j,bi,bj)))
+               dvs = 0.5 * ((VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
+     &          + (VICE(i,j-1,bi,bj)-vtemp(i,j-1,bi,bj)))
+C Calculate Norm on C-Point with constant values for wind stress
+               CDs(i,j) = 0.5 * ICEBERG_rhoSeaice
+     &            * ICEBERG_SeaiceDrag
+c     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG**2)
+c     &            * HEFF(i,j,bi,bj)/AREA(i,j,bi,bj)
+c     &            * sqrt(dus**2+dvs**2)
+
+                IF (seaiceMaskU(i,j,bi,bj) .EQ. 0.0) THEN
+                  Fsu(i,j,bi,bj) = 0. _d 0
+                ELSE
+                  Fsu(i,j,bi,bj) = CDs(i,j)
+     &             * 0.5 * (UICE(i,j,bi,bj) + UICE(i-1,j,bi,bj))
+                ENDIF
+
+                IF (seaiceMaskV(i,j,bi,bj) .EQ. 0.0) THEN
+                  Fsv(i,j,bi,bj) = 0. _d 0
+                ELSE
+                  Fsv(i,j,bi,bj) = CDs(i,j)
+     &             * 0.5 * (VICE(i,j,bi,bj) + VICE(i,j-1,bi,bj))
+                ENDIF
+             ENDDO
+           ENDDO
 
 #endif /*ALLOW_SEAICE*/
 
 
 c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a * L * v_air/|v_air|
-C TODO fix discretization of the norm
+C TODO What happens when UWIND and VWIND = 0? Assumption = No waves????
+C rho and gravity are constant over grid; no interpolation needed
+C iceberg_area is on C-points, dxG is width of cell around C-Point
+C wind velocity has to be interpolated
 
-C           DO j=1-OLy+1,sNy+OLy
-C              DO i=1-OLx+1,sNx+OLx
-C                Fru(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
-C     &            * ICEBERG_gravity
-C     &            * 0.5 * (0.02025 * ABS( UWIND(i,j,bi,bj) ) ** 2 )
-C     &            + HINT length of iceberg ???
-C     &            * UWIND(i,j,bi,bj)/ ABS( UWIND(i,j,bi,bj)
+           DO j=1-OLy,sNy+OLy-1
+              DO i=1-OLx,sNx+OLx-1
+                norm_a = sqrt((0.5*(UWIND(i,j,bi,bj)
+     &                      + UWIND(i+1,j,bi,bj)))**2
+     &                      + (0.5*(VWIND(i,j,bi,bj)
+     &                      + VWIND(i,j+1,bi,bj)))**2)
 
+                Fru(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
+     &            * ICEBERG_gravity
+     &            * (0.5 * 0.02025 * norm_a)**2
+     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
+     &            * UWIND(i,j,bi,bj)/norm_a
+                PRINT*,'debug sqr',UWIND(i,j,bi,bj),VWIND(i,j,bi,bj)
 
-C                Frv(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
-C     &            * ICEBERG_gravity
-C     &            * 0.5 * (0.02025 * ABS( VWIND(i,j,bi,bj) ) ** 2 )
-C     &            + HINT length of iceberg ???
-C     &            * UWIND(i,j,bi,bj)/ ABS( UWIND(i,j,bi,bj)
-C              ENDDO
-C            ENDDO
+                Frv(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
+     &            * ICEBERG_gravity
+     &            * (0.5 * 0.02025 * norm_a)**2
+     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
+     &            * UWIND(i,j,bi,bj)/norm_a
+              ENDDO
+            ENDDO
 
 
 
 c   *------ Pressure Gradient Force ------*
-c   Fp = -M * g * Nabla * sea surface slope
+c   Fp = -M * g * Nabla * sea surface height
+C TODO tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN?
+
+C Nabla *
+
 C           DO j=1-OLy+1,sNy+OLy
 C              DO i=1-OLx+1,sNx+OLx
 C                Fpu(i,j,bi,bj) = iceberg_MassU(i,j,bi,bj)
 C     &            * ICEBERG_gravity
-C     &            + HINT sea surface slope ???
+c     &         *( phiSurf(i,j)-phiSurf(i-1,j) )
+
 
 
 C                Fpv(i,j,bi,bj) = iceberg_MassV(i,j,bi,bj)
 C     &            * ICEBERG_gravity
-C     &            + HINT sea surface slope ???
+c     &         *( phiSurf(i,j)-phiSurf(i-1,j) )
 C              ENDDO
 C            ENDDO
 

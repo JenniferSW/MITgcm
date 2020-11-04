@@ -14,7 +14,6 @@ C to reduce memory storage, disable unused array with those CPP flags :
 #define ICEBERG_2D_STATE
 #define ICEBERG_TENDENCY
 
-#define ICEBERG_USE_CLASS_LOGIC
 
 #undef MYPA_SPECIAL_COMPILE_OPTION1
 
