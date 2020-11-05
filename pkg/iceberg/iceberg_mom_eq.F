@@ -104,6 +104,7 @@ C     u_temp
       _RL CDw(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDa(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDs(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL CDr(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
 CEOP
 
@@ -197,17 +198,16 @@ C calculate rhs of ocean drag force
             ENDDO
 
 c   *------ Atmosphere Drag ------*
+C Uwind is located on southwest C-Grid U-point and Vwind is located on southwest C-Grid V-Point
+C https://mitgcm.readthedocs.io/en/latest/phys_pkgs/exf.html?highlight=uwind#field-attributes
+
 C   Fa = 1/2 * rho_atm * C_atm * A_atm * |v_atm - v_i| (v_atm -v_i)
 C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
-
-C TODO this section is compilable
 #ifdef ALLOW_EXF
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
-C Uwind is located on southwest C-Grid U-point and Vwind is located on southwest C-Grid V-Point
-C https://mitgcm.readthedocs.io/en/latest/phys_pkgs/exf.html?highlight=uwind#field-attributes
 
                 dua = 0.5 * (UWIND(i,j,bi,bj)
      &           + UWIND(i-1,j,bi,bj))
@@ -284,9 +284,6 @@ C Calculate Norm on C-Point with constant values for wind stress
 c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a * L * v_air/|v_air|
 C TODO What happens when UWIND and VWIND = 0? Assumption = No waves????
-C rho and gravity are constant over grid; no interpolation needed
-C iceberg_area is on C-points, dxG is width of cell around C-Point
-C wind velocity has to be interpolated
 
            DO j=1-OLy,sNy+OLy-1
               DO i=1-OLx,sNx+OLx-1
@@ -294,19 +291,17 @@ C wind velocity has to be interpolated
      &                      + UWIND(i+1,j,bi,bj)))**2
      &                      + (0.5*(VWIND(i,j,bi,bj)
      &                      + VWIND(i,j+1,bi,bj)))**2)
-
-                Fru(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
+                Cdr(i,j) = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity
      &            * (0.5 * 0.02025 * norm_a)**2
      &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
-     &            * UWIND(i,j,bi,bj)/norm_a
-                PRINT*,'debug sqr',UWIND(i,j,bi,bj),VWIND(i,j,bi,bj)
+     &            * 1/norm_a
 
-                Frv(i,j,bi,bj) = 0.25 * ICEBERG_rhoOcean
-     &            * ICEBERG_gravity
-     &            * (0.5 * 0.02025 * norm_a)**2
-     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
-     &            * UWIND(i,j,bi,bj)/norm_a
+                Fru(i,j,bi,bj) = 0.5* ( CDr(i,j)+ CDr(i-1,j))
+     &            * UWIND(i,j,bi,bj)
+
+                Frv(i,j,bi,bj) = 0.5 * ( CDr(i,j) + CDr(i,j-1))
+     &            * UWIND(i,j,bi,bj)
               ENDDO
             ENDDO
 
