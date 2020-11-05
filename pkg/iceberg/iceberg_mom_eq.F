@@ -253,22 +253,27 @@ C TODO fix problems with MDSIO_BUFF_3D
 C Calculate Norm on C-Point with constant values for wind stress
                CDs(i,j) = 0.5 * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
-c     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG**2)
-c     &            * HEFF(i,j,bi,bj)/AREA(i,j,bi,bj)
-c     &            * sqrt(dus**2+dvs**2)
+     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG**2)
+     &            * HEFF(i,j,bi,bj)/AREA(i,j,bi,bj)
+     &            * sqrt(dus**2+dvs**2)
+             ENDDO
+           ENDDO
+
+           DO j=1-OLy+1,sNy+OLy
+              DO i=1-OLx+1,sNx+OLx
 
                 IF (seaiceMaskU(i,j,bi,bj) .EQ. 0.0) THEN
                   Fsu(i,j,bi,bj) = 0. _d 0
                 ELSE
-                  Fsu(i,j,bi,bj) = CDs(i,j)
-     &             * 0.5 * (UICE(i,j,bi,bj) + UICE(i-1,j,bi,bj))
+                  Fsu(i,j,bi,bj) = 0.5 * ( CDs(i,j) + CDs(i-1,j) )
+     &             * UICE(i,j,bi,bj)
                 ENDIF
 
                 IF (seaiceMaskV(i,j,bi,bj) .EQ. 0.0) THEN
                   Fsv(i,j,bi,bj) = 0. _d 0
                 ELSE
-                  Fsv(i,j,bi,bj) = CDs(i,j)
-     &             * 0.5 * (VICE(i,j,bi,bj) + VICE(i,j-1,bi,bj))
+                  Fsv(i,j,bi,bj) = 0.5 * ( CDs(i,j) + CDs(i,j-1) )
+     &             * VICE(i,j,bi,bj)
                 ENDIF
              ENDDO
            ENDDO
