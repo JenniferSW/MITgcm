@@ -138,6 +138,7 @@ C v-point -> 0.5*( c(i,j) + c(i,j-1))
      &                 + iceberg_distr(i,j-1,bi,bj,nCl))
 
 C     HINT this Enddo maybe has to be shifted behind the calculation
+C Question Do I have to do the EXCH_XY....?
               ENDDO
             ENDDO
 
@@ -151,19 +152,19 @@ C HINT section is working (compilable and run without error)
            DO j=1-OLy,sNy+OLy-1
              DO i=1-OLx,sNx+OLx-1
                 Fcu(i,j,bi,bj)=
-c     &             0.5 _d 0 * (
+     &             0.5 _d 0 * (
      &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
      &            * 0.5 _d 0*( vtemp(i  ,j,bi,bj)+vtemp(i  ,j+1,bi,bj) )
-c     &           + iceberg_MassC(i-1,j,bi,bj) * _fCori(i-1,j,bi,bj)
-c     &           * 0.5 _d 0*( vtemp(i-1,j,bi,bj)+vtemp(i-1,j+1,bi,bj) )
-c     &           )
+     &           + iceberg_MassC(i-1,j,bi,bj) * _fCori(i-1,j,bi,bj)
+     &           * 0.5 _d 0*( vtemp(i-1,j,bi,bj)+vtemp(i-1,j+1,bi,bj) )
+     &           )
                 Fcv(i,j,bi,bj)=
-c    &             0.5 _d 0*(
+     &             0.5 _d 0*(
      &            iceberg_MassC(i,j  ,bi,bj) * _fCori(i,j  ,bi,bj)
      &            * 0.5 _d 0*( utemp(i,j  ,bi,bj)+utemp(i+1,  j,bi,bj) )
-c     &           + iceberg_MassC(i,j-1,bi,bj) * _fCori(i,j-1,bi,bj)
-c     &           * 0.5 _d 0*( utemp(i,j-1,bi,bj)+utemp(i+1,j-1,bi,bj) )
-c     &           )
+     &           + iceberg_MassC(i,j-1,bi,bj) * _fCori(i,j-1,bi,bj)
+     &           * 0.5 _d 0*( utemp(i,j-1,bi,bj)+utemp(i+1,j-1,bi,bj) )
+     &           )
              ENDDO
            ENDDO
 
