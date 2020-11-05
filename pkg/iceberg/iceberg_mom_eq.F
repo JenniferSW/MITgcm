@@ -116,7 +116,6 @@ CEOP
             DO i = 1-OLx, sNx+OLx
               utemp(i,j,bi,bj) = uc(i,j,bi,bj)
               vtemp(i,j,bi,bj) = vc(i,j,bi,bj)
-
             ENDDO
            ENDDO
 
@@ -127,7 +126,6 @@ C v-point -> 0.5*( c(i,j) + c(i,j-1))
 
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
-
                 iceberg_MassC(i,j,bi,bj) =
      &                 ICEBERG_rhoSeaice * iceberg_distr(i,j,bi,bj,nCl)
                 iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
@@ -136,7 +134,6 @@ C v-point -> 0.5*( c(i,j) + c(i,j-1))
                 iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_distr(i,j,bi,bj,nCl)
      &                 + iceberg_distr(i,j-1,bi,bj,nCl))
-
 C     HINT this Enddo maybe has to be shifted behind the calculation
 C Question Do I have to do the EXCH_XY....?
               ENDDO
@@ -168,39 +165,34 @@ C HINT section is working (compilable and run without error)
              ENDDO
            ENDDO
 
-C HINT this section is working (compilable and run without error)
 c   *------- Ocean Drag -------*
 C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocean -v_i)
 c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
-c rho ans C are constant over grid; no interpolation needed
-c A is calculated from area that is on c-points
-c only velocity has to be interpolated
 
+C calculate drag coefficient (later shifted to separate function)
             DO j=1-OLy,sNy+OLy-1
               DO i=1-OLx,sNx+OLx-1
-
-C u/vVel and u/vtemp are both located on u/v Points and difference is interpolated to C-Points
-
-
                duw = 0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
-               PRINT *, 'debug duw', uVel(i,j,1,bi,bj)
                dvw = 0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
      &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
+
 c Calculate Norm on C-Point with constants for ocean stress
                CDw(i,j) = 0.5 * ICEBERG_rhoOcean
      &            * ICEBERG_OceanDrag
      &            * iceberg_area(i,j,bi,bj,nCl)
      &            * sqrt(duw**2+dvw**2)
+              ENDDO
+            ENDDO
 
-C Fwu/v are calculated on C-Point for implicit scheme
-C iceberg_area is located on C-Points
+C calculate rhs of ocean drag force
+            DO j=1-OLy,sNy+OLy-1
+              DO i=1-OLx,sNx+OLx-1
+                Fwu(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i-1,j) )
+     &            * uVel(i,j,1,bi,bj)
 
-                Fwu(i,j,bi,bj) = CDw(i,j)
-     &            * 0.5 * ( uVel(i,j,1,bi,bj) + uVel(i+1,j,1,bi,bj) )
-
-                Fwv(i,j,bi,bj) = CDw(i,j)
-     &            * 0.5 * ( vVel(i,j,1,bi,bj) + vVel(i,j+1,1,bi,bj) )
+                Fwv(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i,j-1) )
+     &            * vVel(i,j,1,bi,bj)
               ENDDO
             ENDDO
 
