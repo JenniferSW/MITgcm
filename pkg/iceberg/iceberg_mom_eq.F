@@ -150,19 +150,19 @@ C HINT section is working (compilable and run without error)
            DO j=1-OLy,sNy+OLy-1
              DO i=1-OLx,sNx+OLx-1
                 Fcu(i,j,bi,bj)=
-     &             0.5 _d 0 * (
+     &            0.5 _d 0 * (
      &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
      &            * 0.5 _d 0*( vtemp(i  ,j,bi,bj)+vtemp(i  ,j+1,bi,bj) )
-     &           + iceberg_MassC(i-1,j,bi,bj) * _fCori(i-1,j,bi,bj)
-     &           * 0.5 _d 0*( vtemp(i-1,j,bi,bj)+vtemp(i-1,j+1,bi,bj) )
-     &           )
+     &            + iceberg_MassC(i-1,j,bi,bj) * _fCori(i-1,j,bi,bj)
+     &            * 0.5 _d 0*( vtemp(i-1,j,bi,bj)+vtemp(i-1,j+1,bi,bj) )
+     &            )
                 Fcv(i,j,bi,bj)=
-     &             0.5 _d 0*(
+     &            - 0.5 _d 0*(
      &            iceberg_MassC(i,j  ,bi,bj) * _fCori(i,j  ,bi,bj)
      &            * 0.5 _d 0*( utemp(i,j  ,bi,bj)+utemp(i+1,  j,bi,bj) )
-     &           + iceberg_MassC(i,j-1,bi,bj) * _fCori(i,j-1,bi,bj)
-     &           * 0.5 _d 0*( utemp(i,j-1,bi,bj)+utemp(i+1,j-1,bi,bj) )
-     &           )
+     &            + iceberg_MassC(i,j-1,bi,bj) * _fCori(i,j-1,bi,bj)
+     &            * 0.5 _d 0*( utemp(i,j-1,bi,bj)+utemp(i+1,j-1,bi,bj) )
+     &            )
              ENDDO
            ENDDO
 
@@ -311,8 +311,6 @@ c   *------ Pressure Gradient Force ------*
 c   Fp = -M * g * Nabla * sea surface height
 C QUESTION tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN?
 
-C Nabla *
-
            DO j=1-OLy+1,sNy+OLy
              DO i=1-OLx+1,sNx+OLx
                 Fpu(i,j,bi,bj) =
@@ -350,19 +348,17 @@ c   v_i[n+1] = v_i[n] + dv_i * dt
 C Calculated at C-Point
 c            DO j=1-OLy,sNy+OLy-1
 c             DO i=1-OLx,sNx+OLx-1
-c               IF(iceberg_MaskC(i,j,bi,bj) .EQ. 0.0) THEN
-C     &             .AND. iceberg_MaskU(i+1,j,bi,bj) .EQ. 0.0) THEN
+c               IF(iceberg_MaskU(i,j,bi,bj) .EQ. 0.0) THEN
 c                  uc(i,j,bi,bj) = 0. _d 0
 c                ELSE
-c                  PRINT*,'dbg mass',iceberg_distr(i,j,bi,bj,nCl)
-c                  PRINT*,'mask', iceberg_MaskC(i,j,bi,bj), i, j
 c                  uc(i,j,bi,bj) =
-c     &              (iceberg_MassC(i,j,bi,bj)
-c     &              * 0.5 * (utemp(i,j,bi,bj)+utemp(i+1,j,bi,bj))
-c     &              - Fwu(i,j,bi,bj) * ICEBERG_deltaTtherm)
-c     &              / (iceberg_MassC(i,j,bi,bj)
-c     &              * ICEBERG_deltaTtherm)
-C     * CDw(i,j))
+c     &              iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
+c     &              + urhs(i,j,bi,bj) * ICEBERG_deltaTtherm)
+c     &              / (iceberg_MassU(i,j,bi,bj)
+C     &              + ICEBERG_deltaTtherm * (
+C     &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
+C     &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
+C     &               ))
 c                ENDIF
 
 c                IF(iceberg_MaskV(i,j,bi,bj) .EQ. 0.0
@@ -370,11 +366,13 @@ c     &             .AND. iceberg_MaskV(i,j+1,bi,bj) .EQ. 0.0) THEN
 c                  vc(i,j,bi,bj) = 0. _d 0
 c                ELSE
 c                 vc(i,j,bi,bj) =
-c     &              (iceberg_MassC(i,j,bi,bj)
-c     &              * 0.5 * (vtemp(i,j,bi,bj)+vtemp(i,j+1,bi,bj))
-c     &              - Fwv(i,j,bi,bj) * ICEBERG_deltaTtherm)
-c     &              / (iceberg_MassC(i,j,bi,bj)
-c     &              * ICEBERG_deltaTtherm * CDw(i,j))
+c     &              iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
+c     &              + vrhs(i,j,bi,bj)* ICEBERG_deltaTtherm)
+c     &              / (iceberg_MassV(i,j,bi,bj)
+C     &              + ICEBERG_deltaTtherm * (
+C     &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
+C     &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
+C     &               ))
 c                ENDIF
 
 c               ENDDO
