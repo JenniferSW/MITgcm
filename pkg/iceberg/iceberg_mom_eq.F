@@ -200,9 +200,7 @@ c   *------ Atmosphere Drag ------*
 C   Fa = 1/2 * rho_atm * C_atm * A_atm * |v_atm - v_i| (v_atm -v_i)
 C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
-C rho and C are constant over grid; no interpolation needed
-C A is calculated from area which is located on c-points
-C wind velocity is interpolated to c-points
+
 
 C TODO this section is compilable
 #ifdef ALLOW_EXF
@@ -220,12 +218,15 @@ C Calculate Norm on C-Point with constant values for wind stress
      &            * ICEBERG_AirDrag
      &            * iceberg_area(i,j,bi,bj,nCl)
      &            * sqrt(dua**2+dva**2)
+              ENDDO
+            ENDDO
 
-                Fau(i,j,bi,bj) = CDa(i,j)
-     &            * 0.5 * (UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj))
-
-                Fav(i,j,bi,bj) = CDa(i,j)
-     &            * 0.5 * (VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj))
+            DO j=1-OLy+1,sNy+OLy
+              DO i=1-OLx+1,sNx+OLx
+                Fau(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i-1,j) )
+     &            * UWIND(i,j,bi,bj)
+                Fav(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i,j-1) )
+     &            * VWIND(i,j,bi,bj)
               ENDDO
             ENDDO
 
@@ -238,11 +239,6 @@ c   implicit: rhss = 1/2* rho_sice * C_sice * A_sice + |v_ice - v_i[n]| * v_ice
 C A_sice = L*h = length of iceberg * seaice thickness
 C length of iceberg = sqrt(iceberg_area * dxG**2)
 C seaice thickness = HEFF * AREA
-
-c rho and C are constant over grid; no interpolation needed
-c A is calculated from area that is on c-points
-c only velocity has to be interpolated
-
 
 C TODO fix problems with MDSIO_BUFF_3D
 #ifdef ALLOW_SEAICE
