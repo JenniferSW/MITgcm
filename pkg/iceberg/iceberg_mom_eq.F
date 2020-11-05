@@ -147,8 +147,8 @@ C _fCori  ::  Makro from model for Coriolis parameter at cell center
 C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
 C HINT section is working (compilable and run without error)
-           DO j=1-OLy,sNy+OLy-1
-             DO i=1-OLx,sNx+OLx-1
+           DO j=1-OLy+1,sNy+OLy-1
+             DO i=1-OLx+1,sNx+OLx-1
                 Fcu(i,j,bi,bj)=
      &            0.5 _d 0 * (
      &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
@@ -187,8 +187,8 @@ c Calculate Norm on C-Point with constants for ocean stress
             ENDDO
 
 C calculate rhs of ocean drag force
-            DO j=1-OLy,sNy+OLy-1
-              DO i=1-OLx,sNx+OLx-1
+            DO j=1-OLy+1,sNy+OLy-1
+              DO i=1-OLx+1,sNx+OLx-1
                 Fwu(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &            * uVel(i,j,1,bi,bj)
 
@@ -199,20 +199,23 @@ C calculate rhs of ocean drag force
 
 c   *------ Atmosphere Drag ------*
 C Uwind is located on southwest C-Grid U-point and Vwind is located on southwest C-Grid V-Point
-C https://mitgcm.readthedocs.io/en/latest/phys_pkgs/exf.html?highlight=uwind#field-attributes
+C     https://mitgcm.readthedocs.io/en/latest/phys_pkgs/exf.html?highlight=uwind#field-attributes
+CML actually that is not true, uwind/vwind are defined at the center points of the c-grid, eg. see seaice_get_dynforcing.F
 
 C   Fa = 1/2 * rho_atm * C_atm * A_atm * |v_atm - v_i| (v_atm -v_i)
 C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
 #ifdef ALLOW_EXF
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
-
-                dua = 0.5 * (UWIND(i,j,bi,bj)
-     &           + UWIND(i-1,j,bi,bj))
-                dva = 0.5 * (VWIND(i,j,bi,bj)
-     &            +VWIND(i,j-1,bi,bj))
+            DO j=1-OLy,sNy+OLy
+              DO i=1-OLx,sNx+OLx
+CML
+CML                dua = 0.5 * (UWIND(i,j,bi,bj)
+CML     &           + UWIND(i-1,j,bi,bj))
+CML                dva = 0.5 * (VWIND(i,j,bi,bj)
+CML     &            +VWIND(i,j-1,bi,bj))
+                dua = UWIND(i,j,bi,bj)
+                dva = VWIND(i,j,bi,bj)
 C Calculate Norm on C-Point with constant values for wind stress
                 CDa(i,j) = 0.5 * ICEBERG_rhoAir
      &            * ICEBERG_AirDrag
@@ -224,9 +227,9 @@ C Calculate Norm on C-Point with constant values for wind stress
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
                 Fau(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i-1,j) )
-     &            * UWIND(i,j,bi,bj)
+     &            * 0.5 * ( UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj) )
                 Fav(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i,j-1) )
-     &            * VWIND(i,j,bi,bj)
+     &            * 0.5 * ( VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj) )
               ENDDO
             ENDDO
 
@@ -240,7 +243,7 @@ C A_sice = L*h = length of iceberg * seaice thickness
 C length of iceberg = sqrt(iceberg_area * dxG**2)
 C seaice thickness = HEFF * AREA
 
-C TODO fix problems with MDSIO_BUFF_3D
+C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_SEAICE
 
            DO j=1-OLy+1,sNy+OLy
@@ -250,11 +253,13 @@ C TODO fix problems with MDSIO_BUFF_3D
      &          + (UICE(i-1,j,bi,bj)-utemp(i-1,j,bi,bj)))
                dvs = 0.5 * ((VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
      &          + (VICE(i,j-1,bi,bj)-vtemp(i,j-1,bi,bj)))
-C Calculate Norm on C-Point with constant values for wind stress
+C     Calculate Norm on C-Point with constant values for wind stress
+C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
                CDs(i,j) = 0.5 * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
-     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG**2)
-     &            * HEFF(i,j,bi,bj)/AREA(i,j,bi,bj)
+     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
+     &            * HEFF(i,j,bi,bj)
+     &              /SQRT(AREA(I,J,bi,bj)*2+ SEAICE_area_reg**2)
      &            * sqrt(dus**2+dvs**2)
              ENDDO
            ENDDO
@@ -287,16 +292,28 @@ C TODO What happens when UWIND and VWIND = 0? Assumption = No waves????
 
            DO j=1-OLy,sNy+OLy-1
               DO i=1-OLx,sNx+OLx-1
-                norm_a = sqrt((0.5*(UWIND(i,j,bi,bj)
-     &                      + UWIND(i+1,j,bi,bj)))**2
-     &                      + (0.5*(VWIND(i,j,bi,bj)
-     &                      + VWIND(i,j+1,bi,bj)))**2)
+CML   several problems: norm_a**2/norm_a = norm_a avoids potential division
+C     by zero, (0.5 * 0.0202)**2 is constant and should not be evaluate in
+C     each loop instance, U/VWIND are define at center points (i am pretty sure)
+                norm_a = sqrt(UWIND(i,j,bi,bj)**2 + VWIND(i,j,bi,bj)**2)
                 Cdr(i,j) = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity
-     &            * (0.5 * 0.02025 * norm_a)**2
+     &            * 0.00010251562 * norm_a
      &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
-     &            * 1/norm_a
+CML                norm_a = sqrt((0.5*(UWIND(i,j,bi,bj)
+CML     &                      + UWIND(i+1,j,bi,bj)))**2
+CML     &                      + (0.5*(VWIND(i,j,bi,bj)
+CML     &                      + VWIND(i,j+1,bi,bj)))**2)
+CML                Cdr(i,j) = 0.25 * ICEBERG_rhoOcean
+CML     &            * ICEBERG_gravity
+CML     &            * (0.5 * 0.02025 * norm_a)**2
+CML     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
+CML     &            * 1/norm_a
+             ENDDO
+           ENDDO
 
+           DO j=1-OLy+1,sNy+OLy
+              DO i=1-OLx+1,sNx+OLx
                 Fru(i,j,bi,bj) = 0.5* ( CDr(i,j)+ CDr(i-1,j))
      &            * UWIND(i,j,bi,bj)
 
@@ -323,7 +340,7 @@ C QUESTION tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN
      &           iceberg_MassC(i,j,bi,bj) * ICEBERG_gravity
      &         * etaN(i,j,bi,bj)
      &         - iceberg_MassC(i-1,j,bi,bj) * ICEBERG_gravity
-     &         * etaN(i-1,j)
+     &         * etaN(i-1,j,bi,bj)
              ENDDO
            ENDDO
 
