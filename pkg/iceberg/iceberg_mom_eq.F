@@ -309,23 +309,25 @@ C TODO What happens when UWIND and VWIND = 0? Assumption = No waves????
 
 c   *------ Pressure Gradient Force ------*
 c   Fp = -M * g * Nabla * sea surface height
-C TODO tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN?
+C QUESTION tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN?
 
 C Nabla *
 
-C           DO j=1-OLy+1,sNy+OLy
-C              DO i=1-OLx+1,sNx+OLx
-C                Fpu(i,j,bi,bj) = iceberg_MassU(i,j,bi,bj)
-C     &            * ICEBERG_gravity
-c     &         *( phiSurf(i,j)-phiSurf(i-1,j) )
+           DO j=1-OLy+1,sNy+OLy
+             DO i=1-OLx+1,sNx+OLx
+                Fpu(i,j,bi,bj) =
+     &           iceberg_Massc(i,j,bi,bj) * ICEBERG_gravity
+     &         * etaN(i,j,bi,bj)
+     &         - iceberg_MassC(i-1,j,bi,bj)* ICEBERG_gravity
+     &         * etaN(i-1,j,bi,bj)
 
-
-
-C                Fpv(i,j,bi,bj) = iceberg_MassV(i,j,bi,bj)
-C     &            * ICEBERG_gravity
-c     &         *( phiSurf(i,j)-phiSurf(i-1,j) )
-C              ENDDO
-C            ENDDO
+                Fpv(i,j,bi,bj) =
+     &           iceberg_MassC(i,j,bi,bj) * ICEBERG_gravity
+     &         * etaN(i,j,bi,bj)
+     &         - iceberg_MassC(i-1,j,bi,bj) * ICEBERG_gravity
+     &         * etaN(i-1,j)
+             ENDDO
+           ENDDO
 
 
 
@@ -334,10 +336,10 @@ C   *------ Momentum Equation ------*
 C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
 c            DO j=1-OLy+1,sNy+OLy
 c              DO i=1-OLx+1,sNx+OLx
-c                urhs(i,j,bi,bj) = Fwu(i,j,bi,bj)
-c                + Fau(i,j,bi,bj)
-c                vrhs(i,j,bi,bj) = Fwv(i,j,bi,bj)
-c                + Fav(i,j,bi,bj)
+c                urhs(i,j,bi,bj) = Fcu(i,j,bi,bj) + Fwu(i,j,bi,bj) + Fau(i,j,bi,bj)
+c     &             + Fsu(i,j,bi,bj) + Fru(i,j,bi,bj) + Fpu(i,j,bi,bj)
+c                vrhs(i,j,bi,bj) = Fcv(i,j,bi,bj) + Fwv(i,j,bi,bj) + Fav(i,j,bi,bj)
+c     &             + Fsv(i,j,bi,bj) + Frv(i,j,bi,bj) + Fpv(i,j,bi,bj)
 c              ENDDO
 c            ENDDO
 
