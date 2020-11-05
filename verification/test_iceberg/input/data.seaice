@@ -3,7 +3,7 @@
 #usePW79thermodynamics=.FALSE.,
  SEAICErestoreUnderIce=.TRUE.,
  SEAICE_no_Slip     = .FALSE.,
- LSR_ERROR          = 1.E-12,
+#LSR_ERROR          = 1.E-12,
  SEAICElinearIterMax= 1500,
  LSR_mixIniGuess    = 1,
  SEAICEadvScheme    = 77,
@@ -19,12 +19,12 @@
  SEAICEredistFunc = 0,
  SEAICEpartFunc   = 0,
 # old defaults
- SEAICEscaleSurfStress = .FALSE.,
- SEAICEetaZmethod = 0,
- SEAICE_drag = 0.002,
- SEAICE_waterDrag = 0.005339805825242718,
- SEAICE_Olx = 0,
- SEAICE_Oly = 0,
+#SEAICEscaleSurfStress = .FALSE.,
+#SEAICEetaZmethod = 0,
+#SEAICE_drag = 0.002,
+#SEAICE_waterDrag = 0.005339805825242718,
+#SEAICE_Olx = 0,
+#SEAICE_Oly = 0,
  &
 
  &SEAICE_PARM03
