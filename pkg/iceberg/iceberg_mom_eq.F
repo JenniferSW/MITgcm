@@ -117,6 +117,11 @@ CEOP
             DO i = 1-OLx, sNx+OLx
               utemp(i,j,bi,bj) = uc(i,j,bi,bj)
               vtemp(i,j,bi,bj) = vc(i,j,bi,bj)
+
+              CDw(i,j) = 0. _d 0
+              CDa(i,j) = 0. _d 0
+              CDs(i,j) = 0. _d 0
+              CDr(i,j) = 0. _d 0
             ENDDO
            ENDDO
 
@@ -147,8 +152,8 @@ C _fCori  ::  Makro from model for Coriolis parameter at cell center
 C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
 C HINT section is working (compilable and run without error)
-           DO j=1-OLy,sNy+OLy-1
-             DO i=1-OLx,sNx+OLx-1
+           DO j=1-OLy+1,sNy+OLy-1
+             DO i=1-OLx+1,sNx+OLx-1
                 Fcu(i,j,bi,bj)=
      &            0.5 _d 0 * (
      &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
@@ -187,8 +192,8 @@ c Calculate Norm on C-Point with constants for ocean stress
             ENDDO
 
 C calculate rhs of ocean drag force
-            DO j=1-OLy,sNy+OLy-1
-              DO i=1-OLx,sNx+OLx-1
+            DO j=1-OLy+1,sNy+OLy
+              DO i=1-OLx+1,sNx+OLx
                 Fwu(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &            * uVel(i,j,1,bi,bj)
 
@@ -242,6 +247,7 @@ C seaice thickness = HEFF * AREA
 
 C TODO fix problems with MDSIO_BUFF_3D
 #ifdef ALLOW_SEAICE
+      IF (useSEAICE) THEN
 
            DO j=1-OLy+1,sNy+OLy
              DO i=1-OLx+1,sNx+OLx
@@ -253,8 +259,8 @@ C TODO fix problems with MDSIO_BUFF_3D
 C Calculate Norm on C-Point with constant values for wind stress
                CDs(i,j) = 0.5 * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
-     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG**2)
-     &            * HEFF(i,j,bi,bj)/AREA(i,j,bi,bj)
+     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2) !ändern zur Fläche
+     &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
      &            * sqrt(dus**2+dvs**2)
              ENDDO
            ENDDO
@@ -277,6 +283,7 @@ C Calculate Norm on C-Point with constant values for wind stress
                 ENDIF
              ENDDO
            ENDDO
+      ENDIF
 
 #endif /*ALLOW_SEAICE*/
 
@@ -284,18 +291,23 @@ C Calculate Norm on C-Point with constant values for wind stress
 c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a * L * v_air/|v_air|
 C TODO What happens when UWIND and VWIND = 0? Assumption = No waves????
+C constanten als eigene Variable for schleife
 
-           DO j=1-OLy,sNy+OLy-1
-              DO i=1-OLx,sNx+OLx-1
+           DO j=0,sNy+1
+              DO i=0,sNx+1
                 norm_a = sqrt((0.5*(UWIND(i,j,bi,bj)
      &                      + UWIND(i+1,j,bi,bj)))**2
      &                      + (0.5*(VWIND(i,j,bi,bj)
      &                      + VWIND(i,j+1,bi,bj)))**2)
                 Cdr(i,j) = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity
-     &            * (0.5 * 0.02025 * norm_a)**2
+     &            * (0.5 * 0.02025)**2 *norm_a !quadrat prüfen
      &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
-     &            * 1/norm_a
+              ENDDO
+           ENDDO
+
+           DO j=1,sNy+1
+              DO i=1,sNx+1
 
                 Fru(i,j,bi,bj) = 0.5* ( CDr(i,j)+ CDr(i-1,j))
      &            * UWIND(i,j,bi,bj)
@@ -311,8 +323,8 @@ c   *------ Pressure Gradient Force ------*
 c   Fp = -M * g * Nabla * sea surface height
 C QUESTION tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN?
 
-           DO j=1-OLy+1,sNy+OLy
-             DO i=1-OLx+1,sNx+OLx
+           DO j=1,sNy+1
+             DO i=1,sNx+1
                 Fpu(i,j,bi,bj) =
      &           iceberg_Massc(i,j,bi,bj) * ICEBERG_gravity
      &         * etaN(i,j,bi,bj)
@@ -323,7 +335,7 @@ C QUESTION tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN
      &           iceberg_MassC(i,j,bi,bj) * ICEBERG_gravity
      &         * etaN(i,j,bi,bj)
      &         - iceberg_MassC(i-1,j,bi,bj) * ICEBERG_gravity
-     &         * etaN(i-1,j)
+     &         * etaN(i-1,j,bi,bj)
              ENDDO
            ENDDO
 
@@ -332,51 +344,53 @@ C QUESTION tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN
 C TODO uncomment this section when all parts are compilable
 C   *------ Momentum Equation ------*
 C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
-c            DO j=1-OLy+1,sNy+OLy
-c              DO i=1-OLx+1,sNx+OLx
-c                urhs(i,j,bi,bj) = Fcu(i,j,bi,bj) + Fwu(i,j,bi,bj) + Fau(i,j,bi,bj)
-c     &             + Fsu(i,j,bi,bj) + Fru(i,j,bi,bj) + Fpu(i,j,bi,bj)
-c                vrhs(i,j,bi,bj) = Fcv(i,j,bi,bj) + Fwv(i,j,bi,bj) + Fav(i,j,bi,bj)
-c     &             + Fsv(i,j,bi,bj) + Frv(i,j,bi,bj) + Fpv(i,j,bi,bj)
-c              ENDDO
-c            ENDDO
+            DO j=1,sNy+1
+              DO i=1,sNx+1
+                urhs(i,j,bi,bj) = Fcu(i,j,bi,bj) + Fwu(i,j,bi,bj)
+     &              + Fau(i,j,bi,bj) + Fsu(i,j,bi,bj)
+     &              + Fru(i,j,bi,bj) + Fpu(i,j,bi,bj)
+                vrhs(i,j,bi,bj) = Fcv(i,j,bi,bj) + Fwv(i,j,bi,bj)
+     &              + Fav(i,j,bi,bj) + Fsv(i,j,bi,bj)
+     &              + Frv(i,j,bi,bj) + Fpv(i,j,bi,bj)
+              ENDDO
+            ENDDO
 
 
 
 C   *------ Euler Forward Step ------*
 c   v_i[n+1] = v_i[n] + dv_i * dt
 C Calculated at C-Point
-c            DO j=1-OLy,sNy+OLy-1
-c             DO i=1-OLx,sNx+OLx-1
+            DO j=1,sNy+1
+             DO i=1,sNx+1
 c               IF(iceberg_MaskU(i,j,bi,bj) .EQ. 0.0) THEN
 c                  uc(i,j,bi,bj) = 0. _d 0
 c                ELSE
-c                  uc(i,j,bi,bj) =
-c     &              iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
-c     &              + urhs(i,j,bi,bj) * ICEBERG_deltaTtherm)
-c     &              / (iceberg_MassU(i,j,bi,bj)
-C     &              + ICEBERG_deltaTtherm * (
-C     &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
-C     &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
-C     &               ))
+                  uc(i,j,bi,bj) = iceberg_MaskU(i,j,bi,bj) *
+     &              (iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
+     &              + urhs(i,j,bi,bj) * ICEBERG_deltaTtherm)
+     &              / (1. - iceberg_MaskU(i,j,bi,bj)
+     &              + iceberg_MassU(i,j,bi,bj)
+     &              + ICEBERG_deltaTtherm * (
+     &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
+     &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
+     &               ))
 c                ENDIF
-
-c                IF(iceberg_MaskV(i,j,bi,bj) .EQ. 0.0
-c     &             .AND. iceberg_MaskV(i,j+1,bi,bj) .EQ. 0.0) THEN
+c                IF(iceberg_MaskV(i,j,bi,bj) .EQ. 0.0) THEN
 c                  vc(i,j,bi,bj) = 0. _d 0
 c                ELSE
-c                 vc(i,j,bi,bj) =
-c     &              iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
-c     &              + vrhs(i,j,bi,bj)* ICEBERG_deltaTtherm)
-c     &              / (iceberg_MassV(i,j,bi,bj)
-C     &              + ICEBERG_deltaTtherm * (
-C     &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
-C     &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
-C     &               ))
+                 vc(i,j,bi,bj) = iceberg_MaskV(i,j,bi,bj) *
+     &              (iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
+     &              + vrhs(i,j,bi,bj)* ICEBERG_deltaTtherm)
+     &              / (1. - iceberg_MaskV(i,j,bi,bj)
+     &              + iceberg_MassV(i,j,bi,bj)
+     &              + ICEBERG_deltaTtherm * (
+     &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
+     &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
+     &               ))
 c                ENDIF
 
-c               ENDDO
-c             ENDDO
+               ENDDO
+             ENDDO
 
           ENDDO
         ENDDO
