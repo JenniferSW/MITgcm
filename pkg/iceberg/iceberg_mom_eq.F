@@ -105,6 +105,7 @@ C     u_temp
       _RL CDa(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDs(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDr(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL phiSurf(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
 CEOP
 
@@ -115,10 +116,12 @@ CEOP
 
            DO j = 1-OLy, sNy+OLy
             DO i = 1-OLx, sNx+OLx
-              utemp(i,j,bi,bj) = uc(i,j,bi,bj)
+              utemp(i,j,bi,bj) = uc(i,j,bi,bj) !safe previous velocity in temporary variable
               vtemp(i,j,bi,bj) = vc(i,j,bi,bj)
 
-              CDw(i,j) = 0. _d 0
+              phiSurf(i,j) = Bo_surf(i,j,bi,bj)*etaN(i,j,bi,bj) ! calculate sea surface height
+
+              CDw(i,j) = 0. _d 0 ! initialise coefficients
               CDa(i,j) = 0. _d 0
               CDs(i,j) = 0. _d 0
               CDr(i,j) = 0. _d 0
@@ -140,8 +143,6 @@ C v-point -> 0.5*( c(i,j) + c(i,j-1))
                 iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_distr(i,j,bi,bj,nCl)
      &                 + iceberg_distr(i,j-1,bi,bj,nCl))
-C     HINT this Enddo maybe has to be shifted behind the calculation
-C Question Do I have to do the EXCH_XY....?
               ENDDO
             ENDDO
 
@@ -155,6 +156,8 @@ C HINT section is working (compilable and run without error)
            DO j=1-OLy+1,sNy+OLy-1
              DO i=1-OLx+1,sNx+OLx-1
                 Fcu(i,j,bi,bj)=
+
+
      &            0.5 _d 0 * (
      &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
      &            * 0.5 _d 0*( vtemp(i  ,j,bi,bj)+vtemp(i  ,j+1,bi,bj) )
@@ -316,21 +319,16 @@ C constanten als eigene Variable for schleife
 
 c   *------ Pressure Gradient Force ------*
 c   Fp = -M * g * Nabla * sea surface height
-C QUESTION tilt is phiSurf in seaice Package, do i have to use phiSurf oder EtaN?
-
+c   phiSurf = g * etaN
            DO j=1,sNy+1
              DO i=1,sNx+1
                 Fpu(i,j,bi,bj) =
-     &           iceberg_Massc(i,j,bi,bj) * ICEBERG_gravity
-     &         * etaN(i,j,bi,bj)
-     &         - iceberg_MassC(i-1,j,bi,bj)* ICEBERG_gravity
-     &         * etaN(i-1,j,bi,bj)
+     &           iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
+     &         - iceberg_MassC(i-1,j,bi,bj)* phiSurf(i-1,j)
 
                 Fpv(i,j,bi,bj) =
-     &           iceberg_MassC(i,j,bi,bj) * ICEBERG_gravity
-     &         * etaN(i,j,bi,bj)
-     &         - iceberg_MassC(i-1,j,bi,bj) * ICEBERG_gravity
-     &         * etaN(i-1,j,bi,bj)
+     &           iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
+     &         - iceberg_MassC(i,j-1,bi,bj) * phiSurf(i,j-1)
              ENDDO
            ENDDO
 
