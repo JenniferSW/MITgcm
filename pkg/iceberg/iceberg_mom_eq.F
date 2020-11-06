@@ -203,8 +203,7 @@ C calculate rhs of ocean drag force
             ENDDO
 
 c   *------ Atmosphere Drag ------*
-C Uwind is located on southwest C-Grid U-point and Vwind is located on southwest C-Grid V-Point
-C https://mitgcm.readthedocs.io/en/latest/phys_pkgs/exf.html?highlight=uwind#field-attributes
+C Uwind/Vwind is located on southwest C-Grid points
 
 C   Fa = 1/2 * rho_atm * C_atm * A_atm * |v_atm - v_i| (v_atm -v_i)
 C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
@@ -214,24 +213,20 @@ c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
 
-                dua = 0.5 * (UWIND(i,j,bi,bj)
-     &           + UWIND(i-1,j,bi,bj))
-                dva = 0.5 * (VWIND(i,j,bi,bj)
-     &            +VWIND(i,j-1,bi,bj))
 C Calculate Norm on C-Point with constant values for wind stress
                 CDa(i,j) = 0.5 * ICEBERG_rhoAir
      &            * ICEBERG_AirDrag
      &            * iceberg_area(i,j,bi,bj,nCl)
-     &            * sqrt(dua**2+dva**2)
+     &            * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
               ENDDO
             ENDDO
 
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
                 Fau(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i-1,j) )
-     &            * UWIND(i,j,bi,bj)
+     &            * 0.5 * (UWIND(i,j,bi,bj) + UWIND(i-1,bi,bj) )
                 Fav(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i,j-1) )
-     &            * VWIND(i,j,bi,bj)
+     &            * 0.5* (VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj) )
               ENDDO
             ENDDO
 
