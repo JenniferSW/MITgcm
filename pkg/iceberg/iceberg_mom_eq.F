@@ -156,8 +156,6 @@ C HINT section is working (compilable and run without error)
            DO j=1-OLy+1,sNy+OLy-1
              DO i=1-OLx+1,sNx+OLx-1
                 Fcu(i,j,bi,bj)=
-
-
      &            0.5 _d 0 * (
      &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
      &            * 0.5 _d 0*( vtemp(i  ,j,bi,bj)+vtemp(i  ,j+1,bi,bj) )
@@ -227,9 +225,9 @@ C Calculate Norm on C-Point with constant values for wind stress
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
                 Fau(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i-1,j) )
-     &            * 0.5 * (UWIND(i,j,bi,bj) + UWIND(i-1,bi,bj) )
+     &            * 0.5 * ( UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj) )
                 Fav(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i,j-1) )
-     &            * 0.5* (VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj) )
+     &            * 0.5 * ( VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj) )
               ENDDO
             ENDDO
 
@@ -240,10 +238,10 @@ c   *------ Seaice Drag ------*
 c   Fs = 1/2 * rho_sice * C_sice * A_sice * |v_sice - v_i| (v_sice - v_i)
 c   implicit: rhss = 1/2* rho_sice * C_sice * A_sice + |v_ice - v_i[n]| * v_ice
 C A_sice = L*h = length of iceberg * seaice thickness
-C length of iceberg = sqrt(iceberg_area * dxG**2)
+C length of iceberg = sqrt(iceberg_area * rA)
 C seaice thickness = HEFF * AREA
 
-C TODO fix problems with MDSIO_BUFF_3D
+C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
 
@@ -254,10 +252,11 @@ C TODO fix problems with MDSIO_BUFF_3D
      &          + (UICE(i-1,j,bi,bj)-utemp(i-1,j,bi,bj)))
                dvs = 0.5 * ((VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
      &          + (VICE(i,j-1,bi,bj)-vtemp(i,j-1,bi,bj)))
-C Calculate Norm on C-Point with constant values for wind stress
+C     Calculate Norm on C-Point with constant values for wind stress
+C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
                CDs(i,j) = 0.5 * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
-     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2) !ändern zur Fläche
+     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) !ändern zur Fläche
      &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
      &            * sqrt(dus**2+dvs**2)
              ENDDO
@@ -300,7 +299,7 @@ C constanten als eigene Variable for schleife
                 Cdr(i,j) = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity
      &            * (0.5 * 0.02025)**2 *norm_a !quadrat prüfen
-     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*dxG(i,j,bi,bj)**2)
+     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
               ENDDO
            ENDDO
 
