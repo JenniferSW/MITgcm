@@ -33,18 +33,9 @@ C bi,bj     :: Tile indices
       INTEGER bi, bj, i, j, k, iCl
 CEOP
 
-
-      bi = 1
-      bj = 1
-      k = 1
-c      i = 1
-c      j = 1
-
 C--   Advect iceberg (effective height and fractional area)
 
-      CALL ICEBERG_ADV(
-     I     iceberg_uvel, iceberg_vvel,myTime,
-     I     myIter, myThid)
+      CALL ICEBERG_ADV(myTime, myIter, myThid)
 
 
 CML#ifdef ALLOW_DIAGNOSTICS

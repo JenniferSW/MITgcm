@@ -10,7 +10,7 @@ CBOP
 C !ROUTINE: ICEBERG_ADVDIFF
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_MOM_EQ(uc, vc , nCl,
+      SUBROUTINE ICEBERG_MOM_EQ( nCl,
      I                  myTime, myIter, myThid)
 
 C !DESCRIPTION: \bv
@@ -63,8 +63,8 @@ C     myTime    :: current time in simulation
 C     myIter    :: current iteration number in simulation
 C     myThid    :: my Thread Id number
 C     nCl       :: number of class the velocity is calculated for
-      _RL uc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL vc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+c      _RL uc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+c      _RL vc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL myTime
       INTEGER myIter
       INTEGER myThid
@@ -112,8 +112,8 @@ CEOP
 
            DO j = 1-OLy, sNy+OLy
             DO i = 1-OLx, sNx+OLx
-              utemp(i,j,bi,bj) = uc(i,j,bi,bj) ! safe previous velocity in temporary variable
-              vtemp(i,j,bi,bj) = vc(i,j,bi,bj)
+              utemp(i,j,bi,bj) = iceberg_uvel(i,j,bi,bj,nCl)
+              vtemp(i,j,bi,bj) = iceberg_vvel(i,j,bi,bj,nCl)
 
               phiSurf(i,j) = Bo_surf(i,j,bi,bj)*etaN(i,j,bi,bj) ! calculate sea surface height
 
@@ -358,7 +358,8 @@ C Calculated at C-Point
             DO j=1,sNy+1
              DO i=1,sNx+1
 
-                  uc(i,j,bi,bj) = iceberg_MaskU(i,j,bi,bj) *
+                  iceberg_uvel(i,j,bi,bj,nCl) =
+     &              iceberg_MaskU(i,j,bi,bj) *
      &              (iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
      &              + urhs(i,j,bi,bj) * ICEBERG_deltaTtherm)
      &              / (1. - iceberg_MaskU(i,j,bi,bj)
@@ -368,7 +369,8 @@ C Calculated at C-Point
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
      &               ))
 
-                 vc(i,j,bi,bj) = iceberg_MaskV(i,j,bi,bj) *
+                 iceberg_vvel(i,j,bi,bj,nCl) =
+     &              iceberg_MaskV(i,j,bi,bj) *
      &              (iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
      &              + vrhs(i,j,bi,bj)* ICEBERG_deltaTtherm)
      &              / (1. - iceberg_MaskV(i,j,bi,bj)
@@ -383,8 +385,8 @@ C Calculated at C-Point
 
           ENDDO
         ENDDO
-
-
+        CALL EXCH_UV_XY_RL(iceberg_vvel(1-OLx,1-OLy,1,1,nCl),
+     &    iceberg_vvel(1-OLx,1-OLy,1,1,nCl),.TRUE.,myThid)
 
       RETURN
       END

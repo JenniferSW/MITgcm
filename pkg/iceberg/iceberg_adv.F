@@ -7,7 +7,7 @@ CBOP
 C !ROUTINE: ICEBERG_ADVDIFF
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_ADV(uc, vc,
+      SUBROUTINE ICEBERG_ADV(
      I                  myTime, myIter, myThid )
 
 C !DESCRIPTION: \bv
@@ -39,8 +39,6 @@ C               :: C-Grid : Input only ; B-grid : Output only
 C     myTime    :: current time in simulation
 C     myIter    :: current iteration number in simulation
 C     myThid    :: my Thread Id number
-      _RL uc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL vc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL myTime
       INTEGER myIter
       INTEGER myThid
@@ -57,6 +55,8 @@ C     gFld      :: tendency of seaice field
 C     xA,yA     :: "areas" of X and Y face of tracer cells
       INTEGER i, j, bi, bj, iCl, it
       INTEGER GAD_HEFF, GAD_AREA
+      _RL uc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL vc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
 
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -131,7 +131,6 @@ C HINT iceberg_MaskU can be evaluated only by the added area, because when it is
         ENDDO
 
         CALL ICEBERG_MOM_EQ(
-     O              uc,vc,
      I              iCl,
      I              myTime, myIter, myThid)
 
@@ -231,6 +230,8 @@ C fractional area
 C---   end iCl bi,bj loops
         ENDDO
        ENDDO
+
+
       ENDDO
       RETURN
       END
