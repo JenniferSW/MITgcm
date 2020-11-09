@@ -292,7 +292,7 @@ C     AREA can be zero, so avoid division by regularisation stolen from seaice_g
 
 c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a * L * v_air/|v_air|
-C TODO What happens when UWIND and VWIND = 0? Assumption = No waves????
+C term conversion as shown in Rackow (2011)
 C constanten als eigene Variable for schleife
 
            DO j=0,sNy+1
@@ -303,7 +303,7 @@ C constanten als eigene Variable for schleife
      &                      + VWIND(i,j+1,bi,bj)))**2)
                 Cdr(i,j) = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity
-     &            * (0.5 * 0.02025)**2 *norm_a !quadrat prüfen
+     &            * (0.5 * 0.02025)**2 *norm_a**3
      &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
               ENDDO
            ENDDO
@@ -312,10 +312,10 @@ C constanten als eigene Variable for schleife
               DO i=1,sNx+1
 
                 Fru(i,j,bi,bj) = 0.5* ( CDr(i,j)+ CDr(i-1,j))
-     &            * UWIND(i,j,bi,bj)
+     &            * 0.5 * ( UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj) )
 
                 Frv(i,j,bi,bj) = 0.5 * ( CDr(i,j) + CDr(i,j-1))
-     &            * UWIND(i,j,bi,bj)
+     &            * 0.5 * ( VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj) )
               ENDDO
             ENDDO
 
