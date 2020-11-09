@@ -11,7 +11,6 @@ C !ROUTINE: ICEBERG_ADVDIFF
 
 C !INTERFACE: ==========================================================
       SUBROUTINE ICEBERG_MOM_EQ(uc, vc , nCl,
-     I                  MaskU,MaskV,
      I                  myTime, myIter, myThid)
 
 C !DESCRIPTION: \bv
@@ -66,8 +65,6 @@ C     myThid    :: my Thread Id number
 C     nCl       :: number of class the velocity is calculated for
       _RL uc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL MaskU (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL MaskV (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL myTime
       INTEGER myIter
       INTEGER myThid

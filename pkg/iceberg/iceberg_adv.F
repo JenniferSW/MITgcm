@@ -79,20 +79,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 C TODO introduce GAD-Identifier for diagnostics
       GAD_HEFF = 1
       GAD_AREA = 2
-C--   get surface velocities from MITgcm
-
-
-c not needed anymore because of global velocity variables
-c      DO bj=myByLo(myThid),myByHi(myThid)
-c       DO bi=myBxLo(myThid),myBxHi(myThid)
-c        DO j=1-OLy,sNy+OLy
-c         DO i=1-OLx,sNx+OLx
-c          uc(i,j,bi,bj) = 1
-c          vc(i,j,bi,bj) = 1
-c         ENDDO
-c        ENDDO
-c       ENDDO
-c      ENDDO
 
       DO iCl = 1, ICEBERG_numClUsed
 
@@ -101,13 +87,10 @@ C-    Mask cells with icebergs (1) and without (0)
          DO bi=myBxLo(myThid),myBxHi(myThid)
           DO j=1-OLy+1,sNy+OLy
            DO i=1-OLx+1,sNx+OLx
-c           PRINT *, 'debug maskU',iceberg_MaskU(i,j,bi,bj),i,j
 C HINT iceberg_MaskU can be evaluated only by the added area, because when it is .gt. 0, then there is an iceberg anyway
-C QUESTION the margin that is not calculated right now has to be "exchanged" after calculating to update the margins ?
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_area(i,j,bi,bj,iCl)
      &         + iceberg_area(i-1,j,bi,bj,iCl)
-C QUESTION why does the filled maskU not account for this script?
             maskU(i,j,bi,bj) =
      &         iceberg_distr(i,j,bi,bj,iCl)
      &         + iceberg_distr(i-1,j,bi,bj,iCl)
@@ -150,24 +133,13 @@ C QUESTION why does the filled maskU not account for this script?
         CALL ICEBERG_MOM_EQ(
      O              uc,vc,
      I              iCl,
-     I              iceberg_MaskU, iceberg_MaskV,
      I              myTime, myIter, myThid)
 
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
-c         DO j=1-OLy,sNy+OLy
-c          DO i=1-OLx,sNx+OLx
-c           uc(i,j,bi,bj)=uc(i,j,bi,bj)*10000000
-c           vc(i,j,bi,bj)=vc(i,j,bi,bj)*10000000
-c          ENDDO
-c         ENDDO
-
-
 C-    compute cell areas used by all tracers
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
-c           xA(i,j,bi,bj) = 1. _d 0
-c           yA(i,j,bi,bj) = 1. _d 0
            xA(i,j,bi,bj) = _dyG(i,j,bi,bj)*maskW(i,j,1,bi,bj)
            yA(i,j,bi,bj) = _dxG(i,j,bi,bj)*maskS(i,j,1,bi,bj)
           ENDDO
@@ -204,8 +176,6 @@ C-    Calculate "volume transports" through tracer cell faces.
           DO i=1-OLx,sNx+OLx
            uTrans(i,j) = uc(i,j,bi,bj)*xA(i,j,bi,bj)
            vTrans(i,j) = vc(i,j,bi,bj)*yA(i,j,bi,bj)
-           IF(uc(i,j,bi,bj).GT.0) THEN
-           ENDIF
           ENDDO
          ENDDO
 
@@ -241,9 +211,6 @@ C     now do the "explicit" time step
 
 
 C fractional area
-
-
-
          CALL ICEBERG_ADVECTION(
      I        GAD_AREA, ICEBERGadvScheme,
      I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
@@ -261,22 +228,9 @@ C fractional area
           ENDDO
 
 
-C---   end bi,bj loops
+C---   end iCl bi,bj loops
         ENDDO
        ENDDO
-
-
-CMLC     HINT Maybe diagnostics has to be moved into bi, bj loop
-CMLCML   correct, but maybe in the wrong place/subroutine?
-CML
-CML       WRITE(diagName,'(A8)') 'IBD'//ICEBERG_ClLbl(iCl)
-CML       CALL DIAGNOSTICS_FILL(iceberg_distr(1-Olx,1-Oly,1,1,iCl),
-CML     &      diagName, 0, 1, 0, 1, 1, myThid )
-CML
-CML       WRITE(diagName,'(A8)') 'IBA'//ICEBERG_ClLbl(iCl)
-CML       CALL DIAGNOSTICS_FILL(iceberg_area(1-Olx,1-Oly,1,1,iCl),
-CML     &      diagName, 0, 1 , 0, 1, 1, myThid )
-
       ENDDO
       RETURN
       END
