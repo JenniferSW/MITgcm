@@ -43,6 +43,7 @@ C     === Global variables ===
 #include "EEPARAMS.h"
 #include "PARAMS.h"
 #include "GRID.h"
+#include "SURFACE.h"
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 #include "DYNVARS.h"
@@ -245,13 +246,17 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
 
-           DO j=1-OLy+1,sNy+OLy
-             DO i=1-OLx+1,sNx+OLx
+           DO j=1-OLy,sNy+OLy-1
+             DO i=1-OLx,sNx+OLx-1
+
+c               PRINT*, 'debug ra',
+c     &            iceberg_area(i,j,bi,bj,nCl),rA(i,j,bi,bj), i, j
+c     &            ,sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
 
                dus = 0.5 * ((UICE(i,j,bi,bj)-utemp(i,j,bi,bj))
-     &          + (UICE(i-1,j,bi,bj)-utemp(i-1,j,bi,bj)))
+     &          + (UICE(i+1,j,bi,bj)-utemp(i+1,j,bi,bj)))
                dvs = 0.5 * ((VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
-     &          + (VICE(i,j-1,bi,bj)-vtemp(i,j-1,bi,bj)))
+     &          + (VICE(i,j+1,bi,bj)-vtemp(i,j+1,bi,bj)))
 C     Calculate Norm on C-Point with constant values for wind stress
 C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
                CDs(i,j) = 0.5 * ICEBERG_rhoSeaice
@@ -357,6 +362,7 @@ C Calculated at C-Point
 c               IF(iceberg_MaskU(i,j,bi,bj) .EQ. 0.0) THEN
 c                  uc(i,j,bi,bj) = 0. _d 0
 c                ELSE
+
                   uc(i,j,bi,bj) = iceberg_MaskU(i,j,bi,bj) *
      &              (iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
      &              + urhs(i,j,bi,bj) * ICEBERG_deltaTtherm)
