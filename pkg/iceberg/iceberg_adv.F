@@ -99,18 +99,18 @@ c      ENDDO
 C-    Mask cells with icebergs (1) and without (0)
         DO bj=myByLo(myThid),myByHi(myThid)
          DO bi=myBxLo(myThid),myBxHi(myThid)
-          DO j=1-OLy,sNy+OLy-1
-           DO i=1-OLx,sNx+OLx-1
+          DO j=1-OLy+1,sNy+OLy
+           DO i=1-OLx+1,sNx+OLx
 c           PRINT *, 'debug maskU',iceberg_MaskU(i,j,bi,bj),i,j
 C HINT iceberg_MaskU can be evaluated only by the added area, because when it is .gt. 0, then there is an iceberg anyway
 C QUESTION the margin that is not calculated right now has to be "exchanged" after calculating to update the margins ?
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_area(i,j,bi,bj,iCl)
-     &         + iceberg_area(i+1,j,bi,bj,iCl)
+     &         + iceberg_area(i-1,j,bi,bj,iCl)
 C QUESTION why does the filled maskU not account for this script?
             maskU(i,j,bi,bj) =
      &         iceberg_distr(i,j,bi,bj,iCl)
-     &         + iceberg_distr(i+1,j,bi,bj,iCl)
+     &         + iceberg_distr(i-1,j,bi,bj,iCl)
 
             IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) .AND.
      &           (maskU(i,j,bi,bj) .GT. 0. _d 0) ) THEN
@@ -121,10 +121,10 @@ C QUESTION why does the filled maskU not account for this script?
 
             iceberg_MaskV(i,j,bi,bj) =
      &         iceberg_area(i,j,bi,bj,iCl)
-     &         + iceberg_area(i,j+1,bi,bj,iCl)
+     &         + iceberg_area(i,j-1,bi,bj,iCl)
             maskV(i,j,bi,bj) =
      &         iceberg_distr(i,j,bi,bj,iCl)
-     &         + iceberg_distr(i,j+1,bi,bj,iCl)
+     &         + iceberg_distr(i,j-1,bi,bj,iCl)
 
             IF ( (iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) .AND.
      &           (maskV(i,j,bi,bj) .GT. 0. _d 0) ) THEN
