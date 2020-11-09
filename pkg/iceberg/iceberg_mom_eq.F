@@ -79,13 +79,11 @@ C     i,j,bi,bj :: Loop counters
 C     nCl       :: Loop counter for iceberg size classes
 C     u_temp
       INTEGER i, j, bi, bj
-      _RL duw
-      _RL dvw
-      _RL dua
-      _RL dva
-      _RL dus
-      _RL dvs
+      _RL duw , dvw
+      _RL dua , dva
+      _RL dus , dvs
       _RL norm_a
+      _RL cdw_const, cda_const, cds_const, cdr_const
       _RL utemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vtemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL Fcu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -117,7 +115,7 @@ CEOP
 
            DO j = 1-OLy, sNy+OLy
             DO i = 1-OLx, sNx+OLx
-              utemp(i,j,bi,bj) = uc(i,j,bi,bj) !safe previous velocity in temporary variable
+              utemp(i,j,bi,bj) = uc(i,j,bi,bj) ! safe previous velocity in temporary variable
               vtemp(i,j,bi,bj) = vc(i,j,bi,bj)
 
               phiSurf(i,j) = Bo_surf(i,j,bi,bj)*etaN(i,j,bi,bj) ! calculate sea surface height
@@ -178,6 +176,9 @@ C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocea
 c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
 
 C calculate drag coefficient (later shifted to separate function)
+            cdw_const = 0.5 * ICEBERG_rhoOcean
+     &            * ICEBERG_OceanDrag
+
             DO j=0,sNy+1
               DO i=0,sNx+1
                duw = 0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
@@ -186,8 +187,7 @@ C calculate drag coefficient (later shifted to separate function)
      &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
 
 c Calculate Norm on C-Point with constants for ocean stress
-               CDw(i,j) = 0.5 * ICEBERG_rhoOcean
-     &            * ICEBERG_OceanDrag
+               CDw(i,j) = cdw_const
      &            * iceberg_area(i,j,bi,bj,nCl)
      &            * sqrt(duw**2+dvw**2)
               ENDDO
@@ -212,12 +212,14 @@ C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
 #ifdef ALLOW_EXF
+
+            cda_const = 0.5 * ICEBERG_rhoAir
+     &            * ICEBERG_AirDrag
             DO j=0,sNy+1
               DO i=0,sNx+1
 
 C Calculate Norm on C-Point with constant values for wind stress
-                CDa(i,j) = 0.5 * ICEBERG_rhoAir
-     &            * ICEBERG_AirDrag
+                CDa(i,j) = cda_const
      &            * iceberg_area(i,j,bi,bj,nCl)
      &            * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
               ENDDO
@@ -245,7 +247,8 @@ C seaice thickness = HEFF * AREA
 C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
-
+           cds_const = 0.5 * ICEBERG_rhoSeaice
+     &            * ICEBERG_SeaiceDrag
            DO j=0,sNy+1
              DO i=0,sNx+1
 
@@ -259,8 +262,7 @@ c     &            ,sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
      &          + (VICE(i,j+1,bi,bj)-vtemp(i,j+1,bi,bj)))
 C     Calculate Norm on C-Point with constant values for wind stress
 C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
-               CDs(i,j) = 0.5 * ICEBERG_rhoSeaice
-     &            * ICEBERG_SeaiceDrag
+               CDs(i,j) = cds_const
      &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) !ändern zur Fläche
      &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
      &            * sqrt(dus**2+dvs**2)
@@ -294,16 +296,16 @@ c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a * L * v_air/|v_air|
 C term conversion as shown in Rackow (2011)
 C constanten als eigene Variable for schleife
-
+           cdr_const = 0.25 * ICEBERG_rhoOcean
+     &            * ICEBERG_gravity * (0.5 * 0.02025)**2
            DO j=0,sNy+1
               DO i=0,sNx+1
                 norm_a = sqrt((0.5*(UWIND(i,j,bi,bj)
      &                      + UWIND(i+1,j,bi,bj)))**2
      &                      + (0.5*(VWIND(i,j,bi,bj)
      &                      + VWIND(i,j+1,bi,bj)))**2)
-                Cdr(i,j) = 0.25 * ICEBERG_rhoOcean
-     &            * ICEBERG_gravity
-     &            * (0.5 * 0.02025)**2 *norm_a**3
+                Cdr(i,j) = cdr_const
+     &            * norm_a**3
      &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
               ENDDO
            ENDDO
