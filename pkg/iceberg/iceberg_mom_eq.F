@@ -154,8 +154,8 @@ C _fCori  ::  Makro from model for Coriolis parameter at cell center
 C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
 C HINT section is working (compilable and run without error)
-           DO j=1-OLy+1,sNy+OLy-1
-             DO i=1-OLx+1,sNx+OLx-1
+           DO j=1,sNy
+             DO i=1,sNx
                 Fcu(i,j,bi,bj)=
      &            0.5 _d 0 * (
      &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
@@ -178,8 +178,8 @@ C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocea
 c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
 
 C calculate drag coefficient (later shifted to separate function)
-            DO j=1-OLy,sNy+OLy-1
-              DO i=1-OLx,sNx+OLx-1
+            DO j=0,sNy+1
+              DO i=0,sNx+1
                duw = 0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
                dvw = 0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
@@ -194,8 +194,8 @@ c Calculate Norm on C-Point with constants for ocean stress
             ENDDO
 
 C calculate rhs of ocean drag force
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
+            DO j=1,sNy+1
+              DO i=1,sNx+1
                 Fwu(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &            * uVel(i,j,1,bi,bj)
 
@@ -212,8 +212,8 @@ C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
 #ifdef ALLOW_EXF
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
+            DO j=0,sNy+1
+              DO i=0,sNx+1
 
 C Calculate Norm on C-Point with constant values for wind stress
                 CDa(i,j) = 0.5 * ICEBERG_rhoAir
@@ -223,8 +223,8 @@ C Calculate Norm on C-Point with constant values for wind stress
               ENDDO
             ENDDO
 
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
+            DO j=1,sNy+1
+              DO i=1,sNx+1
                 Fau(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i-1,j) )
      &            * 0.5 * ( UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj) )
                 Fav(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i,j-1) )
@@ -246,8 +246,8 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
 
-           DO j=1-OLy,sNy+OLy-1
-             DO i=1-OLx,sNx+OLx-1
+           DO j=0,sNy+1
+             DO i=0,sNx+1
 
 c               PRINT*, 'debug ra',
 c     &            iceberg_area(i,j,bi,bj,nCl),rA(i,j,bi,bj), i, j
@@ -267,8 +267,8 @@ C     AREA can be zero, so avoid division by regularisation stolen from seaice_g
              ENDDO
            ENDDO
 
-           DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
+           DO j=1,sNy+1
+              DO i=1,sNx+1
 
                 IF (seaiceMaskU(i,j,bi,bj) .EQ. 0.0) THEN
                   Fsu(i,j,bi,bj) = 0. _d 0
@@ -338,7 +338,6 @@ c   phiSurf = g * etaN
 
 
 
-C TODO uncomment this section when all parts are compilable
 C   *------ Momentum Equation ------*
 C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
             DO j=1,sNy+1
@@ -359,9 +358,6 @@ c   v_i[n+1] = v_i[n] + dv_i * dt
 C Calculated at C-Point
             DO j=1,sNy+1
              DO i=1,sNx+1
-c               IF(iceberg_MaskU(i,j,bi,bj) .EQ. 0.0) THEN
-c                  uc(i,j,bi,bj) = 0. _d 0
-c                ELSE
 
                   uc(i,j,bi,bj) = iceberg_MaskU(i,j,bi,bj) *
      &              (iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
@@ -372,10 +368,7 @@ c                ELSE
      &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
      &               ))
-c                ENDIF
-c                IF(iceberg_MaskV(i,j,bi,bj) .EQ. 0.0) THEN
-c                  vc(i,j,bi,bj) = 0. _d 0
-c                ELSE
+
                  vc(i,j,bi,bj) = iceberg_MaskV(i,j,bi,bj) *
      &              (iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
      &              + vrhs(i,j,bi,bj)* ICEBERG_deltaTtherm)
@@ -385,7 +378,6 @@ c                ELSE
      &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               ))
-c                ENDIF
 
                ENDDO
              ENDDO
