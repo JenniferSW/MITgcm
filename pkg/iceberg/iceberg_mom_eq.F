@@ -58,13 +58,10 @@ C     === Global variables ===
 
 C !INPUT/OUTPUT PARAMETERS: ===================================================
 C     === Routine arguments ===
-C     uc/vc     :: current ice velocity on C-grid;
 C     myTime    :: current time in simulation
 C     myIter    :: current iteration number in simulation
 C     myThid    :: my Thread Id number
 C     nCl       :: number of class the velocity is calculated for
-c      _RL uc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-c      _RL vc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL myTime
       INTEGER myIter
       INTEGER myThid

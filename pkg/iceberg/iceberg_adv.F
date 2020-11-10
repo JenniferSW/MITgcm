@@ -34,7 +34,6 @@ C     === Global variables ===
 
 C !INPUT/OUTPUT PARAMETERS: ===================================================
 C     === Routine arguments ===
-C     uc/vc     :: current ice velocity on C-grid;
 C               :: C-Grid : Input only ; B-grid : Output only
 C     myTime    :: current time in simulation
 C     myIter    :: current iteration number in simulation
@@ -55,10 +54,6 @@ C     gFld      :: tendency of seaice field
 C     xA,yA     :: "areas" of X and Y face of tracer cells
       INTEGER i, j, bi, bj, iCl, it
       INTEGER GAD_HEFF, GAD_AREA
-      _RL uc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL vc   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-
-
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL afx       (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -173,8 +168,8 @@ C-    Calculate "volume transports" through tracer cell faces.
 
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
-           uTrans(i,j) = uc(i,j,bi,bj)*xA(i,j,bi,bj)
-           vTrans(i,j) = vc(i,j,bi,bj)*yA(i,j,bi,bj)
+           uTrans(i,j) = iceberg_uvel(i,j,bi,bj,iCl)*xA(i,j,bi,bj)
+           vTrans(i,j) = iceberg_vvel(i,j,bi,bj,iCl)*yA(i,j,bi,bj)
           ENDDO
          ENDDO
 
@@ -194,7 +189,8 @@ C afx, afy - horizontal advective flux
 
          CALL ICEBERG_ADVECTION(
      I        GAD_HEFF, ICEBERGadvScheme,
-     I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
+     I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
+     I        iceberg_vvel(1-OLx,1-OLy,bi,bj,iCl),
      I        uTrans, vTrans, iceberg_distr(1-OLx,1-OLy,bi,bj,iCl),
      I        recip_heff,
      O        gFld, afx, afy,
@@ -212,7 +208,8 @@ C     now do the "explicit" time step
 C fractional area
          CALL ICEBERG_ADVECTION(
      I        GAD_AREA, ICEBERGadvScheme,
-     I        uc(1-OLx,1-OLy,bi,bj), vc(1-OLx,1-OLy,bi,bj),
+     I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
+     I        iceberg_vvel(1-OLx,1-OLy,bi,bj,iCl),
      I        uTrans, vTrans, iceberg_area(1-OLx,1-OLy,bi,bj,iCl),
      I        recip_heff,
      O        gFld, afx, afy,
