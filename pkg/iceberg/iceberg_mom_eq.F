@@ -114,6 +114,20 @@ CEOP
 
               phiSurf(i,j) = Bo_surf(i,j,bi,bj)*etaN(i,j,bi,bj) ! calculate sea surface height
 
+              Fcu(i,j,bi,bj) = 0. _d 0
+              Fcv(i,j,bi,bj) = 0. _d 0
+              Fwu(i,j,bi,bj) = 0. _d 0
+              Fwv(i,j,bi,bj) = 0. _d 0
+              Fau(i,j,bi,bj) = 0. _d 0
+              Fav(i,j,bi,bj) = 0. _d 0
+              Fsu(i,j,bi,bj) = 0. _d 0
+              Fsv(i,j,bi,bj) = 0. _d 0
+              Fru(i,j,bi,bj) = 0. _d 0
+              Frv(i,j,bi,bj) = 0. _d 0
+              Fpu(i,j,bi,bj) = 0. _d 0
+              Fpv(i,j,bi,bj) = 0. _d 0
+              urhs(i,j,bi,bj) = 0. _d 0
+              vrhs(i,j,bi,bj) = 0. _d 0
               CDw(i,j) = 0. _d 0 ! initialise coefficients
               CDa(i,j) = 0. _d 0
               CDs(i,j) = 0. _d 0
@@ -221,10 +235,16 @@ C Calculate Norm on C-Point with constant values for wind stress
 
             DO j=1,sNy+1
               DO i=1,sNx+1
-                Fau(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i-1,j) )
-     &            * 0.5 * ( UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj) )
-                Fav(i,j,bi,bj) = 0.5 * ( CDa(i,j) + CDa(i,j-1) )
-     &            * 0.5 * ( VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj) )
+                Fau(i,j,bi,bj) = 0.5 *
+     &          ( CDa(i,j) * UWIND(i,j,bi,bj)
+     &           + CDa(i-1,j)* UWIND(i-1,j,bi,bj))
+
+                Fav(i,j,bi,bj) = 0.5 *
+     &           ( CDa(i,j) * VWIND(i,j,bi,bj)
+     &            + CDa(i,j-1) * VWIND(i,j-1,bi,bj))
+
+c                PRINT *, 'debug wind', Fau(i,j,bi,bj),
+c     &              ICEBERG_AirDrag, i ,j
               ENDDO
             ENDDO
 
@@ -322,13 +342,13 @@ c   Fp = -M * g * Nabla * sea surface height
 c   phiSurf = g * etaN
            DO j=1,sNy+1
              DO i=1,sNx+1
-                Fpu(i,j,bi,bj) =
-     &           iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
-     &         - iceberg_MassC(i-1,j,bi,bj)* phiSurf(i-1,j)
+                Fpu(i,j,bi,bj) = - _recip_dxC(i,j,bi,bj) *
+     &           (iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
+     &         - iceberg_MassC(i-1,j,bi,bj)* phiSurf(i-1,j))
 
-                Fpv(i,j,bi,bj) =
-     &           iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
-     &         - iceberg_MassC(i,j-1,bi,bj) * phiSurf(i,j-1)
+                Fpv(i,j,bi,bj) = - _recip_dxC(i,j,bi,bj) *
+     &           (iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
+     &         - iceberg_MassC(i,j-1,bi,bj) * phiSurf(i,j-1))
              ENDDO
            ENDDO
 
@@ -340,10 +360,13 @@ C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
               DO i=1,sNx+1
                 urhs(i,j,bi,bj) = Fcu(i,j,bi,bj) + Fwu(i,j,bi,bj)
      &              + Fau(i,j,bi,bj) + Fsu(i,j,bi,bj)
-     &              + Fru(i,j,bi,bj) + Fpu(i,j,bi,bj)
+     &              + Fpu(i,j,bi,bj)
                 vrhs(i,j,bi,bj) = Fcv(i,j,bi,bj) + Fwv(i,j,bi,bj)
      &              + Fav(i,j,bi,bj) + Fsv(i,j,bi,bj)
-     &              + Frv(i,j,bi,bj) + Fpv(i,j,bi,bj)
+     &               + Fpv(i,j,bi,bj)
+c     + Frv(i,j,bi,bj)   + Fru(i,j,bi,bj)
+                PRINT*, 'debug vel',
+     &            Fau(i,j,bi,bj), urhs(i,j,bi,bj) , i, j
               ENDDO
             ENDDO
 

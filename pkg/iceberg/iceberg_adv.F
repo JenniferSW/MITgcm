@@ -215,13 +215,13 @@ C fractional area
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 
-         DO j=1,sNy
-          DO i=1,sNx
-              iceberg_area(i,j,bi,bj,iCl) =
-     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
-     &            * gFld(i,j)
-           ENDDO
-          ENDDO
+c         DO j=1,sNy
+c          DO i=1,sNx
+c              iceberg_area(i,j,bi,bj,iCl) =
+c     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
+c     &            * gFld(i,j)
+c           ENDDO
+c          ENDDO
 
 
 C---   end iCl bi,bj loops
