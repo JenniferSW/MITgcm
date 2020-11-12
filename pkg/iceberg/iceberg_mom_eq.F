@@ -342,13 +342,15 @@ c   Fp = -M * g * Nabla * sea surface height
 c   phiSurf = g * etaN
            DO j=1,sNy+1
              DO i=1,sNx+1
-                Fpu(i,j,bi,bj) = - _recip_dxC(i,j,bi,bj) *
-     &           (iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
-     &         - iceberg_MassC(i-1,j,bi,bj)* phiSurf(i-1,j))
+                Fpu(i,j,bi,bj) = - iceberg_MassU(i,j,bi,bj) *
+     &           _recip_dxC(i,j,bi,bj) *
+     &           (phiSurf(i,j)
+     &         - phiSurf(i-1,j))
 
-                Fpv(i,j,bi,bj) = - _recip_dxC(i,j,bi,bj) *
-     &           (iceberg_MassC(i,j,bi,bj) * phiSurf(i,j)
-     &         - iceberg_MassC(i,j-1,bi,bj) * phiSurf(i,j-1))
+                Fpv(i,j,bi,bj) = - iceberg_MassV(i,j,bi,bj) *
+     &          _recip_dxC(i,j,bi,bj) *
+     &          (phiSurf(i,j)
+     &         - phiSurf(i,j-1))
              ENDDO
            ENDDO
 
