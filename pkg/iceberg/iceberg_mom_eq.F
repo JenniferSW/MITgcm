@@ -318,9 +318,13 @@ C constanten als eigene Variable for schleife
      &                      + UWIND(i+1,j,bi,bj)))**2
      &                      + (0.5*(VWIND(i,j,bi,bj)
      &                      + VWIND(i,j+1,bi,bj)))**2)
+               IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
+                Cdr(i,j) = 0. _d 0
+               ELSE
                 Cdr(i,j) = cdr_const
+     &            /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
      &            * norm_a**3
-     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+               ENDIF
               ENDDO
            ENDDO
 
@@ -362,13 +366,10 @@ C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
               DO i=1,sNx+1
                 urhs(i,j,bi,bj) = Fcu(i,j,bi,bj) + Fwu(i,j,bi,bj)
      &              + Fau(i,j,bi,bj) + Fsu(i,j,bi,bj)
-     &              + Fpu(i,j,bi,bj)
+     &              + Fru(i,j,bi,bj) + Fpu(i,j,bi,bj)
                 vrhs(i,j,bi,bj) = Fcv(i,j,bi,bj) + Fwv(i,j,bi,bj)
      &              + Fav(i,j,bi,bj) + Fsv(i,j,bi,bj)
-     &               + Fpv(i,j,bi,bj)
-c     + Frv(i,j,bi,bj)   + Fru(i,j,bi,bj)
-                PRINT*, 'debug vel',
-     &            Fau(i,j,bi,bj), urhs(i,j,bi,bj) , i, j
+     &              + Frv(i,j,bi,bj) + Fpv(i,j,bi,bj)
               ENDDO
             ENDDO
 
@@ -401,6 +402,9 @@ C Calculated at C-Point
      &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               ))
+                 PRINT*, 'debug vel',
+     &            iceberg_uvel(i,j,bi,bj,nCl),
+     &            iceberg_vvel(i,j,bi,bj,nCl), i, j
 
                ENDDO
              ENDDO
