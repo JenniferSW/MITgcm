@@ -52,7 +52,7 @@ C     afx       :: horizontal advective flux, x direction
 C     afy       :: horizontal advective flux, y direction
 C     gFld      :: tendency of seaice field
 C     xA,yA     :: "areas" of X and Y face of tracer cells
-      INTEGER i, j, bi, bj, iCl, it
+      INTEGER i, j, bi, bj, iCl
       INTEGER GAD_HEFF, GAD_AREA
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -199,8 +199,9 @@ C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
               iceberg_distr(i,j,bi,bj,iCl) =
+     &            maskC(i,j,1,bi,bj) * (
      &            iceberg_distr(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
-     &            * gFld(i,j)
+     &            * gFld(i,j))
           ENDDO
          ENDDO
 
@@ -215,13 +216,15 @@ C fractional area
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 
-c         DO j=1,sNy
-c          DO i=1,sNx
-c              iceberg_area(i,j,bi,bj,iCl) =
-c     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
-c     &            * gFld(i,j)
-c           ENDDO
-c          ENDDO
+
+         DO j=1,sNy
+          DO i=1,sNx
+              iceberg_area(i,j,bi,bj,iCl) =
+     &            maskC(i,j,1,bi,bj) * (
+     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
+     &            * gFld(i,j))
+           ENDDO
+          ENDDO
 
 
 C---   end iCl bi,bj loops
