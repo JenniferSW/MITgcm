@@ -55,6 +55,7 @@ C     gFld      :: tendency of seaice field
 C     xA,yA     :: "areas" of X and Y face of tracer cells
       INTEGER i, j, bi, bj, iCl
       INTEGER GAD_HEFF, GAD_AREA
+      _RL tmpscal
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL afx       (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -225,15 +226,27 @@ C advection of fractional area
      &            maskC(i,j,1,bi,bj) * (
      &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
      &            * gFld(i,j))
-           ENDDO
+          ENDDO
+         ENDDO
+C TODO EXCH for iceberg_distr and iceberg_area; update margins as loops do no time step for it
+
+C- after advection fix possible negative values of effective iceberg thickness and fractional area
+C followed the example of seaice_reg_ridge.F
+          DO i = 1-OLy,sNy+OLy
+            DO j = 1-OLx, sNx+OLx
+             tmpscal = 0. _d 0
+             tmpscal = MAX(-iceberg_distr(i,j,bi,bj,iCl),0. _d 0)
+             iceberg_distr(i,j,bi,bj,iCl) =
+     &          iceberg_distr(i,j,bi,bj,iCl) + tmpscal
+             iceberg_area(i,j,bi,bj,iCl) =
+     &          MAX(iceberg_area(i,j,bi,bj,iCl), 0. _d 0)
+            ENDDO
           ENDDO
 
 
 C---   end iCl bi,bj loops
-        ENDDO
-       ENDDO
-
-
-      ENDDO
+        ENDDO !bi
+       ENDDO !bj
+      ENDDO !iCl
       RETURN
       END
