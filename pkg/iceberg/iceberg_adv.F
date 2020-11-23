@@ -17,6 +17,7 @@ C     | o driver for different advection routines
 C     |   calls an adaption of gad_advection to call different
 C     |   advection routines of pkg/generic_advdiff
 C     | o the advection runs for every iceberg class separately in a loop
+C     | this routine is based on the advection of seaice in the pkg seaice
 C     *===========================================================*
 C \ev
 
@@ -125,12 +126,14 @@ C HINT iceberg_MaskU can be evaluated only by the added area, because when it is
          ENDDO
         ENDDO
 
+C - calculate iceberg velocity
         CALL ICEBERG_MOM_EQ(
      I              iCl,
      I              myTime, myIter, myThid)
 
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
+
 C-    compute cell areas used by all tracers
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
@@ -141,7 +144,6 @@ C-    compute cell areas used by all tracers
 C         End bi, bj loops
         ENDDO
        ENDDO
-
 
 
 
@@ -165,7 +167,6 @@ C
          ENDDO
 
 C-    Calculate "volume transports" through tracer cell faces.
-
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
            uTrans(i,j) = iceberg_uvel(i,j,bi,bj,iCl)*xA(i,j,bi,bj)
@@ -183,10 +184,11 @@ C                   iceFld, r_hFld, gFld, afx, afy, bi, bj, myTime, myIter, myTh
 C uFld, vFld - input velocity to use for iceberg
 C uTrans, vTrans - input volume transport through grid boundaries
 C iceFld - input iceberg distribution field
-C r_hFld - ????? input reciprocal of ice thickness
+C r_hFld - input reciprocal of ice thickness
 C gFld - output tendency of icebergs used to do the advection
 C afx, afy - horizontal advective flux
 
+C- advection of effective iceberg thickness
          CALL ICEBERG_ADVECTION(
      I        GAD_HEFF, ICEBERGadvScheme,
      I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
@@ -206,7 +208,7 @@ C     now do the "explicit" time step
          ENDDO
 
 
-C fractional area
+C advection of fractional area
          CALL ICEBERG_ADVECTION(
      I        GAD_AREA, ICEBERGadvScheme,
      I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
