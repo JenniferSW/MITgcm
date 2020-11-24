@@ -55,7 +55,7 @@ C     gFld      :: tendency of seaice field
 C     xA,yA     :: "areas" of X and Y face of tracer cells
       INTEGER i, j, bi, bj, iCl
       INTEGER GAD_HEFF, GAD_AREA
-      _RL tmpscal
+      _RL tmpscal, recip_nCl
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL vTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL afx       (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -251,14 +251,27 @@ C- Handle very small iceberg parts in grid cell and change area if thickness is 
 C TODO ersetze 1. _d -5 durch einen Parameter
          DO j=1,sNy
           DO i=1,sNx
-           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -2) THEN
             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
             iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
            ENDIF
           ENDDO
          ENDDO
 
+C- handle small area values
 
+        recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
+         DO j=1,sNy
+          DO i=1,sNx
+           IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
+C     SEAICE_area_floor*SEAICE_multDim cannot be allowed to exceed 1
+C     hence use SEAICE_area_floor devided by SEAICE_multDim
+C     (or install a warning in e.g. seaice_readparms.F)
+            iceberg_area(i,j,bi,bj,iCl)=
+     &        MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -2*recip_nCl)
+          ENDIF
+         ENDDO
+        ENDDO
 
 C QUESTION is EXCH_3D_RL possible as iCl is not the 3rd dimension? PTRACERS macht das auch so
          CALL EXCH_3D_RL( iceberg_distr,  iCl, myThid )
