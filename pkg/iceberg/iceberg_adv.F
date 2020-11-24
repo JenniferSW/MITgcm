@@ -228,8 +228,11 @@ C advection of fractional area
      &            * gFld(i,j))
           ENDDO
          ENDDO
-C TODO EXCH for iceberg_distr and iceberg_area; update margins as loops do no time step for it
 
+
+C_________________________________________________________________________________________________
+C Fix Fields after Advection
+C ------------------------------------------------------------------------------------------------
 C- after advection fix possible negative values of effective iceberg thickness and fractional area
 C followed the example of seaice_reg_ridge.F
           DO i = 1-OLy,sNy+OLy
@@ -243,6 +246,10 @@ C followed the example of seaice_reg_ridge.F
             ENDDO
           ENDDO
 
+
+C QUESTION is EXCH_3D_RL possible as iCl is not the 3rd dimension? PTRACERS macht das auch so
+         CALL EXCH_3D_RL( iceberg_distr,  iCl, myThid )
+         CALL EXCH_3D_RL( iceberg_area, iCl, myThid )
 
 C---   end iCl bi,bj loops
         ENDDO !bi
