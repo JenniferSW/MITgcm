@@ -247,6 +247,19 @@ C followed the example of seaice_reg_ridge.F
           ENDDO
 
 
+C- Handle very small iceberg parts in grid cell and change area if thickness is set to 0.0
+C TODO ersetze 1. _d -5 durch einen Parameter
+         DO j=1,sNy
+          DO i=1,sNx
+           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+            iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
+           ENDIF
+          ENDDO
+         ENDDO
+
+
+
 C QUESTION is EXCH_3D_RL possible as iCl is not the 3rd dimension? PTRACERS macht das auch so
          CALL EXCH_3D_RL( iceberg_distr,  iCl, myThid )
          CALL EXCH_3D_RL( iceberg_area, iCl, myThid )
