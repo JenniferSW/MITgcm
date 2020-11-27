@@ -203,7 +203,7 @@ C     now do the "explicit" time step
           DO i=1,sNx
               iceberg_distr(i,j,bi,bj,iCl) =
      &            maskC(i,j,1,bi,bj) * (
-     &            iceberg_distr(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
+     &            iceberg_distr(i,j,bi,bj,iCl) + ICEBERG_deltaT
      &            * gFld(i,j))
           ENDDO
          ENDDO
@@ -224,7 +224,7 @@ C advection of fractional area
           DO i=1,sNx
               iceberg_area(i,j,bi,bj,iCl) =
      &            maskC(i,j,1,bi,bj) * (
-     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaTtherm
+     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaT
      &            * gFld(i,j))
           ENDDO
          ENDDO
@@ -251,7 +251,7 @@ C- Handle very small iceberg parts in grid cell and change area if thickness is 
 C TODO ersetze 1. _d -5 durch einen Parameter
          DO j=1,sNy
           DO i=1,sNx
-           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -2) THEN
+           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
             iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
            ENDIF
@@ -268,7 +268,7 @@ C     SEAICE_area_floor*SEAICE_multDim cannot be allowed to exceed 1
 C     hence use SEAICE_area_floor devided by SEAICE_multDim
 C     (or install a warning in e.g. seaice_readparms.F)
             iceberg_area(i,j,bi,bj,iCl)=
-     &        MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -2*recip_nCl)
+     &        MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
           ENDIF
          ENDDO
         ENDDO

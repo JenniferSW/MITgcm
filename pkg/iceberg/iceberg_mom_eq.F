@@ -384,10 +384,10 @@ C Calculated at C-Point
                   iceberg_uvel(i,j,bi,bj,nCl) =
      &              iceberg_MaskU(i,j,bi,bj) *
      &              (iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
-     &              + urhs(i,j,bi,bj) * ICEBERG_deltaTtherm)
+     &              + urhs(i,j,bi,bj) * ICEBERG_deltaT)
      &              / (1. - iceberg_MaskU(i,j,bi,bj)
      &              + iceberg_MassU(i,j,bi,bj)
-     &              + ICEBERG_deltaTtherm * (
+     &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
      &               ))
@@ -395,17 +395,37 @@ C Calculated at C-Point
                  iceberg_vvel(i,j,bi,bj,nCl) =
      &              iceberg_MaskV(i,j,bi,bj) *
      &              (iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
-     &              + vrhs(i,j,bi,bj)* ICEBERG_deltaTtherm)
+     &              + vrhs(i,j,bi,bj)* ICEBERG_deltaT)
      &              / (1. - iceberg_MaskV(i,j,bi,bj)
      &              + iceberg_MassV(i,j,bi,bj)
-     &              + ICEBERG_deltaTtherm * (
+     &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               ))
-                 PRINT*, 'debug vel',
-     &            iceberg_uvel(i,j,bi,bj,nCl),
-     &            iceberg_vvel(i,j,bi,bj,nCl), i, j
+                IF(iceberg_uvel(i,j,bi,bj,nCl).NE. 0. _d 0)THEN
+C                 PRINT*, 'debug',0, 'i', 0, 'j', 0, 'CFL',0, 'Mass',
+C     &            0,'area',0,'distr'
+                 PRINT*, 'debug uvel', i,j,
+     &            0.5 * (iceberg_uvel(i,j,bi,bj,nCl)+
+     &             iceberg_uvel(i+1,j,bi,bj,nCl))*1200/_dxG(i,j,bi,bj)
+     &            +0.5 * (iceberg_vvel(i,j,bi,bj,nCl)
+     &              +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj)
+     &            ,iceberg_MassU(i,j,bi,bj)
+     &            ,iceberg_MassC(i,j,bi,bj)
+     &            , iceberg_MassV(i,j,bi,bj)
+     &            , iceberg_uvel(i,j,bi,bj,nCl)
+                ELSEIF(iceberg_vvel(i,j,bi,bj,nCl).NE. 0. _d 0)THEN
+                  PRINT*, 'debug vvel', i,j,
+     &             0.5 * (iceberg_uvel(i,j,bi,bj,nCl)+
+     &              iceberg_uvel(i+1,j,bi,bj,nCl))*1200/_dxG(i,j,bi,bj)
+     &             +0.5 * (iceberg_vvel(i,j,bi,bj,nCl)
+     &              +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj)
+     &            ,iceberg_MassU(i,j,bi,bj)
+     &            ,iceberg_MassC(i,j,bi,bj)
+     &            , iceberg_MassV(i,j,bi,bj)
+     &            , iceberg_vvel(i,j,bi,bj,nCl)
 
+                ENDIF
                ENDDO
              ENDDO
 

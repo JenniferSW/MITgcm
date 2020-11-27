@@ -403,32 +403,32 @@ C Upwind 1st order (1) or 2nd order DST (Lax-Wendroff) (2)
          IF ( advectionScheme.EQ.ENUM_UPWIND_1RST
      &        .OR. advectionScheme.EQ.ENUM_DST2 ) THEN
           CALL GAD_DST2U1_ADV_X( bi,bj,k, advectionScheme, .TRUE.,
-     I         ICEBERG_deltaTtherm, uTrans, uFld, localTij,
+     I         ICEBERG_deltaT, uTrans, uFld, localTij,
      O         af, myThid )
 
 C flux limiter
          ELSEIF (advectionScheme.EQ.ENUM_FLUX_LIMIT) THEN
           CALL GAD_FLUXLIMIT_ADV_X( bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, uTrans, uFld, maskLocW, localTij,
+     I         ICEBERG_deltaT, uTrans, uFld, maskLocW, localTij,
      O         af, myThid )
 
 C 3rd order DST (30)
          ELSEIF (advectionScheme.EQ.ENUM_DST3 ) THEN
           CALL GAD_DST3_ADV_X(      bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, uTrans, uFld, maskLocW, localTij,
+     I         ICEBERG_deltaT, uTrans, uFld, maskLocW, localTij,
      O         af, myThid )
 
 C 3rd order DST flux limiter (33)
          ELSEIF (advectionScheme.EQ.ENUM_DST3_FLUX_LIMIT ) THEN
           CALL GAD_DST3FL_ADV_X(    bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, uTrans, uFld, maskLocW, localTij,
+     I         ICEBERG_deltaT, uTrans, uFld, maskLocW, localTij,
      O         af, myThid )
 #ifndef ALLOW_AUTODIFF_TAMC
 
 c 7th order one-step method (7)
          ELSEIF (advectionScheme.EQ.ENUM_OS7MP ) THEN
           CALL GAD_OS7MP_ADV_X(     bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, uTrans, uFld, maskLocW, localTij,
+     I         ICEBERG_deltaT, uTrans, uFld, maskLocW, localTij,
      O         af, myThid )
 
 C piecewiese parabolic "null" limiter (40)
@@ -436,7 +436,7 @@ C piecewiese parabolic "null" limiter (40)
      &           advectionScheme.EQ.ENUM_PPM_MONO_LIMIT  .OR.
      &           advectionScheme.EQ.ENUM_PPM_WENO_LIMIT) THEN
           CALL GAD_PPM_ADV_X( advectionScheme, bi, bj, k , .TRUE.,
-     I         ICEBERG_deltaTtherm, uFld, uTrans, localTij,
+     I         ICEBERG_deltaT, uFld, uTrans, localTij,
      O         af, myThid )
 
 C piecewise quartic "null" limiter (40)
@@ -444,7 +444,7 @@ C piecewise quartic "null" limiter (40)
      &           advectionScheme.EQ.ENUM_PQM_MONO_LIMIT  .OR.
      &           advectionScheme.EQ.ENUM_PQM_WENO_LIMIT) THEN
           CALL GAD_PQM_ADV_X( advectionScheme, bi, bj, k , .TRUE.,
-     I         ICEBERG_deltaTtherm, uFld, uTrans, localTij,
+     I         ICEBERG_deltaT, uFld, uTrans, localTij,
      O         af, myThid )
 #endif
          ELSE
@@ -484,7 +484,7 @@ C masinC :: cell center 2D interior mask
           DO j=1-OLy,0
            DO i=iMinUpd,iMaxUpd
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)
      &           *(  af(i+1,j)-af(i,j)
      &            )
@@ -496,7 +496,7 @@ C masinC :: cell center 2D interior mask
           DO j=1-OLy,0
            DO i=iMinUpd,iMaxUpd
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)*r_hFld(i,j)
      &           *( (af(i+1,j)-af(i,j))
      &             -(uTrans(i+1,j)-uTrans(i,j))*iceFld(i,j)
@@ -512,7 +512,7 @@ C masinC :: cell center 2D interior mask
           DO j=sNy+1,sNy+OLy
            DO i=iMinUpd,iMaxUpd
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)
      &           *(  af(i+1,j)-af(i,j)
      &            )
@@ -522,7 +522,7 @@ C masinC :: cell center 2D interior mask
           DO j=sNy+1,sNy+OLy
            DO i=iMinUpd,iMaxUpd
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)*r_hFld(i,j)
      &           *( (af(i+1,j)-af(i,j))
      &             -(uTrans(i+1,j)-uTrans(i,j))*iceFld(i,j)
@@ -557,7 +557,7 @@ C     do not only update the overlap (from GAD_advection)
           DO j=jMinUpd,jMaxUpd
            DO i=1-OLx+1,sNx+OLx-1
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)
      &           *(  af(i+1,j)-af(i,j)
      &            )
@@ -568,7 +568,7 @@ C     do not only update the overlap (from GAD_advection)
           DO j=jMinUpd,jMaxUpd
            DO i=1-OLx+1,sNx+OLx-1
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)*r_hFld(i,j)
      &           *( (af(i+1,j)-af(i,j))
      &             -(uTrans(i+1,j)-uTrans(i,j))*iceFld(i,j)
@@ -637,37 +637,37 @@ CADJ &     comlev1_bibj_k_gadice_pass, key=passkey, byte=isbyte
          IF ( advectionScheme.EQ.ENUM_UPWIND_1RST
      &        .OR. advectionScheme.EQ.ENUM_DST2 ) THEN
           CALL GAD_DST2U1_ADV_Y( bi,bj,k, advectionScheme, .TRUE.,
-     I         ICEBERG_deltaTtherm, vTrans, vFld, localTij,
+     I         ICEBERG_deltaT, vTrans, vFld, localTij,
      O         af, myThid )
 
          ELSEIF (advectionScheme.EQ.ENUM_FLUX_LIMIT) THEN
           CALL GAD_FLUXLIMIT_ADV_Y( bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, vTrans, vFld, maskLocS, localTij,
+     I         ICEBERG_deltaT, vTrans, vFld, maskLocS, localTij,
      O         af, myThid )
          ELSEIF (advectionScheme.EQ.ENUM_DST3 ) THEN
           CALL GAD_DST3_ADV_Y(      bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, vTrans, vFld, maskLocS, localTij,
+     I         ICEBERG_deltaT, vTrans, vFld, maskLocS, localTij,
      O         af, myThid )
          ELSEIF (advectionScheme.EQ.ENUM_DST3_FLUX_LIMIT ) THEN
           CALL GAD_DST3FL_ADV_Y(    bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, vTrans, vFld, maskLocS, localTij,
+     I         ICEBERG_deltaT, vTrans, vFld, maskLocS, localTij,
      O         af, myThid )
 #ifndef ALLOW_AUTODIFF_TAMC
          ELSEIF (advectionScheme.EQ.ENUM_OS7MP ) THEN
           CALL GAD_OS7MP_ADV_Y(     bi,bj,k, .TRUE.,
-     I         ICEBERG_deltaTtherm, vTrans, vFld, maskLocS, localTij,
+     I         ICEBERG_deltaT, vTrans, vFld, maskLocS, localTij,
      O         af, myThid )
          ELSEIF (advectionScheme.EQ.ENUM_PPM_NULL_LIMIT  .OR.
      &           advectionScheme.EQ.ENUM_PPM_MONO_LIMIT  .OR.
      &           advectionScheme.EQ.ENUM_PPM_WENO_LIMIT) THEN
           CALL GAD_PPM_ADV_Y( advectionScheme, bi, bj, k , .TRUE.,
-     I         ICEBERG_deltaTtherm, vFld, vTrans, localTij,
+     I         ICEBERG_deltaT, vFld, vTrans, localTij,
      O         af, myThid )
          ELSEIF (advectionScheme.EQ.ENUM_PQM_NULL_LIMIT  .OR.
      &           advectionScheme.EQ.ENUM_PQM_MONO_LIMIT  .OR.
      &           advectionScheme.EQ.ENUM_PQM_WENO_LIMIT) THEN
           CALL GAD_PQM_ADV_Y( advectionScheme, bi, bj, k , .TRUE.,
-     I         ICEBERG_deltaTtherm, vFld, vTrans, localTij,
+     I         ICEBERG_deltaT, vFld, vTrans, localTij,
      O         af, myThid )
 #endif
          ELSE
@@ -704,7 +704,7 @@ C         in corner region) but safer to keep them.
           DO j=jMinUpd,jMaxUpd
            DO i=1-OLx,0
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)
      &           *(  af(i,j+1)-af(i,j)
      &            )
@@ -715,7 +715,7 @@ C         in corner region) but safer to keep them.
            DO i=1-OLx,0
 
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)*r_hFld(i,j)
      &           *( (af(i,j+1)-af(i,j))
      &             -(vTrans(i,j+1)-vTrans(i,j))*iceFld(i,j)
@@ -727,7 +727,7 @@ C         in corner region) but safer to keep them.
           DO j=jMinUpd,jMaxUpd
            DO i=sNx+1,sNx+OLx
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)
      &           *(  af(i,j+1)-af(i,j)
      &            )
@@ -737,7 +737,7 @@ C         in corner region) but safer to keep them.
           DO j=jMinUpd,jMaxUpd
            DO i=sNx+1,sNx+OLx
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)*r_hFld(i,j)
      &           *( (af(i,j+1)-af(i,j))
      &             -(vTrans(i,j+1)-vTrans(i,j))*iceFld(i,j)
@@ -774,7 +774,7 @@ C     do not only update the overlap
            DO i=iMinUpd,iMaxUpd
 
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)
      &           *(  af(i,j+1)-af(i,j)
      &            )
@@ -785,7 +785,7 @@ C     do not only update the overlap
           DO j=1-OLy+1,sNy+OLy-1
            DO i=iMinUpd,iMaxUpd
             localTij(i,j)=localTij(i,j)
-     &         -ICEBERG_deltaTtherm*maskInC(i,j,bi,bj)
+     &         -ICEBERG_deltaT*maskInC(i,j,bi,bj)
      &           *recip_rA(i,j,bi,bj)*r_hFld(i,j)
      &           *( (af(i,j+1)-af(i,j))
      &             -(vTrans(i,j+1)-vTrans(i,j))*iceFld(i,j)
@@ -815,7 +815,7 @@ C--   End of ipass loop
 C-    explicit advection is done ; store tendency in gFld:
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx
-        gFld(i,j)=(localTij(i,j)-iceFld(i,j))/ICEBERG_deltaTtherm
+        gFld(i,j)=(localTij(i,j)-iceFld(i,j))/ICEBERG_deltaT
        ENDDO
       ENDDO
 

@@ -33,9 +33,9 @@ C     iUnit      :: Work variable for IO unit number
       NAMELIST /ICEBERG_PARM01/
      &       ICEBERG_Iter0,
      &       ICEBERG_numClUsed,
-C HINT if not used later ICEBERG_deltaTtherm has to be deleted
+C HINT if not used later ICEBERG_deltaT has to be deleted
 
-     &       ICEBERG_deltaTtherm,
+     &       ICEBERG_deltaT,
      &       ICEBERGadvScheme,
      &       ICEBERG_initialArea, ICEBERG_initialHeight,
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
@@ -74,7 +74,7 @@ C     ICEBERG_gravity :: gravitational acceleration
 C-    additional parameters:
       ICEBERG_Iter0      = 0
       ICEBERG_numClUsed = -1
-      ICEBERG_deltaTtherm = dTtracerLev(1)
+      ICEBERG_deltaT = dTtracerLev(1)
       ICEBERGadvScheme = 77
 
 C-    file names for initial conditions:

@@ -3,6 +3,6 @@
  ICEBERG_numClUsed = 1,
  ICEBERG_initialArea(1) = 'area_berg01.bin',
  ICEBERG_initialHeight(1) = 'height_berg01.bin',
- ICEBERG_deltaTtherm = 1200.0,
+ ICEBERG_deltaT = 1200.0,
  ICEBERG_Iter0 = 0,
  &
