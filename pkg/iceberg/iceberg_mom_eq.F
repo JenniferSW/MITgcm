@@ -338,10 +338,8 @@ c                ENDIF
 
            DO j=0,sNy+1
               DO i=0,sNx+1
-                norm_a = sqrt((0.5*(UWIND(i,j,bi,bj)
-     &                      + UWIND(i+1,j,bi,bj)))**2
-     &                      + (0.5*(VWIND(i,j,bi,bj)
-     &                      + VWIND(i,j+1,bi,bj)))**2)
+                norm_a = sqrt(UWIND(i,j,bi,bj)**2
+     &                      +VWIND(i,j,bi,bj)**2)
                IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
                 Cdr(i,j) = 0. _d 0
                ELSE
