@@ -76,7 +76,7 @@ C     u_temp
       _RL duw , dvw
       _RL dua , dva
       _RL dus , dvs
-      _RL norm_a
+      _RL norm_a, Lw
       _RL cdw_const, cda_const, cds_const, cdr_const
       _RL utemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vtemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -98,6 +98,7 @@ C     u_temp
       _RL CDa(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDs(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDr(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL cwave(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL phiSurf(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
 CEOP
@@ -132,6 +133,7 @@ CEOP
               CDa(i,j) = 0. _d 0
               CDs(i,j) = 0. _d 0
               CDr(i,j) = 0. _d 0
+              cwave(i,j) = 0. _d 0
             ENDDO
            ENDDO
 
@@ -307,11 +309,33 @@ C     AREA can be zero, so avoid division by regularisation stolen from seaice_g
 
 
 c   *------ Wave Radiation Force ------*
-c   Fr = 1/4 * rho_ocean * gravity * a * L * v_air/|v_air|
+c   Fr = 1/4 * rho_ocean * gravity * a^2 * L * v_air/|v_air|
 C term conversion as shown in Rackow (2011)
 C constanten als eigene Variable for schleife
            cdr_const = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity * (0.5 * 0.02025)**2
+C TODO LW, cwave definieren
+            DO j=0,sNy+1
+              DO i=0,sNx+1
+                Lw = 0.32 *
+     &             sqrt((UWIND(i,j,bi,bj)
+     &             - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
+     &             + (VWIND(i,j,bi,bj)
+     &             - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
+     &              **2
+
+                cwave(i,j) = 0.06 * MIN(MAX(0. _d 0,
+     &           (sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+     &            -0.125*Lw)/(0.25*Lw-0.125*Lw)),1. _d 0)
+c                IF(iceberg_area(i,j,bi,bj,nCl) .NE. 0. _d 0)THEN
+c                PRINT*,'debug cwave',cwave(i,j),
+c     &            (sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+c     &            -0.125*Lw)/(0.25*Lw-0.125*Lw)
+c                ENDIF
+              ENDDO
+            ENDDO
+
+
            DO j=0,sNy+1
               DO i=0,sNx+1
                 norm_a = sqrt((0.5*(UWIND(i,j,bi,bj)
@@ -321,9 +345,13 @@ C constanten als eigene Variable for schleife
                IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
                 Cdr(i,j) = 0. _d 0
                ELSE
-                Cdr(i,j) = cdr_const
+                Cdr(i,j) = cdr_const * cwave(i,j)
      &            /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
      &            * norm_a**3
+c                PRINT*, 'debug fru',i,j,
+c     &           (0.0205/2*norm_a**2)
+c     &            , (1-0.89)*iceberg_distr(i,j,bi,bj,nCl)
+c     &              /iceberg_area(i,j,bi,bj,nCl)
                ENDIF
               ENDDO
            ENDDO
@@ -331,11 +359,15 @@ C constanten als eigene Variable for schleife
            DO j=1,sNy+1
               DO i=1,sNx+1
 
-                Fru(i,j,bi,bj) = 0.5* ( CDr(i,j)+ CDr(i-1,j))
+                Fru(i,j,bi,bj) = 0.5 * ( CDr(i,j) + CDr(i-1,j))
      &            * 0.5 * ( UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj) )
 
                 Frv(i,j,bi,bj) = 0.5 * ( CDr(i,j) + CDr(i,j-1))
      &            * 0.5 * ( VWIND(i,j,bi,bj) + VWIND(i,j-1,bi,bj) )
+c                IF(Fru(i,j,bi,bj) .NE. 0. _d 0) THEN
+c                PRINT*, 'debug wave', Fru(i,j,bi,bj),CDr(i,j)
+c     &           , iceberg_area(i,j,bi,bj,nCl)
+c                ENDIF
               ENDDO
             ENDDO
 
@@ -352,7 +384,7 @@ c   phiSurf = g * etaN
      &         - phiSurf(i-1,j))
 
                 Fpv(i,j,bi,bj) = - iceberg_MassV(i,j,bi,bj) *
-     &          _recip_dxC(i,j,bi,bj) *
+     &          _recip_dyC(i,j,bi,bj) *
      &          (phiSurf(i,j)
      &         - phiSurf(i,j-1))
              ENDDO
@@ -365,11 +397,11 @@ C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
             DO j=1,sNy+1
               DO i=1,sNx+1
                 urhs(i,j,bi,bj) = Fcu(i,j,bi,bj) + Fwu(i,j,bi,bj)
-     &              + Fau(i,j,bi,bj) + Fsu(i,j,bi,bj)
-     &              + Fru(i,j,bi,bj) + Fpu(i,j,bi,bj)
+     &              + Fau(i,j,bi,bj) + Fsu(i,j,bi,bj)+ Fpu(i,j,bi,bj)
+     &              + Fru(i,j,bi,bj)
                 vrhs(i,j,bi,bj) = Fcv(i,j,bi,bj) + Fwv(i,j,bi,bj)
-     &              + Fav(i,j,bi,bj) + Fsv(i,j,bi,bj)
-     &              + Frv(i,j,bi,bj) + Fpv(i,j,bi,bj)
+     &              + Fav(i,j,bi,bj) + Fsv(i,j,bi,bj)+ Fpv(i,j,bi,bj)
+     &              + Frv(i,j,bi,bj)
               ENDDO
             ENDDO
 
@@ -395,7 +427,7 @@ C Calculated at C-Point
                  iceberg_vvel(i,j,bi,bj,nCl) =
      &              iceberg_MaskV(i,j,bi,bj) *
      &              (iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
-     &              + vrhs(i,j,bi,bj)* ICEBERG_deltaT)
+     &              + vrhs(i,j,bi,bj) * ICEBERG_deltaT)
      &              / (1. - iceberg_MaskV(i,j,bi,bj)
      &              + iceberg_MassV(i,j,bi,bj)
      &              + ICEBERG_deltaT * (
@@ -403,28 +435,18 @@ C Calculated at C-Point
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               ))
                 IF(iceberg_uvel(i,j,bi,bj,nCl).NE. 0. _d 0)THEN
-C                 PRINT*, 'debug',0, 'i', 0, 'j', 0, 'CFL',0, 'Mass',
-C     &            0,'area',0,'distr'
                  PRINT*, 'debug uvel', i,j,
      &            0.5 * (iceberg_uvel(i,j,bi,bj,nCl)+
      &             iceberg_uvel(i+1,j,bi,bj,nCl))*1200/_dxG(i,j,bi,bj)
      &            +0.5 * (iceberg_vvel(i,j,bi,bj,nCl)
      &              +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj)
-     &            ,iceberg_MassU(i,j,bi,bj)
-     &            ,iceberg_MassC(i,j,bi,bj)
-     &            , iceberg_MassV(i,j,bi,bj)
-     &            , iceberg_uvel(i,j,bi,bj,nCl)
-                ELSEIF(iceberg_vvel(i,j,bi,bj,nCl).NE. 0. _d 0)THEN
-                  PRINT*, 'debug vvel', i,j,
-     &             0.5 * (iceberg_uvel(i,j,bi,bj,nCl)+
-     &              iceberg_uvel(i+1,j,bi,bj,nCl))*1200/_dxG(i,j,bi,bj)
-     &             +0.5 * (iceberg_vvel(i,j,bi,bj,nCl)
-     &              +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj)
-     &            ,iceberg_MassU(i,j,bi,bj)
-     &            ,iceberg_MassC(i,j,bi,bj)
-     &            , iceberg_MassV(i,j,bi,bj)
-     &            , iceberg_vvel(i,j,bi,bj,nCl)
+     &            , iceberg_MassU(i,j,bi,bj)
 
+                  PRINT*, 'debg uvel calc'
+     &              ,i,j,
+     &              urhs(i,j,bi,bj)
+     &              ,'/'
+     &              , Fru(i,j,bi,bj)
                 ENDIF
                ENDDO
              ENDDO
