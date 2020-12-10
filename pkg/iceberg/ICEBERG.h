@@ -20,9 +20,8 @@ c     ICEBERG_AirDrag  ::  air drag coefficient
 c     ICEBERG_OceanDrag ::  ocean drag coefficient
 c     ICEBERG_SeaiceDrag  ::  sea ice drag coefficient
 c     ICEEBERG_gravity  ::  gravitational acceleration
+c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
 C
-c     ICEBERG_mass  ::  mass of iceberg in cell
-c     ICEBERG_waveampl ::  wave amplitude (calculated f)
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
@@ -35,10 +34,10 @@ c     ICEBERG_waveampl ::  wave amplitude (calculated f)
       _RL ICEBERG_OceanDrag
       _RL ICEBERG_SeaiceDrag
       _RL ICEBERG_gravity
+      _RL ICEBERG_temp
 
 /* TODO prove whether these have to be fields or not */
-      _RL ICEBERG_mass
-      _RL ICEBERG_waveampl
+
 
 
 
@@ -72,7 +71,7 @@ C Common block for real parameters
       COMMON /ICEBERG_PARAMS_R/ ICEBERG_deltaT,
      &     ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &     ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
-     &     ICEBERG_gravity, ICEBERG_mass, ICEBERG_waveampl
+     &     ICEBERG_gravity, ICEBERG_temp
 
 
 

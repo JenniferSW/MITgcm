@@ -40,7 +40,7 @@ C HINT if not used later ICEBERG_deltaT has to be deleted
      &       ICEBERG_initialArea, ICEBERG_initialHeight,
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
-     &       ICEBERG_gravity
+     &       ICEBERG_gravity, ICEBERG_temp
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -62,6 +62,7 @@ C     ICEBERG_AirDrag :: air drag coefficient
 C     ICEBERG_OceanDrag :: ocean drag coefficient
 C     ICEBERG_SeaiceDrag :: seaice drag coefficient
 C     ICEBERG_gravity :: gravitational acceleration
+c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
 
       ICEBERG_rhoAir = 1.3
       ICEBERG_rhoOcean = 1026.0
@@ -70,6 +71,7 @@ C     ICEBERG_gravity :: gravitational acceleration
       ICEBERG_OceanDrag = 0.9e-3
       ICEBERG_SeaiceDrag = 0.91e-3
       ICEBERG_gravity = 9.81
+      ICEBERG_temp = -4
 
 C-    additional parameters:
       ICEBERG_Iter0      = 0
