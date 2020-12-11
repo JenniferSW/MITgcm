@@ -344,7 +344,7 @@ c                ENDIF
                 Cdr(i,j) = 0. _d 0
                ELSE
                 Cdr(i,j) = cdr_const * cwave(i,j)
-     &            * iceberg_area(i,j,bi,bj)
+     &            * iceberg_area(i,j,bi,bj,nCl)
      &            /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
      &            * norm_a**3
 c                PRINT*, 'debug fru',i,j,
