@@ -120,8 +120,8 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
      &     ICEBERG_numCl)
       _RL iceberg_vvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
      &     ICEBERG_numCl)
-      _RL iceberg_Vloss(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-
+      _RL iceberg_Vloss(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+     &     ICEBERG_numCl)
 
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_distr,
