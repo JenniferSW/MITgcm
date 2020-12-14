@@ -36,7 +36,7 @@ C
       _RL ICEBERG_gravity
       _RL ICEBERG_temp
 
-/* TODO prove whether these have to be fields or not */
+
 
 
 

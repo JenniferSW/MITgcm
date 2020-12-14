@@ -314,7 +314,6 @@ C term conversion as shown in Rackow (2011)
 C constanten als eigene Variable for schleife
            cdr_const = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity * (0.5 * 0.02025)**2
-C TODO LW, cwave definieren
             DO j=0,sNy+1
               DO i=0,sNx+1
                 Lw = 0.32 *

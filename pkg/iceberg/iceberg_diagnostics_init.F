@@ -56,7 +56,6 @@ C Diagnostics for iceberg distribution
         WRITE(diagLabel,'(A,A)') 'IB_distr_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBD'//ICEBERG_ClLbl(iCl)
         PRINT *, 'debug diagnostics ' ,diagLabel, diagName
-C     TODO fill unit and diagCode
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I       diagName, diagCode, diagUnits, diagTitle,
      &       0, myThid )
@@ -70,7 +69,6 @@ C Diagnostics for iceberg area
         diagCode  = 'SM      M1      '
         WRITE(diagLabel,'(A,A)') 'IB_area_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBA'//ICEBERG_ClLbl(iCl)
-C TODO fill unit and diagCode
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I       diagName, diagCode, diagUnits, diagTitle,
      &       0, myThid )
@@ -84,7 +82,6 @@ C TODO fill unit and diagCode
         diagCode  = 'SM      M1      '
         WRITE(diagLabel,'(A,A)') 'IB_height_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBH'//ICEBERG_ClLbl(iCl)
-C TODO fill unit and diagCode
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I       diagName, diagCode, diagUnits, diagTitle,
      &       0, myThid )
