@@ -159,6 +159,33 @@ C and then calculating new iceberg concentration from volume and height
         iceberg_area(i,j,bi,bj,nCl) =
      &      iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
 
+C catch if melting is higher than iceberg volume
+
+
+
+C catch values that are too low
+C- Handle very small iceberg parts in grid cell and change area if thickness is set to 0.0
+C TODO ersetze 1. _d -5 durch einen Parameter
+         DO j=1,sNy
+          DO i=1,sNx
+           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+            iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
+           ENDIF
+          ENDDO
+         ENDDO
+
+C- handle small area values
+        recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
+         DO j=1,sNy
+          DO i=1,sNx
+           IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
+            iceberg_area(i,j,bi,bj,iCl)=
+     &        MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
+          ENDIF
+         ENDDO
+        ENDDO
+
          ENDDO
         ENDDO
        ENDDO
