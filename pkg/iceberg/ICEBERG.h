@@ -102,6 +102,7 @@ C     iceberg_MassV   ::  iceberg Mass at V grid point
 C     iceberg_MaskC   ::  iceberg Mask to identify cell with icebergs and without (center)
 C     iceberg_MaskU   ::  iceberg Mask to identify cell with and without icebergs (U point)
 C     iceberg_MaskV   ::  iceberg Mask to identify cell with and without icebergs (V point)
+C     iceberg_Vloss   ::  total loss of volume in a time step for every size class
 
       _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
      &     ICEBERG_numCl)
@@ -119,6 +120,7 @@ C     iceberg_MaskV   ::  iceberg Mask to identify cell with and without iceberg
      &     ICEBERG_numCl)
       _RL iceberg_vvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
      &     ICEBERG_numCl)
+      _RL iceberg_Vloss(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 
 
       COMMON /ICEBERG_STATE_2D/
@@ -126,7 +128,8 @@ C     iceberg_MaskV   ::  iceberg Mask to identify cell with and without iceberg
      &    iceberg_area, iceberg_height,
      &    iceberg_MassC, iceberg_MassU, iceberg_MassV,
      &    iceberg_MaskC, iceberg_MaskU, iceberg_MaskV,
-     &    iceberg_uvel, iceberg_vvel
+     &    iceberg_uvel, iceberg_vvel,
+     &    iceberg_Vloss
 #endif /* ICEBERG_2D_STATE */
 
 #ifdef ICEBERG_TENDENCY

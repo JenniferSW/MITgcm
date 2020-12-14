@@ -107,7 +107,7 @@ c      _BARRIER
       ENDIF
 
 C Calculate effective iceberg thickness from fraction area and height
-
+C initialize iceberg velocity and mass loss
       DO iCl = 1,ICEBERG_numClUsed
        DO bj = myByLo(myThid), myByHi(myThid)
         DO bi = myBxLo(myThid), myBxHi(myThid)
@@ -118,6 +118,8 @@ C Calculate effective iceberg thickness from fraction area and height
 
             iceberg_uvel(i,j,bi,bj,iCl) = 0. _d 0
             iceberg_vVel(i,j,bi,bj,iCl) = 0. _d 0
+
+            iceberg_Vloss(i,j,bi,bj,iCl) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO
