@@ -68,26 +68,26 @@ C     u_temp
       _RL Me(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
 
+      DO iCl = 1, ICEBERG_numClUsed
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
 
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
-
-        DO j = 1-OLy, sNy+OLy
-         DO i = 1-OLx, sNx+OLx
+         DO j = 1-OLy, sNy+OLy
+          DO i = 1-OLx, sNx+OLx
 
               Mb(i,j) = 0. _d 0
               Mv(i,j) = 0. _d 0
               Me(i,j) = 0. _d 0
 
+          ENDDO
          ENDDO
-        ENDDO
 
-       DO j = 1-OLy, sNy+OLy
-        DO i = 1-OLx, sNx+OLx
-         IF(ICEBERG_MaskC(i,j,bi,bj) .EQ. 0. _d 0) THEN
-          iceberg_Vloss(i,j,bi,bj,nCl) = 0. _d 0
+        DO j = 1-OLy, sNy+OLy
+         DO i = 1-OLx, sNx+OLx
+          IF(ICEBERG_MaskC(i,j,bi,bj) .EQ. 0. _d 0) THEN
+           iceberg_Vloss(i,j,bi,bj,nCl) = 0. _d 0
 
-         ELSE
+          ELSE
 
 
 C *-------- Basal convection --------*
@@ -96,18 +96,18 @@ C T_w - water temperature
 C T_i - surface temperature of ice (-4°C in Bigg et al 1997)
 C L_a - berg's horizontal long axis [m]
 
-           norm_b = sqrt(
-     &      (0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
-     &      + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj))))**2
-     &      +
-     &      (0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
-     &      +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj))))
-     &      )
+            norm_b = sqrt(
+     &       (0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
+     &       + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj))))**2
+     &       +
+     &       (0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
+     &       +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj))))
+     &       )
 
-           Mb(i,j) = 0.58 *
-     &      norm_b**0.8
-     &      * (SST(i,j,bi,bj) - ICEBERG_temp)
-     &      /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) **0.2
+            Mb(i,j) = 0.58 *
+     &       norm_b**0.8
+     &       * (SST(i,j,bi,bj) - ICEBERG_temp)
+     &       /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) **0.2
 
 
 
@@ -117,25 +117,25 @@ C A :: seaice concentration
 C S_s = 3/2* |u_a-u_o|^1/2 + 1/10 |u_a-u_o|
 C S_s - seat state calculated as a function of wind speed according to marine beaufeort scale
 
-           norm_aw = sqrt((UWIND(i,j,bi,bj)
-     &      - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
-     &      + (VWIND(i,j,bi,bj)
-     &      - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
+            norm_aw = sqrt((UWIND(i,j,bi,bj)
+     &       - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
+     &       + (VWIND(i,j,bi,bj)
+     &       - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
 
-        S = 3/2 * norm_aw**0.5
-     &      + 1/10 * norm_aw
+            S = 3/2 * norm_aw**0.5
+     &       + 1/10 * norm_aw
 
 
-           Me(i,j) = 1/12
-     &      * (1+ COS(AREA(i,j,bi,bj) **3*pi))
-     &      * (SST(i,j,bi,bj) + 2)
-     &      * S
+            Me(i,j) = 1/12
+     &       * (1+ COS(AREA(i,j,bi,bj) **3*pi))
+     &       * (SST(i,j,bi,bj) + 2)
+     &       * S
 
 C *-------- buoyant convection --------*
 C Mv = 7.62*10^-3 T_w +1.29*10^-3 T_w^2
 C T_w water temperature
-           Mv(i,j) = 0.00762* SST(i,j,bi,bj)
-     &      + 0.00129 * SST(i,j,bi,bj)**2
+            Mv(i,j) = 0.00762* SST(i,j,bi,bj)
+     &       + 0.00129 * SST(i,j,bi,bj)**2
 
 
 
@@ -145,48 +145,48 @@ C iceberg_Vloss = basal melting (change of height)
 C               + wave erosion (change of area)
 C               + buoyant convection (change of area)
 
-           iceberg_Vloss(i,j,bi,bj,nCl) =
-     &      iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
-     &      + iceberg_distr(i,j,bi,bj,nCl) * Me(i,j) * iceberg_deltaT
-     &      + iceberg_distr(i,j,bi,bj,nCl) * Mv(i,j) * iceberg_deltaT
+            iceberg_Vloss(i,j,bi,bj,nCl) =
+     &       iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
+     &       + iceberg_distr(i,j,bi,bj,nCl) * Me(i,j) * iceberg_deltaT
+     &       + iceberg_distr(i,j,bi,bj,nCl) * Mv(i,j) * iceberg_deltaT
 
 C calculate new iceberg volume in grid cell
-           iceberg_distr(i,j,bi,bj,nCl) =
-     &      iceberg_distr(i,j,bi,bj) - iceberg_Vloss(i,j,bi,bj,nCl)
+            iceberg_distr(i,j,bi,bj,nCl) =
+     &       iceberg_distr(i,j,bi,bj) - iceberg_Vloss(i,j,bi,bj,nCl)
 
 C catch values that are too small or values that are negative because of too strong melting
-           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
-            iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
-            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-           ENDIF
+            IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
+             iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
+            ENDIF
 
 C calculate new 'dimension' by subtraction of change of height form iceberg_height
-           iceberg_height(i,j,bi,bj,nCl) =
-     &      iceberg_height(i,j,bi,bj,nCl)
-     &      - iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
+            iceberg_height(i,j,bi,bj,nCl) =
+     &       iceberg_height(i,j,bi,bj,nCl)
+     &       - iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
 
 C catch values that are too small or values that are negative because of too strong melting
-           IF (iceberg_height(i,j,bi,bj,iCl).LE.1. _d -5) THEN
-            iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
-            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-           ENDIF
+            IF (iceberg_height(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+             iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
+             iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
+            ENDIF
 
 C calculate new concentration of iceberg from new volume and new height
-           iceberg_area(i,j,bi,bj,nCl) =
-     &      iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
+            iceberg_area(i,j,bi,bj,nCl) =
+     &       iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
 
 C catch if iceberg concentration is now too low
-           recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
-           IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
-            iceberg_area(i,j,bi,bj,iCl)=
-     &        MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
-           ENDIF
+            recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
+            IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
+             iceberg_area(i,j,bi,bj,iCl)=
+     &         MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
+            ENDIF
 
-          ENDIF ! end if iceberg_maskC = 0
-         ENDDO ! end i loop
-        ENDDO ! end j loop
-       ENDDO ! end bi loop
-      ENDDO ! end bj loop
-
+           ENDIF ! end if iceberg_maskC = 0
+          ENDDO ! end i loop
+         ENDDO ! end j loop
+        ENDDO ! end bi loop
+       ENDDO ! end bj loop
+      ENDDO
       RETURN
       END
