@@ -87,6 +87,18 @@ C Diagnostics for iceberg area
      &       0, myThid )
        ENDDO
 
+       DO iCl = 1, ICEBERG_numCl
+        WRITE(diagTitle,'(A,I2)') 'Iceberg volume loss for class'
+     &       ,iCl
+        diagUnits = 'm               '
+        diagCode  = 'SM      M1      '
+        WRITE(diagLabel,'(A,A)') 'IB_Vloss_',ICEBERG_ClLbl(iCl)
+        WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
+     I       diagName, diagCode, diagUnits, diagTitle,
+     &       0, myThid )
+       ENDDO
+
       ENDIF
 
 #endif /* ALLOW_DIAGNOSTICS */

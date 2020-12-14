@@ -69,6 +69,13 @@ c     Loop over iceberg size classes and write them to diagnostics
      &                         myThid )
        ENDDO
 
+       DO iCl = 1, ICEBERG_numClUsed
+        WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_FILL( iceberg_Vloss(1-Olx,1-Oly,1,1,iCl),
+     &                         diagName,0,Nr, 0, 1, 1,
+     &                         myThid )
+       ENDDO
+
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 
