@@ -91,10 +91,6 @@ C T_w - water temperature
 C T_i - surface temperature of ice (-4°C in Bigg et al 1997)
 C L_a - berg's horizontal long axis [m]
 
-C constant value 0.58
-C norm on C-point of difference between iceberg velocity and ocean velocity
-C difference of ocean temperature and ice temperature
-c divison by icebergs long axis
         norm_b = sqrt(
      &      (0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &      + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj))))**2
@@ -110,20 +106,12 @@ c divison by icebergs long axis
 
 
 
-
-
-
-
-
 C *-------- wave ersosion --------*
 C Me = 1/12 (1+cos(A^3*pi)(To+2)*S
 C A :: seaice concentration
 C S_s = 3/2* |u_a-u_o|^1/2 + 1/10 |u_a-u_o|
 C S_s - seat state calculated as a function of wind speed according to marine beaufeort scale
 
-c norm on difference between atmosphere and ocean velocity
-c sqrt of norm
-c again norm from above
         norm_aw = sqrt((UWIND(i,j,bi,bj)
      &      - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
      &      + (VWIND(i,j,bi,bj)
@@ -132,7 +120,6 @@ c again norm from above
         S = 3/2 * norm_aw**0.5
      &      + 1/10 * norm_aw
 
-C TODO Meereiskonzentration hinzufuegen
 
         Me(i,j) = 1/12
      &      * (1+ COS(AREA(i,j,bi,bj) **3*pi))
@@ -142,8 +129,6 @@ C TODO Meereiskonzentration hinzufuegen
 C *-------- buoyant convection --------*
 C Mv = 7.62*10^-3 T_w +1.29*10^-3 T_w^2
 C T_w water temperature
-
-c constants times ocean temperature
         Mv(i,j) = 0.00762* SST(i,j,bi,bj)
      &      + 0.00129 * SST(i,j,bi,bj)**2
 
