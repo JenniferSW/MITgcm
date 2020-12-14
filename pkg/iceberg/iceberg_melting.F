@@ -8,7 +8,7 @@ CBOP
 C !ROUTINE: ICEBERG_ADVDIFF
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_MELTING( nCl
+      SUBROUTINE ICEBERG_MELTING(
      I                  myTime, myIter, myThid)
 
 C !DESCRIPTION: \bv
@@ -35,9 +35,14 @@ C     === Global variables ===
 #include "PARAMS.h"
 #include "GRID.h"
 #include "SURFACE.h"
+#include "FFIELDS.h"
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 #include "DYNVARS.h"
+#ifdef ALLOW_EXF
+# include "EXF_FIELDS.h"
+# include "EXF_PARAM.h"
+#endif
 #ifdef ALLOW_SEAICE
 #include "SEAICE_SIZE.h"
 #include "SEAICE_PARAMS.h"
@@ -49,19 +54,19 @@ C     === Routine arguments ===
 C     myTime    :: current time in simulation
 C     myIter    :: current iteration number in simulation
 C     myThid    :: my Thread Id number
-C     nCl       :: number of class the velocity is calculated for
       _RL myTime
       INTEGER myIter
       INTEGER myThid
-      INTEGER nCl
+
 
 C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
-C     nCl       :: Loop counter for iceberg size classes
+C     iCl       :: Loop counter for iceberg size classes
 C     u_temp
-      INTEGER i, j, bi, bj
+      INTEGER i, j, bi, bj, iCl
       _RL S
+      _RL recip_nCl
       _RL norm_b, norm_aw
       _RL Mb(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL Mv(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -85,7 +90,7 @@ C     u_temp
         DO j = 1-OLy, sNy+OLy
          DO i = 1-OLx, sNx+OLx
           IF(ICEBERG_MaskC(i,j,bi,bj) .EQ. 0. _d 0) THEN
-           iceberg_Vloss(i,j,bi,bj,nCl) = 0. _d 0
+           iceberg_Vloss(i,j,bi,bj,iCl) = 0. _d 0
 
           ELSE
 
@@ -97,17 +102,21 @@ C T_i - surface temperature of ice (-4°C in Bigg et al 1997)
 C L_a - berg's horizontal long axis [m]
 
             norm_b = sqrt(
-     &       (0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
-     &       + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj))))**2
+     &       (0.5 * ((uVel(i,j,1,bi,bj)
+     &       -iceberg_uvel(i,j,bi,bj,iCl))
+     &       + (uVel(i+1,j,1,bi,bj)
+     &       -iceberg_uvel(i+1,j,bi,bj,iCl))))**2
      &       +
-     &       (0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
-     &       +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj))))
+     &       (0.5 * ((vVel(i,j,1,bi,bj)
+     &       -iceberg_vvel(i,j,bi,bj,iCl))
+     &       +(vVel(i,j+1,1,bi,bj)
+     &       -iceberg_vvel(i,j+1,bi,bj,iCl))))**2
      &       )
 
             Mb(i,j) = 0.58 *
      &       norm_b**0.8
      &       * (SST(i,j,bi,bj) - ICEBERG_temp)
-     &       /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) **0.2
+     &       /sqrt(iceberg_area(i,j,bi,bj,iCl)*rA(i,j,bi,bj)) **0.2
 
 
 
@@ -145,14 +154,14 @@ C iceberg_Vloss = basal melting (change of height)
 C               + wave erosion (change of area)
 C               + buoyant convection (change of area)
 
-            iceberg_Vloss(i,j,bi,bj,nCl) =
-     &       iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
-     &       + iceberg_distr(i,j,bi,bj,nCl) * Me(i,j) * iceberg_deltaT
-     &       + iceberg_distr(i,j,bi,bj,nCl) * Mv(i,j) * iceberg_deltaT
+            iceberg_Vloss(i,j,bi,bj,iCl) =
+     &       iceberg_area(i,j,bi,bj,iCl)*Mb(i,j) * iceberg_deltaT
+     &       + iceberg_distr(i,j,bi,bj,iCl) * Me(i,j) * iceberg_deltaT
+     &       + iceberg_distr(i,j,bi,bj,iCl) * Mv(i,j) * iceberg_deltaT
 
 C calculate new iceberg volume in grid cell
-            iceberg_distr(i,j,bi,bj,nCl) =
-     &       iceberg_distr(i,j,bi,bj) - iceberg_Vloss(i,j,bi,bj,nCl)
+            iceberg_distr(i,j,bi,bj,iCl) =
+     &       iceberg_distr(i,j,bi,bj,iCl) - iceberg_Vloss(i,j,bi,bj,iCl)
 
 C catch values that are too small or values that are negative because of too strong melting
             IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
@@ -161,9 +170,9 @@ C catch values that are too small or values that are negative because of too str
             ENDIF
 
 C calculate new 'dimension' by subtraction of change of height form iceberg_height
-            iceberg_height(i,j,bi,bj,nCl) =
-     &       iceberg_height(i,j,bi,bj,nCl)
-     &       - iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
+            iceberg_height(i,j,bi,bj,iCl) =
+     &       iceberg_height(i,j,bi,bj,iCl)
+     &       - iceberg_area(i,j,bi,bj,iCl)*Mb(i,j) * iceberg_deltaT
 
 C catch values that are too small or values that are negative because of too strong melting
             IF (iceberg_height(i,j,bi,bj,iCl).LE.1. _d -5) THEN
@@ -172,8 +181,8 @@ C catch values that are too small or values that are negative because of too str
             ENDIF
 
 C calculate new concentration of iceberg from new volume and new height
-            iceberg_area(i,j,bi,bj,nCl) =
-     &       iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
+            iceberg_area(i,j,bi,bj,iCl) =
+     &       iceberg_distr(i,j,bi,bj,iCl)/iceberg_height(i,j,bi,bj,iCl)
 
 C catch if iceberg concentration is now too low
             recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
