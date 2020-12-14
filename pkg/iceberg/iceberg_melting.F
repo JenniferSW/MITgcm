@@ -82,8 +82,13 @@ C     u_temp
          ENDDO
         ENDDO
 
-        DO j = 1-OLy, sNy+OLy
-         DO i = 1-OLx, sNx+OLx
+       DO j = 1-OLy, sNy+OLy
+        DO i = 1-OLx, sNx+OLx
+         IF(ICEBERG_MaskC(i,j,bi,bj) .EQ. 0. _d 0) THEN
+          iceberg_Vloss(i,j,bi,bj,nCl) = 0. _d 0
+
+         ELSE
+
 
 C *-------- Basal convection --------*
 C Mb = 0.58 |v_w - v_i|^0.8 (T_w - T_i)/(L_a^0.2) [m/d]
@@ -91,7 +96,7 @@ C T_w - water temperature
 C T_i - surface temperature of ice (-4°C in Bigg et al 1997)
 C L_a - berg's horizontal long axis [m]
 
-        norm_b = sqrt(
+           norm_b = sqrt(
      &      (0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &      + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj))))**2
      &      +
@@ -99,7 +104,7 @@ C L_a - berg's horizontal long axis [m]
      &      +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj))))
      &      )
 
-        Mb(i,j) = 0.58 *
+           Mb(i,j) = 0.58 *
      &      norm_b**0.8
      &      * (SST(i,j,bi,bj) - ICEBERG_temp)
      &      /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) **0.2
@@ -112,7 +117,7 @@ C A :: seaice concentration
 C S_s = 3/2* |u_a-u_o|^1/2 + 1/10 |u_a-u_o|
 C S_s - seat state calculated as a function of wind speed according to marine beaufeort scale
 
-        norm_aw = sqrt((UWIND(i,j,bi,bj)
+           norm_aw = sqrt((UWIND(i,j,bi,bj)
      &      - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
      &      + (VWIND(i,j,bi,bj)
      &      - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
@@ -121,7 +126,7 @@ C S_s - seat state calculated as a function of wind speed according to marine be
      &      + 1/10 * norm_aw
 
 
-        Me(i,j) = 1/12
+           Me(i,j) = 1/12
      &      * (1+ COS(AREA(i,j,bi,bj) **3*pi))
      &      * (SST(i,j,bi,bj) + 2)
      &      * S
@@ -129,7 +134,7 @@ C S_s - seat state calculated as a function of wind speed according to marine be
 C *-------- buoyant convection --------*
 C Mv = 7.62*10^-3 T_w +1.29*10^-3 T_w^2
 C T_w water temperature
-        Mv(i,j) = 0.00762* SST(i,j,bi,bj)
+           Mv(i,j) = 0.00762* SST(i,j,bi,bj)
      &      + 0.00129 * SST(i,j,bi,bj)**2
 
 
@@ -140,28 +145,29 @@ C iceberg_Vloss = basal melting (change of height)
 C               + wave erosion (change of area)
 C               + buoyant convection (change of area)
 
-        iceberg_Vloss(i,j,bi,bj,nCl) =
+           iceberg_Vloss(i,j,bi,bj,nCl) =
      &      iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
      &      + iceberg_distr(i,j,bi,bj,nCl) * Me(i,j) * iceberg_deltaT
      &      + iceberg_distr(i,j,bi,bj,nCl) * Mv(i,j) * iceberg_deltaT
 
 C calculate new iceberg volume in grid cell
-        iceberg_distr(i,j,bi,bj,nCl) =
+           iceberg_distr(i,j,bi,bj,nCl) =
      &      iceberg_distr(i,j,bi,bj) - iceberg_Vloss(i,j,bi,bj,nCl)
 
 C calculate new 'dimension' by subtraction of change of height form iceberg_height
 C and then calculating new iceberg concentration from volume and height
 
-        iceberg_height(i,j,bi,bj,nCl) =
+           iceberg_height(i,j,bi,bj,nCl) =
      &      iceberg_height(i,j,bi,bj,nCl)
      &      - iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
 
-        iceberg_area(i,j,bi,bj,nCl) =
+           iceberg_area(i,j,bi,bj,nCl) =
      &      iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
 
 C catch if melting is higher than iceberg volume
-
-
+          ENDIF
+         ENDDO
+        ENDDO
 
 C catch values that are too low
 C- Handle very small iceberg parts in grid cell and change area if thickness is set to 0.0
@@ -186,8 +192,6 @@ C- handle small area values
          ENDDO
         ENDDO
 
-         ENDDO
-        ENDDO
        ENDDO
       ENDDO
 
