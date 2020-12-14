@@ -151,13 +151,29 @@ c constants times ocean temperature
 
 C *-------- mass balance of iceberg --------*
 C rho dV/dt rho(-L^2Mb - 2TLMe -2TL Mv))
+C iceberg_Vloss = basal melting (change of height)
+C               + wave erosion (change of area)
+C               + buoyant convection (change of area)
 
         iceberg_Vloss(i,j,bi,bj,nCl) =
-     &      iceberg_area(i,j,bi,bj,nCl)*Mb(i,j)
-     &      + iceberg_distr(i,j,bi,bj,nCl) * (Me(i,j) + Mv(i,j))
+     &      iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
+     &      + iceberg_distr(i,j,bi,bj,nCl) * Me(i,j) * iceberg_deltaT
+     &      + iceberg_distr(i,j,bi,bj,nCl) * Mv(i,j) * iceberg_deltaT
 
-c density of iceberg times volume change per time
-c basal melting on bottom area
+C calculate new iceberg volume in grid cell
+        iceberg_distr(i,j,bi,bj,nCl) =
+     &      iceberg_distr(i,j,bi,bj) - iceberg_Vloss(i,j,bi,bj,nCl)
+
+C calculate new 'dimension' by subtraction of change of height form iceberg_height
+C and then calculating new iceberg concentration from volume and height
+
+        iceberg_height(i,j,bi,bj,nCl) =
+     &      iceberg_height(i,j,bi,bj,nCl)
+     &      - iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
+
+        iceberg_area(i,j,bi,bj,nCl) =
+     &      iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
+
          ENDDO
         ENDDO
        ENDDO
