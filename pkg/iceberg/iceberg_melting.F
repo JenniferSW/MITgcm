@@ -154,46 +154,39 @@ C calculate new iceberg volume in grid cell
            iceberg_distr(i,j,bi,bj,nCl) =
      &      iceberg_distr(i,j,bi,bj) - iceberg_Vloss(i,j,bi,bj,nCl)
 
-C calculate new 'dimension' by subtraction of change of height form iceberg_height
-C and then calculating new iceberg concentration from volume and height
-
-           iceberg_height(i,j,bi,bj,nCl) =
-     &      iceberg_height(i,j,bi,bj,nCl)
-     &      - iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
-
-           iceberg_area(i,j,bi,bj,nCl) =
-     &      iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
-
-C catch if melting is higher than iceberg volume
-          ENDIF
-         ENDDO
-        ENDDO
-
-C catch values that are too low
-C- Handle very small iceberg parts in grid cell and change area if thickness is set to 0.0
-C TODO ersetze 1. _d -5 durch einen Parameter
-         DO j=1,sNy
-          DO i=1,sNx
+C catch values that are too small or values that are negative because of too strong melting
            IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
             iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
            ENDIF
-          ENDDO
-         ENDDO
 
-C- handle small area values
-        recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
-         DO j=1,sNy
-          DO i=1,sNx
+C calculate new 'dimension' by subtraction of change of height form iceberg_height
+           iceberg_height(i,j,bi,bj,nCl) =
+     &      iceberg_height(i,j,bi,bj,nCl)
+     &      - iceberg_area(i,j,bi,bj,nCl)*Mb(i,j) * iceberg_deltaT
+
+C catch values that are too small or values that are negative because of too strong melting
+           IF (iceberg_height(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+            iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
+           ENDIF
+
+C calculate new concentration of iceberg from new volume and new height
+           iceberg_area(i,j,bi,bj,nCl) =
+     &      iceberg_distr(i,j,bi,bj,nCl)/iceberg_height(i,j,bi,bj,nCl)
+
+C catch if iceberg concentration is now too low
+           recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
            IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
             iceberg_area(i,j,bi,bj,iCl)=
      &        MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
-          ENDIF
-         ENDDO
-        ENDDO
+           ENDIF
 
-       ENDDO
-      ENDDO
+          ENDIF ! end if iceberg_maskC = 0
+         ENDDO ! end i loop
+        ENDDO ! end j loop
+       ENDDO ! end bi loop
+      ENDDO ! end bj loop
 
       RETURN
       END
