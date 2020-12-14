@@ -1,4 +1,5 @@
 #include "ICEBERG_OPTIONS.h"
+#include "SEAICE_OPTIONS.h"
 #ifdef ALLOW_AUTODIFF
 # include "AUTODIFF_OPTIONS.h"
 #endif
@@ -37,6 +38,11 @@ C     === Global variables ===
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 #include "DYNVARS.h"
+#ifdef ALLOW_SEAICE
+#include "SEAICE_SIZE.h"
+#include "SEAICE_PARAMS.h"
+#include "SEAICE.h"
+#endif
 
 C !INPUT/OUTPUT PARAMETERS: ===================================================
 C     === Routine arguments ===
@@ -60,6 +66,11 @@ C     u_temp
       _RL Mb(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL Mv(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL Me(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+
+
+
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
 
 C *-------- Basal convection --------*
 C Mb = 0.58 |v_w - v_i|^0.8 (T_w - T_i)/(L_a^0.2) [m/d]
@@ -134,8 +145,8 @@ C rho dV/dt rho(-L^2Mb - 2TLMe -2TL Mv))
 c density of iceberg times volume change per time
 c basal melting on bottom area
 
-
-CEOP
+       ENDDO
+      ENDDO
 
       RETURN
       END
