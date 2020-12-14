@@ -72,6 +72,19 @@ C     u_temp
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
 
+        DO j = 1-OLy, sNy+OLy
+         DO i = 1-OLx, sNx+OLx
+
+              Mb(i,j) = 0. _d 0
+              Mv(i,j) = 0. _d 0
+              Me(i,j) = 0. _d 0
+
+         ENDDO
+        ENDDO
+
+        DO j = 1-OLy, sNy+OLy
+         DO i = 1-OLx, sNx+OLx
+
 C *-------- Basal convection --------*
 C Mb = 0.58 |v_w - v_i|^0.8 (T_w - T_i)/(L_a^0.2) [m/d]
 C T_w - water temperature
@@ -82,18 +95,18 @@ C constant value 0.58
 C norm on C-point of difference between iceberg velocity and ocean velocity
 C difference of ocean temperature and ice temperature
 c divison by icebergs long axis
-      norm_b = sqrt(
-     &  (0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
-     &  + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj))))**2
-     &  +
-     &  (0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
-     &  +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj))))
-     &  )
+        norm_b = sqrt(
+     &      (0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
+     &      + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj))))**2
+     &      +
+     &      (0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
+     &      +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj))))
+     &      )
 
-      Mb(i,j) = 0.58 *
-     & norm_b**0.8
-     & * (SST(i,j,bi,bj) - ICEBERG_temp)
-     & /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) **0.2
+        Mb(i,j) = 0.58 *
+     &      norm_b**0.8
+     &      * (SST(i,j,bi,bj) - ICEBERG_temp)
+     &      /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) **0.2
 
 
 
@@ -111,40 +124,42 @@ C S_s - seat state calculated as a function of wind speed according to marine be
 c norm on difference between atmosphere and ocean velocity
 c sqrt of norm
 c again norm from above
-      norm_aw = sqrt((UWIND(i,j,bi,bj)
-     &   - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
-     &   + (VWIND(i,j,bi,bj)
-     &   - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
+        norm_aw = sqrt((UWIND(i,j,bi,bj)
+     &      - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
+     &      + (VWIND(i,j,bi,bj)
+     &      - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
 
-      S = 3/2 * norm_aw**0.5
-     & + 1/10 * norm_aw
+        S = 3/2 * norm_aw**0.5
+     &      + 1/10 * norm_aw
 
 C TODO Meereiskonzentration hinzufuegen
 
-      Me(i,j) = 1/12
-     & * (1+ COS(AREA(i,j,bi,bj) **3*pi))
-     & * (SST(i,j,bi,bj) + 2)
-     & * S
+        Me(i,j) = 1/12
+     &      * (1+ COS(AREA(i,j,bi,bj) **3*pi))
+     &      * (SST(i,j,bi,bj) + 2)
+     &      * S
 
 C *-------- buoyant convection --------*
 C Mv = 7.62*10^-3 T_w +1.29*10^-3 T_w^2
 C T_w water temperature
 
 c constants times ocean temperature
-      Mv(i,j) = 0.00762* SST(i,j,bi,bj)
-     & + 0.00129 * SST(i,j,bi,bj)**2
+        Mv(i,j) = 0.00762* SST(i,j,bi,bj)
+     &      + 0.00129 * SST(i,j,bi,bj)**2
 
 
 
 C *-------- mass balance of iceberg --------*
 C rho dV/dt rho(-L^2Mb - 2TLMe -2TL Mv))
 
-      melt_rhs(i,j,bi,bj) = iceberg_area(i,j,bi,bj,nCl)*Mb(i,j)
-     &  + iceberg_distr(i,j,bi,bj,nCl) * (Me(i,j) + Mv(i,j))
+        iceberg_Vloss(i,j,bi,bj,nCl) =
+     &      iceberg_area(i,j,bi,bj,nCl)*Mb(i,j)
+     &      + iceberg_distr(i,j,bi,bj,nCl) * (Me(i,j) + Mv(i,j))
 
 c density of iceberg times volume change per time
 c basal melting on bottom area
-
+         ENDDO
+        ENDDO
        ENDDO
       ENDDO
 
