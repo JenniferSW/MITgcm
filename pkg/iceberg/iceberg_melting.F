@@ -73,7 +73,7 @@ C     u_temp
       _RL Mv(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL Me(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
-      factor = 1/86400
+      factor = 86400. _d 0
       DO iCl = 1, ICEBERG_numClUsed
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
@@ -114,12 +114,12 @@ C L_a - berg's horizontal long axis [m]
      &       -iceberg_vvel(i,j+1,bi,bj,iCl))))**2
      &       )
 
-            Mb(i,j) = factor * 0.58 *
+            Mb(i,j) = 1/factor * 0.58 *
      &       norm_b**0.8
      &       * (SST(i,j,bi,bj) - ICEBERG_temp)
      &       /sqrt(iceberg_area(i,j,bi,bj,iCl)*rA(i,j,bi,bj)) **0.2
-            PRINT*, 'debug Mb',i,j, Mb(i,j)
-c     &       ,uVel(i,j,1,bi,bj), iceberg_uVel(i,j,bi,bj,iCl)
+            PRINT*, 'debug Mb',i,j, Mb(i,j)/factor
+     &       ,Mb(i,j)*1/factor
 
 
 
@@ -138,7 +138,7 @@ C S_s - seat state calculated as a function of wind speed according to marine be
      &       + 1/10 * norm_aw
 
 
-            Me(i,j) = factor * 1/12
+            Me(i,j) = 1/factor * 1/12
      &       * (1+ COS(AREA(i,j,bi,bj) **3*pi))
      &       * (SST(i,j,bi,bj) + 2)
      &       * S
@@ -147,9 +147,9 @@ C S_s - seat state calculated as a function of wind speed according to marine be
 C *-------- buoyant convection --------*
 C Mv = 7.62*10^-3 T_w +1.29*10^-3 T_w^2
 C T_w water temperature
-            Mv(i,j) = factor *
+            Mv(i,j) = 1/factor * (
      &       0.00762* SST(i,j,bi,bj)
-     &       + 0.00129 * SST(i,j,bi,bj)**2
+     &       + 0.00129 * SST(i,j,bi,bj)**2)
             PRINT*, 'debug Mv',i,j, Mv(i,j), SST(i,j,bi,bj)
 
 
@@ -188,8 +188,8 @@ C catch values that are too small or values that are negative because of too str
             ENDIF
 
 C calculate new concentration of iceberg from new volume and new height
-c            iceberg_area(i,j,bi,bj,iCl) =
-c     &       iceberg_distr(i,j,bi,bj,iCl)/iceberg_height(i,j,bi,bj,iCl)
+            iceberg_area(i,j,bi,bj,iCl) =
+     &       iceberg_distr(i,j,bi,bj,iCl)/iceberg_height(i,j,bi,bj,iCl)
 
 cC catch if iceberg concentration is now too low
 c            recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
