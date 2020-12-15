@@ -185,18 +185,19 @@ C catch values that are too small or values that are negative because of too str
             IF (iceberg_height(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
              iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-            ENDIF
+            ELSE
 
 C calculate new concentration of iceberg from new volume and new height
             iceberg_area(i,j,bi,bj,iCl) =
      &       iceberg_distr(i,j,bi,bj,iCl)/iceberg_height(i,j,bi,bj,iCl)
+            ENDIF
 
-cC catch if iceberg concentration is now too low
-c            recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
-c            IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
-c             iceberg_area(i,j,bi,bj,iCl)=
-c     &         MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
-c            ENDIF
+C catch if iceberg concentration is now too low
+            recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
+            IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
+             iceberg_area(i,j,bi,bj,iCl)=
+     &         MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
+            ENDIF
 
            ENDIF ! end if iceberg_maskC = 0
           ENDDO ! end i loop
