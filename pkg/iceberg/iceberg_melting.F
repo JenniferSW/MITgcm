@@ -174,19 +174,21 @@ C catch values that are too small or values that are negative because of too str
             IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
              iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-            ENDIF
+             iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
+            ELSE
 
 C calculate new 'dimension' by subtraction of change of height form iceberg_height
             iceberg_height(i,j,bi,bj,iCl) =
      &       iceberg_height(i,j,bi,bj,iCl)
      &       - iceberg_area(i,j,bi,bj,iCl)*Mb(i,j) * iceberg_deltaT
+            ENDIF
 
 C catch values that are too small or values that are negative because of too strong melting
             IF (iceberg_height(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
              iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
+             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
             ELSE
-
 C calculate new concentration of iceberg from new volume and new height
             iceberg_area(i,j,bi,bj,iCl) =
      &       iceberg_distr(i,j,bi,bj,iCl)/iceberg_height(i,j,bi,bj,iCl)
