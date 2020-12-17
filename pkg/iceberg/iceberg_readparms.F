@@ -67,8 +67,11 @@ c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
       ICEBERG_rhoAir = 1.3
       ICEBERG_rhoOcean = 1026.0
       ICEBERG_rhoSeaice = 910.0
-      ICEBERG_AirDrag = 1.3e-3
-      ICEBERG_OceanDrag = 0.9e-3
+      ICEBERG_rhoIceberg = 850.0
+      ICEBERG_AirDrag = 2.5e-4
+      ICEBERG_AirDragform = 0.4
+      ICEBERG_OceanDrag = 0.5e-3
+      ICEBERG_OceanDragform = 0.85
       ICEBERG_SeaiceDrag = 0.91e-3
       ICEBERG_gravity = 9.81
       ICEBERG_temp = -4

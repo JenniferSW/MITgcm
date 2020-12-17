@@ -30,8 +30,11 @@ C
       _RL ICEBERG_rhoAir
       _RL ICEBERG_rhoOcean
       _RL ICEBERG_rhoSeaice
+      _RL ICEBERG_rhoIceberg
       _RL ICEBERG_AirDrag
+      _RL ICEBERG_AirDragform
       _RL ICEBERG_OceanDrag
+      _RL ICEBERG_OceanDragform
       _RL ICEBERG_SeaiceDrag
       _RL ICEBERG_gravity
       _RL ICEBERG_temp
@@ -69,8 +72,11 @@ C Common Block for integer parameters
 
 C Common block for real parameters
       COMMON /ICEBERG_PARAMS_R/ ICEBERG_deltaT,
-     &     ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
-     &     ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
+     &     ICEBERG_rhoAir, ICEBERG_rhoOcean,
+     &     ICEBERG_rhoSeaice, ICEBERG_rhoIceberg,
+     &     ICEBERG_AirDrag, ICEBERG_AirDragform,
+     &     ICEBERG_OceanDrag, ICEBERG_OceanDragform,
+     &     ICEBERG_SeaiceDrag,
      &     ICEBERG_gravity, ICEBERG_temp
 
 

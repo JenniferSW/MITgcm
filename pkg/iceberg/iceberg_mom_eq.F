@@ -186,8 +186,7 @@ C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocea
 c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
 
 C calculate drag coefficient (later shifted to separate function)
-            cdw_const = 0.5 * ICEBERG_rhoOcean
-     &            * ICEBERG_OceanDrag
+
 
             DO j=0,sNy+1
               DO i=0,sNx+1
@@ -197,9 +196,12 @@ C calculate drag coefficient (later shifted to separate function)
      &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
 
 c Calculate Norm on C-Point with constants for ocean stress
-               CDw(i,j) = cdw_const
-     &            * iceberg_area(i,j,bi,bj,nCl)
-     &            * sqrt(duw**2+dvw**2)
+               CDw(i,j) = ICEBERG_rhoOcean *
+     &          (0.5 * ICEBERG_OceanDragform
+     &          * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
+     &          * iceberg_distr(i,j,bi,bj,nCl)
+     &          + ICEBERG_OceanDrag * iceberg_area(i,j,bi,bj,nCl))
+     &          * sqrt(duw**2+dvw**2)
               ENDDO
             ENDDO
 
@@ -229,9 +231,17 @@ c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
               DO i=0,sNx+1
 
 C Calculate Norm on C-Point with constant values for wind stress
-                CDa(i,j) = cda_const
-     &            * iceberg_area(i,j,bi,bj,nCl)
-     &            * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
+                IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
+                  CDa(i,j) = 0. _d 0
+                ELSE
+                  CDa(i,j) = ICEBERG_rhoAir *
+     &              (0.5 * ICEBERG_AirDragform
+     &              * (1-ICEBERG_rhoIceberg/ICEBERG_rhoOcean)
+     &              * iceberg_distr(i,j,bi,bj,nCl)
+     &              /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+     &              + ICEBERG_AirDrag * iceberg_area(i,j,bi,bj,nCl))
+     &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
+                ENDIF
               ENDDO
             ENDDO
 
