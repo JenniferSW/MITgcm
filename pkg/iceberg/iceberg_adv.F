@@ -278,10 +278,13 @@ C     (or install a warning in e.g. seaice_readparms.F)
 C finally update iceberg mean height in grid cell
          DO j=1,sNy
           DO i=1,sNx
+           IF(iceberg_area(i,j,bi,bj,iCl) .GT. 0. _d 0)THEN
+
             iceberg_height(i,j,bi,bj,iCl)=
      &        iceberg_distr(i,j,bi,bj,iCl)/iceberg_area(i,j,bi,bj,iCl)
+           ENDIF
+          ENDDO
          ENDDO
-        ENDDO
 
 
 C QUESTION is EXCH_3D_RL possible as iCl is not the 3rd dimension? PTRACERS macht das auch so
