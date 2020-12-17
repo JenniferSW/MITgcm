@@ -162,8 +162,9 @@ C               + buoyant convection (change of area)
 
             iceberg_Vloss(i,j,bi,bj,iCl) =
      &       iceberg_area(i,j,bi,bj,iCl)*Mb(i,j) * iceberg_deltaT
-     &       + iceberg_distr(i,j,bi,bj,iCl) * Me(i,j) * iceberg_deltaT
-     &       + iceberg_distr(i,j,bi,bj,iCl) * Mv(i,j) * iceberg_deltaT
+     &       + 2*iceberg_distr(i,j,bi,bj,iCl)
+     &       /sqrt(iceberg_area(i,j,bi,bj,iCl)*rA(i,j,bi,bj)) * (Me(i,j)
+     &        + Mv(i,j)) * iceberg_deltaT
 
             PRINT*, 'debug melt vloss',i,j, iceberg_Vloss(i,j,bi,bj,iCl)
 C calculate new iceberg volume in grid cell
