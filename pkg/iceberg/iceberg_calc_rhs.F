@@ -42,7 +42,7 @@ C--   Melt iceberg concentration (melting is done considering the mechanism
 C     from Thomas Rackows pyberg but using the mass balance from Martin and Adcroft (2011)
 C     MA10 used different definitions of impact areas for the melting mechanisms than pyberg
 
-      CALL ICEBERG_MELTING(myTime,myIter,myThid)
+c      CALL ICEBERG_MELTING(myTime,myIter,myThid)
 
 
 CML#ifdef ALLOW_DIAGNOSTICS
