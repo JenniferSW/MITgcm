@@ -77,7 +77,7 @@ C     u_temp
       _RL dua , dva
       _RL dus , dvs
       _RL norm_a, Lw
-      _RL cdw_const, cda_const, cds_const, cdr_const
+      _RL cds_const, cdr_const
       _RL utemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vtemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL Fcu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -225,8 +225,7 @@ c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
 #ifdef ALLOW_EXF
 
-            cda_const = 0.5 * ICEBERG_rhoAir
-     &            * ICEBERG_AirDrag
+
             DO j=0,sNy+1
               DO i=0,sNx+1
 
