@@ -197,13 +197,19 @@ C calculate drag coefficient (later shifted to separate function)
      &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
 
 c Calculate Norm on C-Point with constants for ocean stress
-               form_w = 0.5 * ICEBERG_OceanDragform
-     &          * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
-     &          * iceberg_distr(i,j,bi,bj,nCl)
-               CDw(i,j) = ICEBERG_rhoOcean *
-     &          (form_w
-     &          + ICEBERG_OceanDrag * iceberg_area(i,j,bi,bj,nCl))
-     &          * sqrt(duw**2+dvw**2)
+                IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
+                  CDw(i,j) = 0. _d 0
+                ELSE
+                 form_w = 0.5 * ICEBERG_OceanDragform
+     &              * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
+     &              * iceberg_distr(i,j,bi,bj,nCl)
+     &              /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+
+                 CDw(i,j) = ICEBERG_rhoOcean *
+     &              (form_w
+     &              + ICEBERG_OceanDrag * iceberg_area(i,j,bi,bj,nCl))
+     &              * sqrt(duw**2+dvw**2)
+                ENDIF
 
                 IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
                   PRINT *, 'debug formw', form_w,
@@ -250,6 +256,12 @@ C Calculate Norm on C-Point with constant values for wind stress
      &              + ICEBERG_AirDrag * iceberg_area(i,j,bi,bj,nCl))
      &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
                 ENDIF
+                IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
+                  PRINT *, 'debug forma', form_a,ICEBERG_rhoAir*
+     &             ICEBERG_AirDrag * iceberg_area(i,j,bi,bj,nCl)
+     &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
+     &              , CDa(i,j)
+                ENDIF
               ENDDO
             ENDDO
 
@@ -263,8 +275,6 @@ C Calculate Norm on C-Point with constant values for wind stress
      &           ( CDa(i,j) * VWIND(i,j,bi,bj)
      &            + CDa(i,j-1) * VWIND(i,j-1,bi,bj))
 
-c                PRINT *, 'debug wind', Fau(i,j,bi,bj),
-c     &              ICEBERG_AirDrag, i ,j
               ENDDO
             ENDDO
 
