@@ -78,6 +78,7 @@ C     u_temp
       _RL dus , dvs
       _RL norm_a, Lw
       _RL cds_const, cdr_const
+      _RL form_a, form_w
       _RL utemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vtemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL Fcu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -196,12 +197,19 @@ C calculate drag coefficient (later shifted to separate function)
      &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
 
 c Calculate Norm on C-Point with constants for ocean stress
-               CDw(i,j) = ICEBERG_rhoOcean *
-     &          (0.5 * ICEBERG_OceanDragform
+               form_w = 0.5 * ICEBERG_OceanDragform
      &          * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
      &          * iceberg_distr(i,j,bi,bj,nCl)
+               CDw(i,j) = ICEBERG_rhoOcean *
+     &          (form_w
      &          + ICEBERG_OceanDrag * iceberg_area(i,j,bi,bj,nCl))
      &          * sqrt(duw**2+dvw**2)
+
+                IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
+                  PRINT *, 'debug formw', form_w,
+     &             ICEBERG_OceanDrag * iceberg_area(i,j,bi,bj,nCl)
+     &          * sqrt(duw**2+dvw**2)* ICEBERG_rhoOcean, CDw(i,j)
+                ENDIF
               ENDDO
             ENDDO
 
@@ -233,11 +241,12 @@ C Calculate Norm on C-Point with constant values for wind stress
                 IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
                   CDa(i,j) = 0. _d 0
                 ELSE
-                  CDa(i,j) = ICEBERG_rhoAir *
-     &              (0.5 * ICEBERG_AirDragform
+                  form_a = 0.5 * ICEBERG_AirDragform
      &              * (1-ICEBERG_rhoIceberg/ICEBERG_rhoOcean)
      &              * iceberg_distr(i,j,bi,bj,nCl)
      &              /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+                  CDa(i,j) = ICEBERG_rhoAir *
+     &              (form_a
      &              + ICEBERG_AirDrag * iceberg_area(i,j,bi,bj,nCl))
      &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
                 ENDIF
@@ -454,12 +463,6 @@ c     &             .GT. 1. _d 0) THEN
      &              +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj)
 c     &            , iceberg_MassU(i,j,bi,bj)
      &            , iceberg_uvel(i,j,bi,bj,nCl)
-
-                  PRINT*, 'debg uvel calc'
-     &              ,i,j,
-     &              urhs(i,j,bi,bj)
-     &              ,'/'
-     &              , Fru(i,j,bi,bj)
 c                  ENDIF
                 ENDIF
                ENDDO
