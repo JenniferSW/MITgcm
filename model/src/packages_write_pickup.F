@@ -185,6 +185,13 @@ C     Write restart file for GCHEM pkg & GCHEM sub-packages
       ENDIF
 #endif /* ALLOW_THSICE */
 
+#ifdef ALLOW_ICEBERG
+      IF (useICEBERG) THEN
+        CALL ICEBERG_WRITE_PICKUP( permPickup,
+     I                    suffix, myTime, myIter, myThid )
+      ENDIF
+#endif /* ALLOW_ICEBERG */
+
 #ifdef ALLOW_LAND
 C     Write pickup file for Land package:
       IF (useLand) THEN

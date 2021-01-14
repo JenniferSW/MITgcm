@@ -17,6 +17,9 @@ C !USES: ===============================================================
 #include "PARAMS.h"
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
+#ifdef ALLOW_MNC
+# include "MNC_PARAMS.h"
+#endif
 
 C !INPUT PARAMETERS: ===================================================
 C     permPickup      :: write a permanent pickup
@@ -34,7 +37,7 @@ C !OUTPUT PARAMETERS: ==================================================
 C  none
 
 #ifdef ALLOW_ICEBERG
-#if (defined ICEBERG_3D_STATE) || (defined ICEBERG_2D_STATE)
+c#if (defined ICEBERG_3D_STATE) || (defined ICEBERG_2D_STATE)
 
 C     === Functions ====
       INTEGER  ILNBLNK
@@ -72,20 +75,25 @@ CEOP
 
 C       Firstly, write 3-D fields as consecutive records,
 
-#ifdef ICEBERG_3D_STATE
+c#ifdef ICEBERG_3D_STATE
 C     record number < 0 : a hack not to write meta files now:
         DO iCl = 1, ICEBERG_numClUsed
-         WRITE(fldname,'(A5,I2)') 'IBCL_', iCl
+
          j = j + 1
 
          CALL WRITE_REC_3D_RL( fn, fp, Nr,
-     C                         iceberg_distr(1-OLx,1-OLy,1,1,iCl)
+     C                         iceberg_area(1-OLx,1-OLy,1,1,iCl)
      &                         , -j, myIter, myThid )
          IF (j.LE.listDim) wrFldList(j) = fldname
+
+         CALL WRITE_REC_3D_RL( fn, fp, Nr,
+     C                         iceberg_height(1-OLx,1-OLy,1,1,iCl)
+     &                         , -j, myIter, myThid )
+         IF (j.LE.listDim) wrFldList(j) = 'IBH'//ICEBERG_ClLbl(iCl)
         ENDDO
 
 
-#endif /* ICEBERG_3D_STATE */
+c#endif /* ICEBERG_3D_STATE */
 
 C-    switch to 2-D fields:
         nj = -j*Nr
@@ -128,7 +136,7 @@ c     &                         nj, myIter, myThid )
 #endif /* ALLOW_MDSIO */
 C--------------------------
 
-#endif /* ICEBERG_3D_STATE or ICEBERG_2D_STATE */
+c#endif /* ICEBERG_3D_STATE or ICEBERG_2D_STATE */
 #endif /* ALLOW_ICEBERG */
 
       RETURN
