@@ -33,8 +33,6 @@ C     iUnit      :: Work variable for IO unit number
       NAMELIST /ICEBERG_PARM01/
      &       ICEBERG_Iter0,
      &       ICEBERG_numClUsed,
-C HINT if not used later ICEBERG_deltaT has to be deleted
-
      &       ICEBERG_deltaT,
      &       ICEBERGadvScheme,
      &       ICEBERG_initialConcentration,

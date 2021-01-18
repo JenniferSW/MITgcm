@@ -81,16 +81,12 @@ c      _BARRIER
             STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
         ENDIF
 
-
-
         CALL READ_FLD_XY_RL( tmpInitialConcentration, ' ',
-     &                       iceberg_area(1-OLx,1-OLy,1,1,iCl), 0,
-     &                       myThid )
+     &                iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &                0, myThid )
 
 
-        _EXCH_XY_RL(iceberg_area , myThid)
-        _EXCH_XY_RL(iceberg_height , myThid)
-
+        _EXCH_XY_RL(iceberg_concentration , myThid)
        ENDDO
 
        IF ( ICEBERG_icebergWidth.EQ.' ' ) THEN
@@ -102,9 +98,9 @@ c      _BARRIER
             STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
         ENDIF
 
-        CALL READ_FLD_XY_RL( ICEBERG_icebergWidth, ' ',
-     &                       iceberg_width(iCl), 0,
-     &                       myThid )
+        CALL READ_GLVEC_RL( ICEBERG_icebergWidth, ' ',
+     &                iceberg_width(iCl),ICEBERG_numClUsed, 1,
+     &                myThid )
 
 
         IF ( ICEBERG_icebergHeight.EQ.' ' ) THEN
@@ -116,11 +112,9 @@ c      _BARRIER
             STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
         ENDIF
 
-        CALL READ_FLD_XY_RL( ICEBERG_icebergHeight, ' ',
-     &                       iceberg_height(iCl), 0,
-     &                       myThid )
-
-
+        CALL READ_GLVEC_RL( ICEBERG_icebergHeight, ' ',
+     &                iceberg_height(iCl),ICEBERG_numClUsed, 0,
+     &                myThid )
       ENDIF
 
 C initialize iceberg velocity and mass loss

@@ -98,11 +98,10 @@ c      COMMON /ICEBERG_STATE_3D/
 /* QUESTION kann ifdef 2D STate weg? */
 #ifdef ICEBERG_2D_STATE
 C     Iceberg 2-dim. fields
-C     iceberg_distr    :: field for iceberg distribution/effective height (m)
-C                         - actual height is iceberg_distr/iceberg_area
-C     iceberg_area     ::  field for fractional area covered by icebergs
-C                         - here 0 is no cover and 1 is 100% cover
-C     iceberg_height  ::  field for mean iceberg height in grid cell (m)
+C     iceberg_concentration :: field for iceberg concentration
+C                         - number of icebergs per grid point
+C     iceberg_width   ::  field for iceberg width for each size class
+C     iceberg_height  ::  list of iceberg height for each size class
 C     iceberg_MassC   ::  iceberg Mass at cell center
 C     iceberg_MassU   ::  iceberg Mass at U grid point
 C     iceberg_MassV   ::  iceberg Mass at V grid point
@@ -111,12 +110,12 @@ C     iceberg_MaskU   ::  iceberg Mask to identify cell with and without iceberg
 C     iceberg_MaskV   ::  iceberg Mask to identify cell with and without icebergs (V point)
 C     iceberg_Vloss   ::  total loss of volume in a time step for every size class
 
-      _RL iceberg_distr(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+/* TODO die Listen in eine eigene Kategorie fassen */
+
+      _RL iceberg_concentration(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
      &     ICEBERG_numCl)
-      _RL iceberg_area (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
-     &     ICEBERG_numCl)
-      _RL iceberg_height(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
-     &     ICEBERG_numCl)
+      _RL iceberg_width (ICEBERG_numCl)
+      _RL iceberg_height(ICEBERG_numCl)
       _RL iceberg_MassC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MassU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MassV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -131,7 +130,7 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
      &     ICEBERG_numCl)
 
       COMMON /ICEBERG_STATE_2D/
-     &    iceberg_distr,
+     &    iceberg_concentration,
      &    iceberg_area, iceberg_height,
      &    iceberg_MassC, iceberg_MassU, iceberg_MassV,
      &    iceberg_MaskC, iceberg_MaskU, iceberg_MaskV,
