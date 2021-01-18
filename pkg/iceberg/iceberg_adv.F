@@ -86,35 +86,27 @@ C-    Mask cells with icebergs (1) and without (0)
            DO i=1-OLx+1,sNx+OLx
 C HINT iceberg_MaskU can be evaluated only by the added area, because when it is .gt. 0, then there is an iceberg anyway
             iceberg_MaskU(i,j,bi,bj) =
-     &         iceberg_area(i,j,bi,bj,iCl)
-     &         + iceberg_area(i-1,j,bi,bj,iCl)
-            maskU(i,j,bi,bj) =
-     &         iceberg_distr(i,j,bi,bj,iCl)
-     &         + iceberg_distr(i-1,j,bi,bj,iCl)
+     &         iceberg_concentration(i,j,bi,bj,iCl)
+     &         + iceberg_concentration(i-1,j,bi,bj,iCl)
 
-            IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) .AND.
-     &           (maskU(i,j,bi,bj) .GT. 0. _d 0) ) THEN
+            IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) THEN
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
             ELSE
              iceberg_MaskU(i,j,bi,bj) = 0. _d 0
             ENDIF
 
             iceberg_MaskV(i,j,bi,bj) =
-     &         iceberg_area(i,j,bi,bj,iCl)
-     &         + iceberg_area(i,j-1,bi,bj,iCl)
-            maskV(i,j,bi,bj) =
-     &         iceberg_distr(i,j,bi,bj,iCl)
-     &         + iceberg_distr(i,j-1,bi,bj,iCl)
+     &         iceberg_concentration(i,j,bi,bj,iCl)
+     &         + iceberg_concentration(i,j-1,bi,bj,iCl)
 
-            IF ( (iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) .AND.
-     &           (maskV(i,j,bi,bj) .GT. 0. _d 0) ) THEN
+            IF ( (iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) THEN
              iceberg_MaskV(i,j,bi,bj) = 1. _d 0
             ELSE
              iceberg_MaskV(i,j,bi,bj) = 0. _d 0
             ENDIF
 
-            iceberg_MaskC(i,j,bi,bj) = iceberg_distr(i,j,bi,bj,iCl)
-            mask_C(i,j,bi,bj) = iceberg_area(i,j,bi,bj,iCl)
+            iceberg_MaskC(i,j,bi,bj) =
+     &         iceberg_concentration(i,j,bi,bj,iCl)
             IF ( (iceberg_MaskC(i,j,bi,bj) .GT. 0. _d 0) .AND.
      &           (mask_C(i,j,bi,bj) .GT. 0. _d 0) ) THEN
              iceberg_MaskC(i,j,bi,bj) = 1. _d 0
@@ -189,43 +181,23 @@ C r_hFld - input reciprocal of ice thickness
 C gFld - output tendency of icebergs used to do the advection
 C afx, afy - horizontal advective flux
 
-C- advection of effective iceberg thickness
+C- advection of concentration
          CALL ICEBERG_ADVECTION(
      I        GAD_HEFF, ICEBERGadvScheme,
      I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
      I        iceberg_vvel(1-OLx,1-OLy,bi,bj,iCl),
-     I        uTrans, vTrans, iceberg_distr(1-OLx,1-OLy,bi,bj,iCl),
+     I        uTrans, vTrans,
+     I        iceberg_concentration(1-OLx,1-OLy,bi,bj,iCl),
      I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
-              iceberg_distr(i,j,bi,bj,iCl) =
+              iceberg_concentration(i,j,bi,bj,iCl) =
      &            maskC(i,j,1,bi,bj) * (
-     &            iceberg_distr(i,j,bi,bj,iCl) + ICEBERG_deltaT
-     &            * gFld(i,j))
-          ENDDO
-         ENDDO
-
-
-C advection of fractional area
-         CALL ICEBERG_ADVECTION(
-     I        GAD_AREA, ICEBERGadvScheme,
-     I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
-     I        iceberg_vvel(1-OLx,1-OLy,bi,bj,iCl),
-     I        uTrans, vTrans, iceberg_area(1-OLx,1-OLy,bi,bj,iCl),
-     I        recip_heff,
-     O        gFld, afx, afy,
-     I        bi, bj, myTime, myIter, myThid )
-
-
-         DO j=1,sNy
-          DO i=1,sNx
-              iceberg_area(i,j,bi,bj,iCl) =
-     &            maskC(i,j,1,bi,bj) * (
-     &            iceberg_area(i,j,bi,bj,iCl) + ICEBERG_deltaT
-     &            * gFld(i,j))
+     &            iceberg_concentration(i,j,bi,bj,iCl)
+     &            + ICEBERG_deltaT * gFld(i,j))
           ENDDO
          ENDDO
 
@@ -238,11 +210,10 @@ C followed the example of seaice_reg_ridge.F
           DO i = 1-OLy,sNy+OLy
             DO j = 1-OLx, sNx+OLx
              tmpscal = 0. _d 0
-             tmpscal = MAX(-iceberg_distr(i,j,bi,bj,iCl),0. _d 0)
-             iceberg_distr(i,j,bi,bj,iCl) =
-     &          iceberg_distr(i,j,bi,bj,iCl) + tmpscal
-             iceberg_area(i,j,bi,bj,iCl) =
-     &          MAX(iceberg_area(i,j,bi,bj,iCl), 0. _d 0)
+             tmpscal =
+     &        MAX(-iceberg_concentration(i,j,bi,bj,iCl),0. _d 0)
+             iceberg_concentration(i,j,bi,bj,iCl) =
+     &          iceberg_concentration(i,j,bi,bj,iCl) + tmpscal
             ENDDO
           ENDDO
 
@@ -252,45 +223,15 @@ C  area and height if effective thickness is set to 0.0
 C TODO ersetze 1. _d -5 durch einen Parameter
          DO j=1,sNy
           DO i=1,sNx
-           IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
-            iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
-            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-            iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
+           IF (iceberg_concentration(i,j,bi,bj,iCl)
+     &        .LE.1. _d -5) THEN
+            iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
            ENDIF
           ENDDO
          ENDDO
-
-C- handle small area values
-
-        recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
-         DO j=1,sNy
-          DO i=1,sNx
-           IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
-C     SEAICE_area_floor*SEAICE_multDim cannot be allowed to exceed 1
-C     hence use SEAICE_area_floor devided by SEAICE_multDim
-C     (or install a warning in e.g. seaice_readparms.F)
-            iceberg_area(i,j,bi,bj,iCl)=
-     &        MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
-          ENDIF
-         ENDDO
-        ENDDO
-
-C finally update iceberg mean height in grid cell
-         DO j=1,sNy
-          DO i=1,sNx
-           IF(iceberg_area(i,j,bi,bj,iCl) .GT. 0. _d 0)THEN
-
-            iceberg_height(i,j,bi,bj,iCl)=
-     &        iceberg_distr(i,j,bi,bj,iCl)/iceberg_area(i,j,bi,bj,iCl)
-           ENDIF
-          ENDDO
-         ENDDO
-
 
 C QUESTION is EXCH_3D_RL possible as iCl is not the 3rd dimension? PTRACERS macht das auch so
-         CALL EXCH_3D_RL( iceberg_distr,  iCl, myThid )
-         CALL EXCH_3D_RL( iceberg_area, iCl, myThid )
-         CALL EXCH_3D_RL( iceberg_height, iCl, myThid )
+         CALL EXCH_3D_RL( iceberg_concentration,  iCl, myThid )
 
 C---   end iCl bi,bj loops
         ENDDO !bi

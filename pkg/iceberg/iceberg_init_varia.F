@@ -117,8 +117,13 @@ c      _BARRIER
      &                myThid )
       ENDIF
 
-C initialize iceberg velocity and mass loss
+C calculate iceberg length from iceberg width
+
       DO iCl = 1,ICEBERG_numClUsed
+
+      iceberg_length(iCl) = 1.5 * iceberg_width(iCl)
+
+C initialize iceberg velocity and mass loss
        DO bj = myByLo(myThid), myByHi(myThid)
         DO bi = myBxLo(myThid), myBxHi(myThid)
           DO j=1-Oly,sNy+OLy

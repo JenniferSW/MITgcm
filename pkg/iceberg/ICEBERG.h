@@ -115,7 +115,9 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
       _RL iceberg_concentration(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
      &     ICEBERG_numCl)
       _RL iceberg_width (ICEBERG_numCl)
-      _RL iceberg_height(ICEBERG_numCl)
+      _RL iceberg_length (ICEBERG_numCl)
+      _RL iceberg_height (ICEBERG_numCl)
+
       _RL iceberg_MassC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MassU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MassV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -131,7 +133,7 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
 
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_concentration,
-     &    iceberg_area, iceberg_height,
+     &    iceberg_area, iceberg_height, iceberg_length
      &    iceberg_MassC, iceberg_MassU, iceberg_MassV,
      &    iceberg_MaskC, iceberg_MaskU, iceberg_MaskV,
      &    iceberg_uvel, iceberg_vvel,
