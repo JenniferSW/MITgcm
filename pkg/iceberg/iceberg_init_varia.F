@@ -32,8 +32,7 @@ CEOP
 
 C     !LOCAL VARIABLES:
 C     === Local variables ===
-      CHARACTER*(MAX_LEN_FNAM) tmpInitialArea
-      CHARACTER*(MAX_LEN_FNAM) tmpInitialHeight
+      CHARACTER*(MAX_LEN_FNAM) tmpInitialConcentration
 
 
       INTEGER i,j,k,bi,bj,iCl
@@ -72,31 +71,20 @@ c      _BARRIER
       IF (nIter0 .EQ. ICEBERG_Iter0) THEN
        DO iCl = 1, ICEBERG_numClUsed
 
-        tmpInitialArea = ICEBERG_initialArea(iCl)
-        tmpInitialHeight = ICEBERG_initialHeight(iCl)
+        tmpInitialConcentration = ICEBERG_initialConcentration(iCl)
 
-        IF ( tmpInitialArea.EQ.' ' ) THEN
+        IF ( tmpInitialConcentration.EQ.' ' ) THEN
             WRITE(msgBuf,'(A)') 'Not enough input files for ICEBERG
-     &      AREA. Make sure every iceberg class has one input
-     &      file to be read in data.iceberg'
-            CALL PRINT_ERROR(msgBuf,myThid)
-            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
-        ENDIF
-
-        IF ( tmpInitialHeight.EQ.' ' ) THEN
-            WRITE(msgBuf,'(A)') 'Not enough input files for ICEBERG
-     &      HEIGHT. Make sure every iceberg class has one input
+     &      Concentration. Make sure every iceberg class has one input
      &      file to be read in data.iceberg'
             CALL PRINT_ERROR(msgBuf,myThid)
             STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
         ENDIF
 
 
-        CALL READ_FLD_XY_RL( tmpInitialArea, ' ',
+
+        CALL READ_FLD_XY_RL( tmpInitialConcentration, ' ',
      &                       iceberg_area(1-OLx,1-OLy,1,1,iCl), 0,
-     &                       myThid )
-        CALL READ_FLD_XY_RL( tmpInitialHeight, ' ',
-     &                       iceberg_height(1-OLx,1-OLy,1,1,iCl), 0,
      &                       myThid )
 
 
@@ -151,7 +139,7 @@ C Initialize iceberg mass fields and masks
 
       ELSE
 C--   restart from a pickup:
-         CALL ICEBERG_READ_PICKUP( nIter0, myThid )
+c         CALL ICEBERG_READ_PICKUP( nIter0, myThid )
 
 C--   end start-from-iter-zero if/else block
       ENDIF
