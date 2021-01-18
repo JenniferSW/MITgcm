@@ -38,6 +38,7 @@ C HINT if not used later ICEBERG_deltaT has to be deleted
      &       ICEBERG_deltaT,
      &       ICEBERGadvScheme,
      &       ICEBERG_initialConcentration,
+     &       ICEBERG_icebergWidth, ICEBERG_icebergHeight,
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
      &       ICEBERG_gravity, ICEBERG_temp
@@ -85,6 +86,8 @@ C-    additional parameters:
 C-    file names for initial conditions:
       DO iCl = 1, ICEBERG_numCl
         ICEBERG_initialConcentration(iCl)   = ' '
+        ICEBERG_icebergWidth   = ' '
+        ICEBERG_icebergHeight  = ' '
       ENDDO
 
       WRITE(msgBuf,'(A)') 'ICEBERG_READPARMS: opening data.iceberg'

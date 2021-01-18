@@ -92,18 +92,43 @@ c      _BARRIER
         _EXCH_XY_RL(iceberg_height , myThid)
 
        ENDDO
+
+       IF ( ICEBERG_icebergWidth.EQ.' ' ) THEN
+            WRITE(msgBuf,'(A)') 'Missing input file for ICEBERG
+     &      WIDTH list. Make sure there is a file containing
+     &      an iceberg width for every iceberg class that is read
+     &      in data.iceberg'
+            CALL PRINT_ERROR(msgBuf,myThid)
+            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
+        ENDIF
+
+        CALL READ_FLD_XY_RL( ICEBERG_icebergWidth, ' ',
+     &                       iceberg_width(iCl), 0,
+     &                       myThid )
+
+
+        IF ( ICEBERG_icebergHeight.EQ.' ' ) THEN
+            WRITE(msgBuf,'(A)') 'Missing input file for ICEBERG
+     &      HEIGHT list. Make sure there is a file containing
+     &      an iceberg width for every iceberg class that is read
+     &      in data.iceberg'
+            CALL PRINT_ERROR(msgBuf,myThid)
+            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
+        ENDIF
+
+        CALL READ_FLD_XY_RL( ICEBERG_icebergHeight, ' ',
+     &                       iceberg_height(iCl), 0,
+     &                       myThid )
+
+
       ENDIF
 
-C Calculate effective iceberg thickness from fraction area and height
 C initialize iceberg velocity and mass loss
       DO iCl = 1,ICEBERG_numClUsed
        DO bj = myByLo(myThid), myByHi(myThid)
         DO bi = myBxLo(myThid), myBxHi(myThid)
           DO j=1-Oly,sNy+OLy
            DO i=1-Olx,sNx+Olx
-            iceberg_distr(i,j,bi,bj,iCl) =
-     &      iceberg_height(i,j,bi,bj,iCl) * iceberg_area(i,j,bi,bj,iCl)
-
             iceberg_uvel(i,j,bi,bj,iCl) = 0. _d 0
             iceberg_vVel(i,j,bi,bj,iCl) = 0. _d 0
 

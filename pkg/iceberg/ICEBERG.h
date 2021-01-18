@@ -59,6 +59,8 @@ C-    file names for initial conditions:
 C     ICEBERG_initialConcentration   :: File with initial concentration for each size class
 
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_initialConcentration(ICEBERG_numCl)
+      CHARACTER*(MAX_LEN_FNAM) ICEBERG_icebergWidth(ICEBERG_numCl)
+      CHARACTER*(MAX_LEN_FNAM) ICEBERG_icebergHeight(ICEBERG_numCl)
 
 c      COMMON /ICEBERG_PARAMS_L/
 
@@ -81,7 +83,8 @@ C Common block for real parameters
 
 C Common Block for Character Variables and file names
       COMMON /ICEBERG_PARAMS_C/ ICEBERG_ClLbl,
-     &       ICEBERG_initialConcentration
+     &       ICEBERG_initialConcentration,
+     &       ICEBERG_icebergWidth, ICEBERG_icebergHeight
 
 #ifdef ICEBERG_3D_STATE
 C     ICEBERG (3D) fields
