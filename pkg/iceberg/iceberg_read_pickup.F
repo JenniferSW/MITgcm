@@ -26,7 +26,7 @@ C     myThid            :: thread number
       
 
 #ifdef ALLOW_ICEBERG
-#if (defined ICEBERG_3D_STATE) || (defined ICEBERG_2D_STATE)
+c#if (defined ICEBERG_3D_STATE) || (defined ICEBERG_2D_STATE)
 
 C     !LOCAL VARIABLES:
 C     fn          :: character buffer for creating filename
@@ -133,17 +133,24 @@ C---   Old way to read pickup:
 C---   New way to read ICEBERG pickup:
         nj = 0
 C---    read ICEBERG 3-D fields for restart
-#ifdef ICEBERG_3D_STATE
+c#ifdef ICEBERG_3D_STATE
         DO iCl = 1,ICEBERG_numClUsed
-         WRITE(pickup_distr,'(A5,I2)') 'IBCL_', iCl
-         CALL READ_MFLDS_3D_RL( pickup_distr,
-     C                   iceberg_distr(1-OLx,1-OLy,1,1,iCl),
-     &                   nj, fp, Nr, myIter, myThid )
-         CALL EXCH_3D_RL( iceberg_distr(1-OLx,1-Oly,1,1,iCl),
-     &                   Nr, myThid )
+c         CALL READ_MFLDS_3D_RL( 'IBA'//ICEBERG_ClLbl(iCl),
+c     C                   iceberg_area(1-OLx,1-OLy,1,1,iCl),
+c     &                   nj, fp, Nr, myIter, myThid )
+
+c         CALL READ_MFLDS_3D_RL( 'IBH'//ICEBERG_ClLbl(iCl),
+c     C                   iceberg_height(1-OLx,1-OLy,1,1,iCl),
+c     &                   nj, fp, Nr, myIter, myThid )
+
         ENDDO
 
-#endif /* ICEBERG_3D_STATE */
+c        CALL EXCH_3D_RL( iceberg_area,
+c     &                   iCl, myThid )
+
+c        CALL EXCH_3D_RL( iceberg_height,
+c     &                   iCl, myThid )
+c#endif /* ICEBERG_3D_STATE */
         nj = nj*Nr
 C---    read ICEBERG 2-D fields for restart
 #ifdef ICEBERG_2D_STATE
@@ -186,7 +193,7 @@ C--    Update overlap regions:
 
 #endif /* ICEBERG_2D_STATE */
 
-#endif /* ICEBERG_3D_STATE or ICEBERG_2D_STATE */
+c#endif /* ICEBERG_3D_STATE or ICEBERG_2D_STATE */
 #endif /* ALLOW_ICEBERG */
 
       RETURN
