@@ -117,9 +117,8 @@ C L_a - berg's horizontal long axis [m]
             Mb(i,j) = 1/factor * 0.58 *
      &       norm_b**0.8
      &       * (SST(i,j,bi,bj) - ICEBERG_temp)
-     &       /sqrt(iceberg_area(i,j,bi,bj,iCl)*rA(i,j,bi,bj)) **0.2
-            PRINT*, 'debug Mb',i,j, Mb(i,j)/factor
-     &       ,Mb(i,j)*1/factor
+     &       /iceberg_length(nCl) **0.2
+
 
 
 
@@ -161,14 +160,15 @@ C               + wave erosion (change of area)
 C               + buoyant convection (change of area)
 
             iceberg_Vloss(i,j,bi,bj,iCl) =
-     &       iceberg_area(i,j,bi,bj,iCl)*Mb(i,j) * iceberg_deltaT
-     &       + 2*iceberg_distr(i,j,bi,bj,iCl)
-     &       /sqrt(iceberg_area(i,j,bi,bj,iCl)*rA(i,j,bi,bj)) * (Me(i,j)
-     &        + Mv(i,j)) * iceberg_deltaT
+     &       iceberg_length(iCl) * iceberg_width(iCl)
+     &       * Mb(i,j) * iceberg_deltaT
+     &       + iceberg_height(nCl)
+     &       * (iceberg_length(nCl)+iceberg_width(nCl))
+     &       * (Me(i,j) + Mv(i,j)) * iceberg_deltaT
 
             PRINT*, 'debug melt vloss',i,j, iceberg_Vloss(i,j,bi,bj,iCl)
 C calculate new iceberg volume in grid cell
-            iceberg_distr(i,j,bi,bj,iCl) =
+            iceberg_concentration(i,j,bi,bj,iCl) =
      &       iceberg_distr(i,j,bi,bj,iCl) - iceberg_Vloss(i,j,bi,bj,iCl)
 
 C catch values that are too small or values that are negative because of too strong melting
