@@ -143,16 +143,24 @@ C interpolation from c to u/v point
 C u-point -> 0.5*( c(i,j) + c(i-1,j))
 C v-point -> 0.5*( c(i,j) + c(i,j-1))
 
+C This is the mass of all icebergs at grid point
             DO j=1-OLy+1,sNy+OLy
               DO i=1-OLx+1,sNx+OLx
                 iceberg_MassC(i,j,bi,bj) =
-     &                 ICEBERG_rhoSeaice * iceberg_distr(i,j,bi,bj,nCl)
+     &                 ICEBERG_rhoSeaice
+     &                 * iceberg_concentration(i,j,bi,bj,nCl)
+     &                 * iceberg_width(nCl) * iceberg_length(nCl)
+     &                 * iceberg_height(nCl)
                 iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
-     &                 (iceberg_distr(i,j,bi,bj,nCl)
-     &                 + iceberg_distr(i-1,j,bi,bj,nCl))
+     &                 (iceberg_concentration(i,j,bi,bj,nCl)
+     &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
+     &                 * iceberg_width(nCl) * iceberg_length(nCl)
+     &                 * iceberg_height(nCl)
                 iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
-     &                 (iceberg_distr(i,j,bi,bj,nCl)
-     &                 + iceberg_distr(i,j-1,bi,bj,nCl))
+     &                 (iceberg_concentration(i,j,bi,bj,nCl)
+     &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
+     &                 * iceberg_width(nCl) * iceberg_length(nCl)
+     &                 * iceberg_height(nCl)
               ENDDO
             ENDDO
 
@@ -202,19 +210,17 @@ c Calculate Norm on C-Point with constants for ocean stress
                 ELSE
                  form_w = 0.5 * ICEBERG_OceanDragform
      &              * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
-     &              * iceberg_distr(i,j,bi,bj,nCl)
-     &              /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+     &              * iceberg_height(nCl) * iceberg_width(nCl)
 
                  CDw(i,j) = ICEBERG_rhoOcean *
      &              (form_w
-     &              + ICEBERG_OceanDrag * iceberg_area(i,j,bi,bj,nCl))
+     &              + ICEBERG_OceanDrag
+     &              * iceberg_length(nCl)*iceberg_width(nCl))
      &              * sqrt(duw**2+dvw**2)
                 ENDIF
 
                 IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
-                  PRINT *, 'debug formw', form_w,
-     &             ICEBERG_OceanDrag * iceberg_area(i,j,bi,bj,nCl)
-     &          * sqrt(duw**2+dvw**2)* ICEBERG_rhoOcean, CDw(i,j)
+                  PRINT *, 'debug formw', form_w
                 ENDIF
               ENDDO
             ENDDO
@@ -249,18 +255,16 @@ C Calculate Norm on C-Point with constant values for wind stress
                 ELSE
                   form_a = 0.5 * ICEBERG_AirDragform
      &              * (1-ICEBERG_rhoIceberg/ICEBERG_rhoOcean)
-     &              * iceberg_distr(i,j,bi,bj,nCl)
-     &              /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+     &              * iceberg_height(nCl) * iceberg_width(nCl)
+
                   CDa(i,j) = ICEBERG_rhoAir *
      &              (form_a
-     &              + ICEBERG_AirDrag * iceberg_area(i,j,bi,bj,nCl))
+     &              + ICEBERG_AirDrag
+     &              * iceberg_length(nCl)*iceberg_width(nCl))
      &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
                 ENDIF
                 IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
-                  PRINT *, 'debug forma', form_a,ICEBERG_rhoAir*
-     &             ICEBERG_AirDrag * iceberg_area(i,j,bi,bj,nCl)
-     &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
-     &              , CDa(i,j)
+                  PRINT *, 'debug forma', form_a
                 ENDIF
               ENDDO
             ENDDO
@@ -307,7 +311,7 @@ c     &            ,sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
 C     Calculate Norm on C-Point with constant values for wind stress
 C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
                CDs(i,j) = cds_const
-     &            * sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj)) !ändern zur Fläche
+     &            * iceberg_width(nCl)
      &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
      &            * sqrt(dus**2+dvs**2)
              ENDDO
@@ -352,7 +356,7 @@ C constanten als eigene Variable for schleife
      &              **2
 
                 cwave(i,j) = 0.06 * MIN(MAX(0. _d 0,
-     &           (sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+     &           (iceberg_length(nCl)
      &            -0.125*Lw)/(0.25*Lw-0.125*Lw)),1. _d 0)
 c                IF(iceberg_area(i,j,bi,bj,nCl) .NE. 0. _d 0)THEN
 c                PRINT*,'debug cwave',cwave(i,j),
@@ -371,8 +375,8 @@ c                ENDIF
                 Cdr(i,j) = 0. _d 0
                ELSE
                 Cdr(i,j) = cdr_const * cwave(i,j)
-     &            * iceberg_area(i,j,bi,bj,nCl)
-     &            /sqrt(iceberg_area(i,j,bi,bj,nCl)*rA(i,j,bi,bj))
+     &            * (2*iceberg_length(nCl)*iceberg_width(nCl))
+     &            /(iceberg_length(nCl)+iceberg_width(nCl))
      &            * norm_a**3
 c                PRINT*, 'debug fru',i,j,
 c     &           (0.0205/2*norm_a**2)
