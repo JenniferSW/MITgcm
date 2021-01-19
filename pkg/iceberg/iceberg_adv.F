@@ -64,9 +64,7 @@ C     xA,yA     :: "areas" of X and Y face of tracer cells
       _RS xA        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RS yA        (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL recip_heff(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
-      _RL maskU     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL maskV     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL mask_C     (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+
 
       CHARACTER*(8) diagName
       CHARACTER*(MAX_LEN_MBUF) msgBuf
@@ -78,52 +76,6 @@ C TODO introduce GAD-Identifier for diagnostics
       GAD_AREA = 2
 
       DO iCl = 1, ICEBERG_numClUsed
-
-C-    Mask cells with icebergs (1) and without (0)
-        DO bj=myByLo(myThid),myByHi(myThid)
-         DO bi=myBxLo(myThid),myBxHi(myThid)
-          DO j=1-OLy+1,sNy+OLy
-           DO i=1-OLx+1,sNx+OLx
-C HINT iceberg_MaskU can be evaluated only by the added area, because when it is .gt. 0, then there is an iceberg anyway
-            iceberg_MaskU(i,j,bi,bj) =
-     &         iceberg_concentration(i,j,bi,bj,iCl)
-     &         + iceberg_concentration(i-1,j,bi,bj,iCl)
-
-            IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) THEN
-             iceberg_MaskU(i,j,bi,bj) = 1. _d 0
-            ELSE
-             iceberg_MaskU(i,j,bi,bj) = 0. _d 0
-            ENDIF
-
-            iceberg_MaskV(i,j,bi,bj) =
-     &         iceberg_concentration(i,j,bi,bj,iCl)
-     &         + iceberg_concentration(i,j-1,bi,bj,iCl)
-
-            IF ( (iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) THEN
-             iceberg_MaskV(i,j,bi,bj) = 1. _d 0
-            ELSE
-             iceberg_MaskV(i,j,bi,bj) = 0. _d 0
-            ENDIF
-
-            iceberg_MaskC(i,j,bi,bj) =
-     &         iceberg_concentration(i,j,bi,bj,iCl)
-            IF ( (iceberg_MaskC(i,j,bi,bj) .GT. 0. _d 0) .AND.
-     &           (mask_C(i,j,bi,bj) .GT. 0. _d 0) ) THEN
-             iceberg_MaskC(i,j,bi,bj) = 1. _d 0
-            ELSE
-             iceberg_MaskC(i,j,bi,bj) = 0. _d 0
-            ENDIF
-
-           ENDDO
-          ENDDO
-         ENDDO
-        ENDDO
-
-C - calculate iceberg velocity
-        CALL ICEBERG_MOM_EQ(
-     I              iCl,
-     I              myTime, myIter, myThid)
-
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
 
@@ -230,7 +182,6 @@ C TODO ersetze 1. _d -5 durch einen Parameter
           ENDDO
          ENDDO
 
-C QUESTION is EXCH_3D_RL possible as iCl is not the 3rd dimension? PTRACERS macht das auch so
          CALL EXCH_3D_RL( iceberg_concentration,  iCl, myThid )
 
 C---   end iCl bi,bj loops
