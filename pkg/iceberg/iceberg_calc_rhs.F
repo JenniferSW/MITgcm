@@ -93,22 +93,61 @@ C--   Advect iceberg (effective height and fractional area)
 
 C--   Melt iceberg concentration
 
-c      CALL ICEBERG_MELTING(myTime,myIter,myThid)
+      CALL ICEBERG_MELTING(myTime,myIter,myThid)
 
-C TODO Auslagern des Berechnens der neuen Konzentration in iceberg_calc_rhs
-            PRINT*, 'debug melt vloss',i,j, iceberg_Vloss(i,j,bi,bj,iCl)
+c            PRINT*, 'debug melt vloss',i,j, iceberg_Vloss(i,j,bi,bj,iCl)
 C calculate new iceberg volume in grid cell
-            iceberg_concentration(i,j,bi,bj,iCl) =
-     &       iceberg_concentration(i,j,bi,bj,iCl)
-     &      - iceberg_Vloss(i,j,bi,bj,iCl)
-     &      /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1))
-     &      + iceberg_Vloss(i,j,bi,bj,iCl+1)
-     &      /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl))
+      DO iCl = 1, ICEBERG_numClUsed
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO j=1-OLy+1,sNy+OLy
+          DO i=1-OLx+1,sNx+OLx
 
+            IF(iCl .EQ. 1 .AND. ICEBERG_numClUsed .GT. 1) THEN
+            !Wenn ich in der kleinsten size class bin, dann kann nichts in die untere Klasse wandern
+            ! gilt aber nur, wenn ich mind 2 size classes habe
+            iceberg_concentration(i,j,bi,bj,iCl) =
+     &         iceberg_concentration(i,j,bi,bj,iCl)
+     &         - iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-0) !dann ist kein Eisberg mehr da
+     &         + iceberg_Vloss(i,j,bi,bj,iCl+1)
+     &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl))
+
+            ELSE IF(iCl .EQ. ICEBERG_numClUsed
+     &        .AND. ICEBERG_numClUsed .GT. 1) THEN
+            !Wenn ich in der größten size class bin, dann kann nichts aus der höheren kommen
+            ! geht nur, wenn ich mindestens 2 size classes habe
+               iceberg_concentration(i,j,bi,bj,iCl) =
+     &         iceberg_concentration(i,j,bi,bj,iCl)
+     &         - iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1))
+            ELSE IF(ICEBERG_numClUsed .GT. 2) THEN
+            ! ansonsten bin ich in den anderen Klassen und habe eine höhere und eine kleinere
+            ! geht nur, wenn ich mind. 3 size classes habe, sonst greifen nur die oberen beiden Fälle
+             iceberg_concentration(i,j,bi,bj,iCl) =
+     &         iceberg_concentration(i,j,bi,bj,iCl)
+     &         - iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1))
+     &         + iceberg_Vloss(i,j,bi,bj,iCl+1)
+     &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl))
+            ELSE !ICEBERG_numClUsed is 1
+            ! nichts kommt aus einer höheren size class
+            ! es gibt keine kleinere size class
+             iceberg_concentration(i,j,bi,bj,iCl) =
+     &         iceberg_concentration(i,j,bi,bj,iCl)
+     &         - iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-0)
+            ENDIF
 C catch values that are too small or values that are negative because of too strong melting
+
             IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
             ENDIF
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+      ENDDO
 
       RETURN
       END
