@@ -117,7 +117,7 @@ C L_a - berg's horizontal long axis [m]
             Mb(i,j) = 1/factor * 0.58 *
      &       norm_b**0.8
      &       * (SST(i,j,bi,bj) - ICEBERG_temp)
-     &       /iceberg_length(nCl) **0.2
+     &       /iceberg_length(iCl) **0.2
 
 
 
@@ -162,8 +162,8 @@ C               + buoyant convection (change of area)
             iceberg_Vloss(i,j,bi,bj,iCl) =
      &       iceberg_length(iCl) * iceberg_width(iCl)
      &       * Mb(i,j) * iceberg_deltaT
-     &       + iceberg_height(nCl)
-     &       * (iceberg_length(nCl)+iceberg_width(nCl))
+     &       + iceberg_height(iCl)
+     &       * (iceberg_length(iCl)+iceberg_width(iCl))
      &       * (Me(i,j) + Mv(i,j)) * iceberg_deltaT
 
 

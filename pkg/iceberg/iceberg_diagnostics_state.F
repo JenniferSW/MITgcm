@@ -49,25 +49,13 @@ c     iCl  ::  loop parameter for size classes
 c     Loop over iceberg size classes and write them to diagnostics
 
        DO iCl = 1, ICEBERG_numClUsed
-        WRITE(diagName,'(A8)') 'IBD'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
-     &                         diagName,0,Nr, 0, 1, 1,
-     &                         myThid )
+        WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_FILL(
+     &                   iceberg_concentration(1-Olx,1-Oly,1,1,iCl),
+     &                   diagName,0,Nr, 0, 1, 1,
+     &                   myThid )
        ENDDO
 
-       DO iCl = 1, ICEBERG_numClUsed
-        WRITE(diagName,'(A8)') 'IBA'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_FILL( iceberg_area(1-Olx,1-Oly,1,1,iCl),
-     &                         diagName,0,Nr, 0, 1, 1,
-     &                         myThid )
-       ENDDO
-
-       DO iCl = 1, ICEBERG_numClUsed
-        WRITE(diagName,'(A8)') 'IBH'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_FILL( iceberg_height(1-Olx,1-Oly,1,1,iCl),
-     &                         diagName,0,Nr, 0, 1, 1,
-     &                         myThid )
-       ENDDO
 
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)

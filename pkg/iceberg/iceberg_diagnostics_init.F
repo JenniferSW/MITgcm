@@ -49,43 +49,17 @@ C TODO Fix Diagnostics Names to maximum of 8 Characters
       IF ( useDiagnostics ) THEN
 C Diagnostics for iceberg distribution
        DO iCl = 1, ICEBERG_numCl
-        WRITE(diagTitle,'(A,I2)') 'Iceberg distribution for class'
+        WRITE(diagTitle,'(A,I2)') 'Iceberg concentration for class'
      &       ,iCl
         diagUnits = 'm               '
         diagCode  = 'SM      M1      '
-        WRITE(diagLabel,'(A,A)') 'IB_distr_',ICEBERG_ClLbl(iCl)
-        WRITE(diagName,'(A8)') 'IBD'//ICEBERG_ClLbl(iCl)
-        PRINT *, 'debug diagnostics ' ,diagLabel, diagName
+        WRITE(diagLabel,'(A,A)') 'IB_conc_',ICEBERG_ClLbl(iCl)
+        WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I       diagName, diagCode, diagUnits, diagTitle,
      &       0, myThid )
        ENDDO
 
-C Diagnostics for iceberg area
-       DO iCl = 1, ICEBERG_numCl
-        WRITE(diagTitle,'(A,I2)') 'Iceberg fraction area for class'
-     &       ,iCl
-        diagUnits = 'none            '
-        diagCode  = 'SM      M1      '
-        WRITE(diagLabel,'(A,A)') 'IB_area_',ICEBERG_ClLbl(iCl)
-        WRITE(diagName,'(A8)') 'IBA'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
-     I       diagName, diagCode, diagUnits, diagTitle,
-     &       0, myThid )
-       ENDDO
-
-
-       DO iCl = 1, ICEBERG_numCl
-        WRITE(diagTitle,'(A,I2)') 'Iceberg mean height for class'
-     &       ,iCl
-        diagUnits = 'm               '
-        diagCode  = 'SM      M1      '
-        WRITE(diagLabel,'(A,A)') 'IB_height_',ICEBERG_ClLbl(iCl)
-        WRITE(diagName,'(A8)') 'IBH'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_ADDTOLIST( diagNum,
-     I       diagName, diagCode, diagUnits, diagTitle,
-     &       0, myThid )
-       ENDDO
 
        DO iCl = 1, ICEBERG_numCl
         WRITE(diagTitle,'(A,I2)') 'Iceberg volume loss for class'

@@ -44,13 +44,13 @@ C     === Local variables ===
 
 C     Initialize arrays in common blocks :
 C     2-dim.
+         DO iCl = 1,ICEBERG_numClUsed
+          iceberg_height(iCl) = 0. _d 0
+          iceberg_width(iCl) = 0. _d 0
+          DO j=1-Oly,sNy+OLy
+           DO i=1-Olx,sNx+Olx
 
-         DO j=1-Oly,sNy+OLy
-          DO i=1-Olx,sNx+Olx
-           DO iCl = 1,ICEBERG_numClUsed
-            iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
-            iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-            iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO
@@ -89,7 +89,7 @@ c      _BARRIER
         _EXCH_XY_RL(iceberg_concentration , myThid)
        ENDDO
 
-       IF ( ICEBERG_icebergWidth.EQ.' ' ) THEN
+       IF ( ICEBERG_icebergWidth(iCl).EQ.' ' ) THEN
             WRITE(msgBuf,'(A)') 'Missing input file for ICEBERG
      &      WIDTH list. Make sure there is a file containing
      &      an iceberg width for every iceberg class that is read
@@ -98,12 +98,12 @@ c      _BARRIER
             STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
         ENDIF
 
-        CALL READ_GLVEC_RL( ICEBERG_icebergWidth, ' ',
+        CALL READ_GLVEC_RL( ICEBERG_icebergWidth(iCl), ' ',
      &                iceberg_width(iCl),ICEBERG_numClUsed, 1,
      &                myThid )
 
 
-        IF ( ICEBERG_icebergHeight.EQ.' ' ) THEN
+        IF ( ICEBERG_icebergHeight(iCl).EQ.' ' ) THEN
             WRITE(msgBuf,'(A)') 'Missing input file for ICEBERG
      &      HEIGHT list. Make sure there is a file containing
      &      an iceberg width for every iceberg class that is read
