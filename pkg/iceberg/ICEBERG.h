@@ -59,8 +59,6 @@ C-    file names for initial conditions:
 C     ICEBERG_initConcentration   :: File with initial concentration for each size class
 
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_initConcentration(ICEBERG_numCl)
-      CHARACTER*(MAX_LEN_FNAM) ICEBERG_icebergWidth(ICEBERG_numCl)
-      CHARACTER*(MAX_LEN_FNAM) ICEBERG_icebergHeight(ICEBERG_numCl)
 
 c      COMMON /ICEBERG_PARAMS_L/
 
@@ -83,8 +81,7 @@ C Common block for real parameters
 
 C Common Block for Character Variables and file names
       COMMON /ICEBERG_PARAMS_C/ ICEBERG_ClLbl,
-     &       ICEBERG_initConcentration,
-     &       ICEBERG_icebergWidth, ICEBERG_icebergHeight
+     &       ICEBERG_initConcentration
 
 #ifdef ICEBERG_3D_STATE
 C     ICEBERG (3D) fields
@@ -100,8 +97,8 @@ c      COMMON /ICEBERG_STATE_3D/
 C     Iceberg 2-dim. fields
 C     iceberg_concentration :: field for iceberg concentration
 C                         - number of icebergs per grid point
-C     iceberg_width   ::  field for iceberg width for each size class
-C     iceberg_height  ::  list of iceberg height for each size class
+C     ICEBERG_width   ::  field for iceberg width for each size class
+C     ICEBERG_height  ::  list of iceberg height for each size class
 C     iceberg_Vsgl :: iceberg volume for one iceberg in each size class
 C     iceberg_MassC   ::  iceberg Mass at cell center
 C     iceberg_MassU   ::  iceberg Mass at U grid point
@@ -115,9 +112,9 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
 
       _RL iceberg_concentration(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
      &     ICEBERG_numCl)
-      _RL iceberg_width (ICEBERG_numCl)
+      _RL ICEBERG_width (ICEBERG_numCl)
       _RL iceberg_length (ICEBERG_numCl)
-      _RL iceberg_height (ICEBERG_numCl)
+      _RL ICEBERG_height (ICEBERG_numCl)
       _RL iceberg_Vsgl(ICEBERG_numCl)
 
       _RL iceberg_MassC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -135,7 +132,7 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
 
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_concentration,
-     &    iceberg_height, iceberg_length,
+     &    ICEBERG_height,ICEBERG_width, iceberg_length,
      &    iceberg_MassC, iceberg_MassU, iceberg_MassV,
      &    iceberg_MaskC, iceberg_MaskU, iceberg_MaskV,
      &    iceberg_uvel, iceberg_vvel,

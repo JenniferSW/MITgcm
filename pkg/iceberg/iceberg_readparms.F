@@ -36,7 +36,7 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_deltaT,
      &       ICEBERGadvScheme,
      &       ICEBERG_initConcentration,
-     &       ICEBERG_icebergWidth, ICEBERG_icebergHeight,
+     &       ICEBERG_width, ICEBERG_height,
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
      &       ICEBERG_gravity, ICEBERG_temp
@@ -81,11 +81,15 @@ C-    additional parameters:
       ICEBERG_deltaT = dTtracerLev(1)
       ICEBERGadvScheme = 77
 
+C-    iceberg dimensions
+      DO iCl = 1, ICEBERG_numCl
+       ICEBERG_height(iCl) = 0. _d 0
+       ICEBERG_width(iCl) = 0. _d 0
+      ENDDO
+
 C-    file names for initial conditions:
       DO iCl = 1, ICEBERG_numCl
         ICEBERG_initConcentration(iCl)   = ' '
-        ICEBERG_icebergWidth   = ' '
-        ICEBERG_icebergHeight  = ' '
       ENDDO
 
       WRITE(msgBuf,'(A)') 'ICEBERG_READPARMS: opening data.iceberg'

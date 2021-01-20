@@ -162,7 +162,7 @@ C               + buoyant convection (change of area)
             iceberg_Vloss(i,j,bi,bj,iCl) =
      &       iceberg_length(iCl) * iceberg_width(iCl)
      &       * Mb(i,j) * iceberg_deltaT
-     &       + iceberg_height(iCl)
+     &       + ICEBERG_height(iCl)
      &       * (iceberg_length(iCl)+iceberg_width(iCl))
      &       * (Me(i,j) + Mv(i,j)) * iceberg_deltaT
 

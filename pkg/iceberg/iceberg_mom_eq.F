@@ -149,18 +149,18 @@ C This is the mass of all icebergs at grid point
                 iceberg_MassC(i,j,bi,bj) =
      &                 ICEBERG_rhoSeaice
      &                 * iceberg_concentration(i,j,bi,bj,nCl)
-     &                 * iceberg_width(nCl) * iceberg_length(nCl)
-     &                 * iceberg_height(nCl)
+     &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
+     &                 * ICEBERG_height(nCl)
                 iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_concentration(i,j,bi,bj,nCl)
      &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
-     &                 * iceberg_width(nCl) * iceberg_length(nCl)
-     &                 * iceberg_height(nCl)
+     &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
+     &                 * ICEBERG_height(nCl)
                 iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_concentration(i,j,bi,bj,nCl)
      &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
-     &                 * iceberg_width(nCl) * iceberg_length(nCl)
-     &                 * iceberg_height(nCl)
+     &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
+     &                 * ICEBERG_height(nCl)
               ENDDO
             ENDDO
 
@@ -210,7 +210,7 @@ c Calculate Norm on C-Point with constants for ocean stress
                 ELSE
                  form_w = 0.5 * ICEBERG_OceanDragform
      &              * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
-     &              * iceberg_height(nCl) * iceberg_width(nCl)
+     &              * ICEBERG_height(nCl) * ICEBERG_width(nCl)
 
                  CDw(i,j) = ICEBERG_rhoOcean *
      &              (form_w
@@ -255,7 +255,7 @@ C Calculate Norm on C-Point with constant values for wind stress
                 ELSE
                   form_a = 0.5 * ICEBERG_AirDragform
      &              * (1-ICEBERG_rhoIceberg/ICEBERG_rhoOcean)
-     &              * iceberg_height(nCl) * iceberg_width(nCl)
+     &              * ICEBERG_height(nCl) * ICEBERG_width(nCl)
 
                   CDa(i,j) = ICEBERG_rhoAir *
      &              (form_a

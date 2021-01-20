@@ -45,8 +45,6 @@ C     === Local variables ===
 C     Initialize arrays in common blocks :
 C     2-dim.
          DO iCl = 1,ICEBERG_numClUsed
-          iceberg_height(iCl) = 0. _d 0
-          iceberg_width(iCl) = 0. _d 0
           DO j=1-Oly,sNy+OLy
            DO i=1-Olx,sNx+Olx
 
@@ -89,41 +87,15 @@ c      _BARRIER
         _EXCH_XY_RL(iceberg_concentration , myThid)
        ENDDO
 
-       IF ( ICEBERG_icebergWidth(iCl).EQ.' ' ) THEN
-            WRITE(msgBuf,'(A)') 'Missing input file for ICEBERG
-     &      WIDTH list. Make sure there is a file containing
-     &      an iceberg width for every iceberg class that is read
-     &      in data.iceberg'
-            CALL PRINT_ERROR(msgBuf,myThid)
-            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
-        ENDIF
-
-        CALL READ_GLVEC_RL( ICEBERG_icebergWidth(iCl), ' ',
-     &                iceberg_width(iCl),ICEBERG_numClUsed, 1,
-     &                myThid )
-
-
-        IF ( ICEBERG_icebergHeight(iCl).EQ.' ' ) THEN
-            WRITE(msgBuf,'(A)') 'Missing input file for ICEBERG
-     &      HEIGHT list. Make sure there is a file containing
-     &      an iceberg width for every iceberg class that is read
-     &      in data.iceberg'
-            CALL PRINT_ERROR(msgBuf,myThid)
-            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
-        ENDIF
-
-        CALL READ_GLVEC_RL( ICEBERG_icebergHeight, ' ',
-     &                iceberg_height(iCl),ICEBERG_numClUsed, 0,
-     &                myThid )
       ENDIF
 
 C calculate iceberg length from iceberg width
 
       DO iCl = 1,ICEBERG_numClUsed
 
-      iceberg_length(iCl) = 1.5 * iceberg_width(iCl)
-      iceberg_Vsgl(iCl) = iceberg_height(iCl)
-     &   * iceberg_width(iCl) * iceberg_length(iCl)
+      iceberg_length(iCl) = 1.5 * ICEBERG_width(iCl)
+      iceberg_Vsgl(iCl) = ICEBERG_height(iCl)
+     &   * ICEBERG_width(iCl) * iceberg_length(iCl)
 
 C initialize iceberg velocity and mass loss
        DO bj = myByLo(myThid), myByHi(myThid)
