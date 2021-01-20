@@ -47,7 +47,7 @@ C HINT iceberg_MaskU can be evaluated only by the added area, because when it is
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         + iceberg_concentration(i-1,j,bi,bj,iCl)
 
-            IF ( ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) THEN
+            IF ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) THEN
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
             ELSE
              iceberg_MaskU(i,j,bi,bj) = 0. _d 0
@@ -57,7 +57,7 @@ C HINT iceberg_MaskU can be evaluated only by the added area, because when it is
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         + iceberg_concentration(i,j-1,bi,bj,iCl)
 
-            IF ( (iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) THEN
+            IF ( iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) THEN
              iceberg_MaskV(i,j,bi,bj) = 1. _d 0
             ELSE
              iceberg_MaskV(i,j,bi,bj) = 0. _d 0
@@ -65,8 +65,7 @@ C HINT iceberg_MaskU can be evaluated only by the added area, because when it is
 
             iceberg_MaskC(i,j,bi,bj) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
-            IF ( (iceberg_MaskC(i,j,bi,bj) .GT. 0. _d 0) .AND.
-     &           (mask_C(i,j,bi,bj) .GT. 0. _d 0) ) THEN
+            IF ( iceberg_MaskC(i,j,bi,bj) .GT. 0. _d 0 ) THEN
              iceberg_MaskC(i,j,bi,bj) = 1. _d 0
             ELSE
              iceberg_MaskC(i,j,bi,bj) = 0. _d 0
@@ -92,27 +91,24 @@ C--   Advect iceberg (effective height and fractional area)
       CALL ICEBERG_ADV(myTime, myIter, myThid)
 
 
-C--   Melt iceberg concentration (melting is done considering the mechanism
-C     from Thomas Rackows pyberg but using the mass balance from Martin and Adcroft (2011)
-C     MA10 used different definitions of impact areas for the melting mechanisms than pyberg
+C--   Melt iceberg concentration
 
 c      CALL ICEBERG_MELTING(myTime,myIter,myThid)
 
+C TODO Auslagern des Berechnens der neuen Konzentration in iceberg_calc_rhs
+            PRINT*, 'debug melt vloss',i,j, iceberg_Vloss(i,j,bi,bj,iCl)
+C calculate new iceberg volume in grid cell
+            iceberg_concentration(i,j,bi,bj,iCl) =
+     &       iceberg_concentration(i,j,bi,bj,iCl)
+     &      - iceberg_Vloss(i,j,bi,bj,iCl)
+     &      /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1))
+     &      + iceberg_Vloss(i,j,bi,bj,iCl+1)
+     &      /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl))
 
-CML#ifdef ALLOW_DIAGNOSTICS
-CML      IF ( useDiagnostics ) THEN
-CML         DO iCl = 1, ICEBERG_numClUsed
-CML           CALL DIAGNOSTICS_FILL( iceberg_distr(1-Olx,1-Oly,1,1,iCl),
-CML     &                            ICEBERG_ClLbl(iCl),0,Nr, 0, 1, 1,
-CML     &                            myThid )
-CML         ENDDO
-CML
-CML
-CML      ENDIF
-CML#endif /*ALLOW_DIAGNOSTICS*/
-
-
-
+C catch values that are too small or values that are negative because of too strong melting
+            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+             iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
+            ENDIF
 
       RETURN
       END

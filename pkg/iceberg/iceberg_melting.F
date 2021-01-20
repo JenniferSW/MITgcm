@@ -166,41 +166,6 @@ C               + buoyant convection (change of area)
      &       * (iceberg_length(nCl)+iceberg_width(nCl))
      &       * (Me(i,j) + Mv(i,j)) * iceberg_deltaT
 
-            PRINT*, 'debug melt vloss',i,j, iceberg_Vloss(i,j,bi,bj,iCl)
-C calculate new iceberg volume in grid cell
-            iceberg_concentration(i,j,bi,bj,iCl) =
-     &       iceberg_distr(i,j,bi,bj,iCl) - iceberg_Vloss(i,j,bi,bj,iCl)
-
-C catch values that are too small or values that are negative because of too strong melting
-            IF (iceberg_distr(i,j,bi,bj,iCl).LE.1. _d -5) THEN
-             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
-             iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-             iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
-            ELSE
-
-C calculate new 'dimension' by subtraction of change of height form iceberg_height
-            iceberg_height(i,j,bi,bj,iCl) =
-     &       iceberg_height(i,j,bi,bj,iCl)
-     &       - iceberg_area(i,j,bi,bj,iCl)*Mb(i,j) * iceberg_deltaT
-            ENDIF
-
-C catch values that are too small or values that are negative because of too strong melting
-            IF (iceberg_height(i,j,bi,bj,iCl).LE.1. _d -5) THEN
-             iceberg_height(i,j,bi,bj,iCl) = 0. _d 0
-             iceberg_area(i,j,bi,bj,iCl) = 0. _d 0
-             iceberg_distr(i,j,bi,bj,iCl) = 0. _d 0
-            ELSE
-C calculate new concentration of iceberg from new volume and new height
-            iceberg_area(i,j,bi,bj,iCl) =
-     &       iceberg_distr(i,j,bi,bj,iCl)/iceberg_height(i,j,bi,bj,iCl)
-            ENDIF
-
-C catch if iceberg concentration is now too low
-            recip_nCl = 1. _d 0 / float(ICEBERG_numClUsed)
-            IF (iceberg_distr(i,j,bi,bj,iCl).GT.0) THEN
-             iceberg_area(i,j,bi,bj,iCl)=
-     &         MAX(iceberg_area(i,j,bi,bj,iCl),1. _d -5*recip_nCl)
-            ENDIF
 
            ENDIF ! end if iceberg_maskC = 0
           ENDDO ! end i loop

@@ -71,7 +71,7 @@ c      _BARRIER
       IF (nIter0 .EQ. ICEBERG_Iter0) THEN
        DO iCl = 1, ICEBERG_numClUsed
 
-        tmpInitialConcentration = ICEBERG_initialConcentration(iCl)
+        tmpInitialConcentration = ICEBERG_initConcentration(iCl)
 
         IF ( tmpInitialConcentration.EQ.' ' ) THEN
             WRITE(msgBuf,'(A)') 'Not enough input files for ICEBERG
@@ -122,6 +122,8 @@ C calculate iceberg length from iceberg width
       DO iCl = 1,ICEBERG_numClUsed
 
       iceberg_length(iCl) = 1.5 * iceberg_width(iCl)
+      iceberg_Vsgl(iCl) = iceberg_height(iCl)
+     &   * iceberg_width(iCl) * iceberg_length(iCl)
 
 C initialize iceberg velocity and mass loss
        DO bj = myByLo(myThid), myByHi(myThid)
