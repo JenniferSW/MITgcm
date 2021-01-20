@@ -135,21 +135,15 @@ C---   New way to read ICEBERG pickup:
 C---    read ICEBERG 3-D fields for restart
 c#ifdef ICEBERG_3D_STATE
         DO iCl = 1,ICEBERG_numClUsed
-c         CALL READ_MFLDS_3D_RL( 'IBA'//ICEBERG_ClLbl(iCl),
-c     C                   iceberg_area(1-OLx,1-OLy,1,1,iCl),
-c     &                   nj, fp, Nr, myIter, myThid )
-
-c         CALL READ_MFLDS_3D_RL( 'IBH'//ICEBERG_ClLbl(iCl),
-c     C                   iceberg_height(1-OLx,1-OLy,1,1,iCl),
-c     &                   nj, fp, Nr, myIter, myThid )
+c         CALL READ_MFLDS_3D_RL( 'IBC'//ICEBERG_ClLbl(iCl),
+c     C             iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+c     &             nj, fp, Nr, myIter, myThid )
 
         ENDDO
 
-c        CALL EXCH_3D_RL( iceberg_area,
+c        CALL EXCH_3D_RL( iceberg_concentration,
 c     &                   iCl, myThid )
 
-c        CALL EXCH_3D_RL( iceberg_height,
-c     &                   iCl, myThid )
 c#endif /* ICEBERG_3D_STATE */
         nj = nj*Nr
 C---    read ICEBERG 2-D fields for restart

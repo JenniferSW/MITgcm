@@ -82,22 +82,13 @@ C     record number < 0 : a hack not to write meta files now:
          j = j + 1
 
          CALL WRITE_REC_3D_RL( fn, fp, Nr,
-     C                         iceberg_area(1-OLx,1-OLy,1,1,iCl)
-     &                         , -j, myIter, myThid )
-         IF (j.LE.listDim) wrFldList(j) = 'IBA'//ICEBERG_ClLbl(iCl)
+     C              iceberg_concentration(1-OLx,1-OLy,1,1,iCl)
+     &             , -j, myIter, myThid )
+         IF (j.LE.listDim) wrFldList(j) = 'IBC'//ICEBERG_ClLbl(iCl)
 
 
         ENDDO
 
-        DO iCl = 1, ICEBERG_numClUsed
-
-         j = j + 1
-
-         CALL WRITE_REC_3D_RL( fn, fp, Nr,
-     C                         iceberg_height(1-OLx,1-OLy,1,1,iCl)
-     &                         , -j, myIter, myThid )
-          IF (j.LE.listDim) wrFldList(j) = 'IBH'//ICEBERG_ClLbl(iCl)
-        ENDDO
 
 c#endif /* ICEBERG_3D_STATE */
 
