@@ -141,7 +141,7 @@ C S_s - seat state calculated as a function of wind speed according to marine be
      &       * (1+ COS(AREA(i,j,bi,bj) **3*pi))
      &       * (SST(i,j,bi,bj) + 2)
      &       * S
-            PRINT*, 'debug Me',i,j, Me(i,j)
+c            PRINT*, 'debug Me',i,j, Me(i,j)
 
 C *-------- buoyant convection --------*
 C Mv = 7.62*10^-3 T_w +1.29*10^-3 T_w^2
@@ -149,7 +149,7 @@ C T_w water temperature
             Mv(i,j) = 1/factor * (
      &       0.00762* SST(i,j,bi,bj)
      &       + 0.00129 * SST(i,j,bi,bj)**2)
-            PRINT*, 'debug Mv',i,j, Mv(i,j), SST(i,j,bi,bj)
+c            PRINT*, 'debug Mv',i,j, Mv(i,j), SST(i,j,bi,bj)
 
 
 

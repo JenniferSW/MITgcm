@@ -1,7 +1,6 @@
 #include "ICEBERG_OPTIONS.h"
 C     Without ALLOW_SEAICE, this would never work anyway.
 C     Needs to be checked in iceberg_check.F
-#include "SEAICE_OPTIONS.h"
 #ifdef ALLOW_AUTODIFF
 # include "AUTODIFF_OPTIONS.h"
 #endif
@@ -54,7 +53,6 @@ C     addV       :: Volumen to be added to iceberg_concentration
 C     u_temp
       INTEGER i, j, bi, bj
       _RL addV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL addConcentration
 
 
 CEOP
@@ -74,8 +72,7 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
              iceberg_concentration(i,j,bi,bj,nCl) =
      &         iceberg_concentration(i,j,bi,bj,nCl)
      &         + addV(i,j,bi,bj)/iceberg_Vsgl(nCl)
-             PRINT*, 'debug calving',addV(i,j,bi,bj)/iceberg_Vsgl(nCl)
-     &          ,iceberg_Vsgl(nCl)
+
            ENDIF
           ENDDO
          ENDDO

@@ -137,6 +137,7 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_concentration, iceberg_CalvRate,
      &    ICEBERG_height,ICEBERG_width, iceberg_length,
+     &    iceberg_Vsgl,
      &    iceberg_MassC, iceberg_MassU, iceberg_MassV,
      &    iceberg_MaskC, iceberg_MaskU, iceberg_MaskV,
      &    iceberg_uvel, iceberg_vvel,

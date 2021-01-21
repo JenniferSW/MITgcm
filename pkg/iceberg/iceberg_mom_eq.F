@@ -220,7 +220,7 @@ c Calculate Norm on C-Point with constants for ocean stress
                 ENDIF
 
                 IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
-                  PRINT *, 'debug formw', form_w
+c                  PRINT *, 'debug formw', form_w
                 ENDIF
               ENDDO
             ENDDO
@@ -264,7 +264,7 @@ C Calculate Norm on C-Point with constant values for wind stress
      &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
                 ENDIF
                 IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
-                  PRINT *, 'debug forma', form_a
+c                  PRINT *, 'debug forma', form_a
                 ENDIF
               ENDDO
             ENDDO
@@ -470,13 +470,13 @@ c     &             iceberg_uvel(i+1,j,bi,bj,nCl))*1200/_dxG(i,j,bi,bj)
 c     &             +0.5 * (iceberg_vvel(i,j,bi,bj,nCl)
 c     &             +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj))
 c     &             .GT. 1. _d 0) THEN
-                 PRINT*, 'debug uvel', i,j,
-     &            0.5 * (iceberg_uvel(i,j,bi,bj,nCl)+
-     &             iceberg_uvel(i+1,j,bi,bj,nCl))*1200/_dxG(i,j,bi,bj)
-     &            +0.5 * (iceberg_vvel(i,j,bi,bj,nCl)
-     &              +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj)
+c                 PRINT*, 'debug uvel', i,j,
+c     &            0.5 * (iceberg_uvel(i,j,bi,bj,nCl)+
+c     &             iceberg_uvel(i+1,j,bi,bj,nCl))*1200/_dxG(i,j,bi,bj)
+c     &            +0.5 * (iceberg_vvel(i,j,bi,bj,nCl)
+c     &              +iceberg_vvel(i,j+1,bi,bj,nCl))*1200/_dyG(i,j,bi,bj)
 c     &            , iceberg_MassU(i,j,bi,bj)
-     &            , iceberg_uvel(i,j,bi,bj,nCl)
+c     &            , iceberg_uvel(i,j,bi,bj,nCl)
 c                  ENDIF
                 ENDIF
                ENDDO
