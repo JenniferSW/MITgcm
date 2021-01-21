@@ -36,6 +36,7 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_deltaT,
      &       ICEBERGadvScheme,
      &       ICEBERG_initConcentration,
+     &       ICEBERG_CalvFile,
      &       ICEBERG_width, ICEBERG_height,
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
@@ -87,9 +88,10 @@ C-    iceberg dimensions
        ICEBERG_width(iCl) = 0. _d 0
       ENDDO
 
-C-    file names for initial conditions:
+C-    file names for initial conditions and calving rates:
       DO iCl = 1, ICEBERG_numCl
         ICEBERG_initConcentration(iCl)   = ' '
+        ICEBERG_CalvFile = ' '
       ENDDO
 
       WRITE(msgBuf,'(A)') 'ICEBERG_READPARMS: opening data.iceberg'
@@ -136,6 +138,8 @@ C     Error handling: Do not use more size classes than introduced
               CALL PRINT_ERROR(msgBuf, myThid)
               STOP 'ABNORMAL END: ICEBERG_READPARMS'
       ENDIF
+
+
 
 
 C     Create diagnostics labels

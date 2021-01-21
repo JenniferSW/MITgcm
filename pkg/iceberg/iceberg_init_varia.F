@@ -33,6 +33,7 @@ CEOP
 C     !LOCAL VARIABLES:
 C     === Local variables ===
       CHARACTER*(MAX_LEN_FNAM) tmpInitialConcentration
+      CHARACTER*(MAX_LEN_FNAM) tmpCalvFile
 
 
       INTEGER i,j,k,bi,bj,iCl
@@ -84,7 +85,23 @@ c      _BARRIER
      &                0, myThid )
 
 
+      DO iCl = 1, ICEBERG_numClUsed
+        tmpCalvFile = ICEBERG_CalvFile(iCl)
+        IF ( tmpCalvFile .EQ.' ' ) THEN
+            WRITE(msgBuf,'(A)') 'Not enough input files for ICEBERG
+     &      Calving Rates. Make sure every iceberg class has one input
+     &      file to be read in data.iceberg'
+            CALL PRINT_ERROR(msgBuf,myThid)
+            STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
+        ENDIF
+
+        CALL READ_FLD_XY_RL( tmpCalvFile, ' ',
+     &                iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl),
+     &                0, myThid )
+
+
         _EXCH_XY_RL(iceberg_concentration , myThid)
+        _EXCH_XY_RL(iceberg_CalvRate , myThid)
        ENDDO
 
       ENDIF
