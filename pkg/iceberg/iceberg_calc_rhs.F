@@ -143,6 +143,9 @@ C catch values that are too small or values that are negative because of too str
             IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
             ENDIF
+
+c            CALL ICEBERG_CALVING( iCl,
+c     I                  myTime, myIter, myThid)
           ENDDO
          ENDDO
         ENDDO

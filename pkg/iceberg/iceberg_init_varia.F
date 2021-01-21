@@ -84,7 +84,7 @@ c      _BARRIER
      &                iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
      &                0, myThid )
 
-
+       ENDDO
       DO iCl = 1, ICEBERG_numClUsed
         tmpCalvFile = ICEBERG_CalvFile(iCl)
         IF ( tmpCalvFile .EQ.' ' ) THEN
@@ -99,10 +99,10 @@ c      _BARRIER
      &                iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl),
      &                0, myThid )
 
-
+         ENDDO
         _EXCH_XY_RL(iceberg_concentration , myThid)
         _EXCH_XY_RL(iceberg_CalvRate , myThid)
-       ENDDO
+
 
       ENDIF
 
