@@ -11,7 +11,6 @@ c     &                     myPa_MNC, myPa_MDSIO
 C     ICEBERG parameters
 c     ICEBERG_ITER0   :: iteration number to start iceberg drift
 c     ICEBERG_numClUsed :: Number of icebergs used in the simulation
-
 c     ICEBERGadvScheme  ::  Scheme for calculating the advection
 C     ICEBERG_rhoAir  :: density of the air
 c     ICEBERG_rhoOcean  :: density of sea water
@@ -40,10 +39,6 @@ C
       _RL ICEBERG_temp
 
 
-
-
-
-
 C-    additional parameters:
 c     ICEBERG_deltaT :: Seaice timestep for thermodynamic equations (s)
 c     ICEBERG_ClLbl   :: Labels for diagnostics output
@@ -57,6 +52,7 @@ C
 
 C-    file names for initial conditions:
 C     ICEBERG_initConcentration   :: File with initial concentration for each size class
+C     ICEBERG_CalvFile            :: File with calving rates for each size class
 
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_initConcentration(ICEBERG_numCl)
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_CalvFile(ICEBERG_numCl)

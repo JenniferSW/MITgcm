@@ -63,11 +63,16 @@ C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
 C     iCl       :: Loop counter for iceberg size classes
-C     u_temp
+C     S         :: variable for sea state
+C     Mb        :: basal melting
+C     Me        :: wave erosion
+C     Mv        :: buoyant convection
+C     norm_b    :: norm for basal melting |v_w - v_i|
+C     norm_aw   :: norm for wave erosion |u_a-u_o|
+C     factor    :: factor for conversion of m^3 per day to m^3 per second
       INTEGER i, j, bi, bj, iCl
       _RL factor
       _RL S
-      _RL recip_nCl
       _RL norm_b, norm_aw
       _RL Mb(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL Mv(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -141,7 +146,6 @@ C S_s - seat state calculated as a function of wind speed according to marine be
      &       * (1+ COS(AREA(i,j,bi,bj) **3*pi))
      &       * (SST(i,j,bi,bj) + 2)
      &       * S
-c            PRINT*, 'debug Me',i,j, Me(i,j)
 
 C *-------- buoyant convection --------*
 C Mv = 7.62*10^-3 T_w +1.29*10^-3 T_w^2
@@ -149,12 +153,11 @@ C T_w water temperature
             Mv(i,j) = 1/factor * (
      &       0.00762* SST(i,j,bi,bj)
      &       + 0.00129 * SST(i,j,bi,bj)**2)
-c            PRINT*, 'debug Mv',i,j, Mv(i,j), SST(i,j,bi,bj)
 
 
 
 C *-------- mass balance of iceberg --------*
-C rho dV/dt rho(-L^2Mb - 2TLMe -2TL Mv))
+C rho dV/dt rho(-LWMb - H(L+W) (Me + Mv))
 C iceberg_Vloss = basal melting (change of height)
 C               + wave erosion (change of area)
 C               + buoyant convection (change of area)

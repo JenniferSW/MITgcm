@@ -44,7 +44,6 @@ C     diagTitle :: local string (80c): description of field in diagnostic
       INTEGER iCl
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
-C TODO Fix Diagnostics Names to maximum of 8 Characters
 
       IF ( useDiagnostics ) THEN
 C Diagnostics for iceberg distribution
