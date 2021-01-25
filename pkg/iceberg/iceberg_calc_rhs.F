@@ -84,6 +84,8 @@ C--   Calculate iceberg velocities
 C--   Melt iceberg concentration
       CALL ICEBERG_MELTING(myTime,myIter,myThid)
 
+      CALL ICEBERG_CALVING( iCl,
+     I                  myTime, myIter, myThid)
 
 C--   Advect iceberg (effective height and fractional area)
       CALL ICEBERG_ADV(myTime, myIter, myThid)
@@ -143,8 +145,7 @@ C catch values that are too small or values that are negative because of too str
         ENDDO
        ENDDO
 
-       CALL ICEBERG_CALVING( iCl,
-     I                  myTime, myIter, myThid)
+
 
       ENDDO !ENDDO over size classes
       RETURN
