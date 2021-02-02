@@ -82,14 +82,14 @@ C--   Calculate iceberg velocities
      I              myTime, myIter, myThid)
 
 C--   Melt iceberg concentration
-      CALL ICEBERG_MELTING(myTime,myIter,myThid)
+        CALL ICEBERG_MELTING(myTime,myIter,myThid)
 
-      CALL ICEBERG_CALVING( iCl,
+        CALL ICEBERG_CALVING( iCl,
      I                  myTime, myIter, myThid)
 
 C--   Advect iceberg (effective height and fractional area)
-      CALL ICEBERG_ADV(myTime, myIter, myThid)
-
+        CALL ICEBERG_ADV(myTime, myIter, myThid)
+      ENDDO
 C calculate new iceberg volume in grid cell
       DO iCl = 1, ICEBERG_numClUsed
        DO bj=myByLo(myThid),myByHi(myThid)
@@ -133,7 +133,7 @@ C calculate new iceberg volume in grid cell
              iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         - iceberg_Vloss(i,j,bi,bj,iCl)
-     &         /(iceberg_Vsgl(iCl)-0)
+c     &         /(iceberg_Vsgl(iCl)-0)
             ENDIF
 C catch values that are too small or values that are negative because of too strong melting
 
@@ -148,5 +148,6 @@ C catch values that are too small or values that are negative because of too str
 
 
       ENDDO !ENDDO over size classes
+
       RETURN
       END

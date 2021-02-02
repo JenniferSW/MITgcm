@@ -52,7 +52,7 @@ c     Loop over iceberg size classes and write them to diagnostics
         WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_FILL(
      &                   iceberg_concentration(1-Olx,1-Oly,1,1,iCl),
-     &                   diagName,0,Nr, 0, 1, 1,
+     &                   diagName,0,1, 0, 1, 1,
      &                   myThid )
        ENDDO
 
@@ -60,7 +60,7 @@ c     Loop over iceberg size classes and write them to diagnostics
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_FILL( iceberg_Vloss(1-Olx,1-Oly,1,1,iCl),
-     &                         diagName,0,Nr, 0, 1, 1,
+     &                         diagName,0,1, 0, 1, 1,
      &                         myThid )
        ENDDO
 
