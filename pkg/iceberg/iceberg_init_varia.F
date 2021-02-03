@@ -85,6 +85,11 @@ c      _BARRIER
      &                0, myThid )
 
        ENDDO
+        _EXCH_XY_RL(iceberg_concentration , myThid)
+
+
+      ENDIF
+
       DO iCl = 1, ICEBERG_numClUsed
         tmpCalvFile = ICEBERG_CalvFile(iCl)
         IF ( tmpCalvFile .EQ.' ' ) THEN
@@ -100,14 +105,9 @@ c      _BARRIER
      &                0, myThid )
 
          ENDDO
-        _EXCH_XY_RL(iceberg_concentration , myThid)
         _EXCH_XY_RL(iceberg_CalvRate , myThid)
 
-
-      ENDIF
-
 C calculate iceberg length from iceberg width
-
       DO iCl = 1,ICEBERG_numClUsed
 
       iceberg_length(iCl) = 1.5 * ICEBERG_width(iCl)
@@ -154,8 +154,8 @@ C Initialize iceberg mass fields and masks
 
       ELSE
 C--   restart from a pickup:
-c         CALL ICEBERG_READ_PICKUP( nIter0, myThid )
-
+         CALL ICEBERG_READ_PICKUP( nIter0, myThid )
+        PRINT *,'muss pickup definieren'
 C--   end start-from-iter-zero if/else block
       ENDIF
 

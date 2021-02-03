@@ -73,6 +73,7 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
        _BEGIN_MASTER( myThid )
 c      IF ( filePrec.NE.0 .AND. filePrec.NE.fp ) THEN
        IF ( nbFields.GE.0 .AND. filePrec.NE.fp ) THEN
+       PRINT*, 'debug precision', filePrec
          WRITE(msgBuf,'(2A,I4)') 'ICEBERG_READ_PICKUP: ',
      &    'pickup-file binary precision do not match !'
          CALL PRINT_ERROR( msgBuf, myThid )
@@ -131,18 +132,18 @@ C---   Old way to read pickup:
 
        ELSE
 C---   New way to read ICEBERG pickup:
-        nj = 0
+        nj = 1
 C---    read ICEBERG 3-D fields for restart
 c#ifdef ICEBERG_3D_STATE
         DO iCl = 1,ICEBERG_numClUsed
-c         CALL READ_MFLDS_3D_RL( 'IBC'//ICEBERG_ClLbl(iCl),
-c     C             iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
-c     &             nj, fp, Nr, myIter, myThid )
-
+         CALL READ_MFLDS_3D_RL( 'IBC'//ICEBERG_ClLbl(iCl),
+     C             iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &             nj, fp, 1, myIter, myThid )
+         nj = nj +1
         ENDDO
 
-c        CALL EXCH_3D_RL( iceberg_concentration,
-c     &                   iCl, myThid )
+        CALL EXCH_3D_RL( iceberg_concentration,
+     &                   iCl, myThid )
 
 c#endif /* ICEBERG_3D_STATE */
         nj = nj*Nr
