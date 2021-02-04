@@ -133,7 +133,7 @@ C calculate new iceberg volume in grid cell
              iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         - iceberg_Vloss(i,j,bi,bj,iCl)
-c     &         /(iceberg_Vsgl(iCl)-0)
+     &         /(iceberg_Vsgl(iCl)-0)
             ENDIF
 C catch values that are too small or values that are negative because of too strong melting
 

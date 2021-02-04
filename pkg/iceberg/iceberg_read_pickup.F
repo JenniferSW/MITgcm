@@ -50,6 +50,7 @@ C     msgBuf      :: Informational/error message buffer
       CHARACTER*(8) missFldList(missFldDim)
       CHARACTER*(MAX_LEN_MBUF) msgBuf
       CHARACTER*8 pickup_distr
+      INTEGER i,k,bi,bj
 CEOP
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|

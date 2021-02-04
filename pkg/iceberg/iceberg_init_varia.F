@@ -67,27 +67,33 @@ C     this is done within IO routines => no longer needed
 c      _BARRIER
 
 
-      IF (nIter0 .EQ. ICEBERG_Iter0) THEN
-       DO iCl = 1, ICEBERG_numClUsed
+       IF (nIter0 .EQ. ICEBERG_Iter0) THEN
+        DO iCl = 1, ICEBERG_numClUsed
 
         tmpInitialConcentration = ICEBERG_initConcentration(iCl)
 
-        IF ( tmpInitialConcentration.EQ.' ' ) THEN
+         IF ( tmpInitialConcentration.EQ.' ' ) THEN
             WRITE(msgBuf,'(A)') 'Not enough input files for ICEBERG
      &      Concentration. Make sure every iceberg class has one input
      &      file to be read in data.iceberg'
             CALL PRINT_ERROR(msgBuf,myThid)
             STOP 'ABNORMAL END: ICEBERG_INIT_VARIA'
-        ENDIF
+         ENDIF
 
-        CALL READ_FLD_XY_RL( tmpInitialConcentration, ' ',
+         CALL READ_FLD_XY_RL( tmpInitialConcentration, ' ',
      &                iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
      &                0, myThid )
 
-       ENDDO
+        ENDDO
         _EXCH_XY_RL(iceberg_concentration , myThid)
 
 
+       ENDIF
+
+      ELSE
+C--   restart from a pickup:
+         CALL ICEBERG_READ_PICKUP( nIter0, myThid )
+C--   end start-from-iter-zero if/else block
       ENDIF
 
       DO iCl = 1, ICEBERG_numClUsed
@@ -148,16 +154,6 @@ C Initialize iceberg mass fields and masks
          ENDDO
         ENDDO
        ENDDO
-
-
-
-
-      ELSE
-C--   restart from a pickup:
-         CALL ICEBERG_READ_PICKUP( nIter0, myThid )
-        PRINT *,'muss pickup definieren'
-C--   end start-from-iter-zero if/else block
-      ENDIF
 
 #endif /* ALLOW_ICEBERG */
 

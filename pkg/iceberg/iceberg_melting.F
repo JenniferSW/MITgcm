@@ -93,8 +93,8 @@ C     factor    :: factor for conversion of m^3 per day to m^3 per second
           ENDDO
          ENDDO
 
-        DO j = 1-OLy, sNy+OLy
-         DO i = 1-OLx, sNx+OLx
+        DO j = 1, sNy
+         DO i = 1, sNx
           IF(ICEBERG_MaskC(i,j,bi,bj) .EQ. 0. _d 0) THEN
            iceberg_Vloss(i,j,bi,bj,iCl) = 0. _d 0
 
@@ -123,7 +123,6 @@ C L_a - berg's horizontal long axis [m]
      &       norm_b**0.8
      &       * (SST(i,j,bi,bj) - ICEBERG_temp)
      &       /iceberg_length(iCl) **0.2
-
 
 
 
