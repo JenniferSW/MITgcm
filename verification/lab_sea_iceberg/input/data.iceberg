@@ -1,0 +1,10 @@
+# Parameter for iceberg package
+ &ICEBERG_PARM01
+ ICEBERG_numClUsed = 1,
+ ICEBERG_initConcentration(1) = 'iceberg_init_concentration.bin',
+ ICEBERG_CalvFile(1) = 'iceberg_calvrates.bin',
+ ICEBERG_height(1) = 250,
+ ICEBERG_width(1) = 200,
+ ICEBERG_deltaT = 3600.0,
+ ICEBERG_Iter0 = 3600,
+ &
