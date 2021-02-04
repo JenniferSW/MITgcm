@@ -145,6 +145,8 @@ C catch values that are too small or values that are negative because of too str
         ENDDO
        ENDDO
 
+       CALL ICEBERG_CHANGE_SALINITY( iCl,
+     I     myTime, myIter, myThid)
 
 
       ENDDO !ENDDO over size classes

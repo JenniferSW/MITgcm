@@ -46,36 +46,36 @@ C     nCl       :: number of class the velocity is calculated for
 C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
-      INTEGER i, j, bi, bj
+      INTEGER i, j, bi, bj, k
       _RL Vmelt
       _RL FW
       _RL VFW
       _RL FW_melt
+      _RL cell_volume
 
 
 CEOP
-
-
+       k = 1
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
-         DO j=1-OLy+1,sNy+OLy
-          DO i=1-OLx+1,sNx+OLx
-
+         DO j=1,sNy
+          DO i=1,sNx
+           IF(maskC(i,j,k,bi,bj) .EQ. 1. _d 0)THEN
 C Evaluate Vmelt for this grid cell
-           Vmelt = 0. _d 0
-           DO iCl = 1, ICEBERG_numClUsed
-             Vmelt = Vmelt + Vloss(i,j,bi,bj,iCl)
-           ENDDO
-
+            Vmelt = 0. _d 0
+            DO nCl = 1, ICEBERG_numClUsed
+              Vmelt = Vmelt + iceberg_Vloss(i,j,bi,bj,nCl)
+            ENDDO
+            cell_volume = rA(i,j,bi,bj)*drF(k)*hFacC(i,j,k,bi,bj)
 C actual freshwater fraction
-           FW = 1 - 1e-3 * salt(i,j,1,bi,bj)
+            FW = 1 - 1e-3 * salt(i,j,1,bi,bj)
 C actual freshwater volume
-           VFW = Volume grid cell * FW
+            VFW = cell_volume * FW
 C new freshwater fraction
-           FW_melt = (VFW + Vmelt)/(Volume grid cell + Vmelt)
+            FW_melt = (VFW + Vmelt)/(cell_volume + Vmelt)
 C new salinity
-           salt(i,j,1,bi,bj) = (1 - FW_melt) *1e3
-
+            salt(i,j,1,bi,bj) = (1 - FW_melt) *1e3
+           ENDIF
           ENDDO
          ENDDO
         ENDDO
