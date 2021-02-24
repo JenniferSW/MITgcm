@@ -63,9 +63,9 @@ CEOP
            IF(maskC(i,j,k,bi,bj) .EQ. 1. _d 0)THEN
 C Evaluate Vmelt for this grid cell
             Vmelt = 0. _d 0
-            DO nCl = 1, ICEBERG_numClUsed
+c            DO nCl = 1, ICEBERG_numClUsed
               Vmelt = Vmelt + iceberg_Vloss(i,j,bi,bj,nCl)
-            ENDDO
+c            ENDDO
             cell_volume = rA(i,j,bi,bj)*drF(k)*hFacC(i,j,k,bi,bj)
 C actual freshwater fraction
             FW = 1 - 1e-3 * salt(i,j,1,bi,bj)
