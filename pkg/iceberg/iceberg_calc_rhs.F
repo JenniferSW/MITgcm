@@ -148,7 +148,7 @@ C catch values that are too small or values that are negative because of too str
        CALL ICEBERG_CHANGE_SALINITY( iCl,
      I     myTime, myIter, myThid)
 
-
+      CALL EXCH_3D_RL( iceberg_concentration,  iCl, myThid )
       ENDDO !ENDDO over size classes
 
       RETURN
