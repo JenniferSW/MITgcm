@@ -48,6 +48,7 @@ c     iCl  ::  loop parameter for size classes
 
 c     Loop over iceberg size classes and write them to diagnostics
 
+C Fill diagnostics for iceberg concentration
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_FILL(
@@ -56,14 +57,29 @@ c     Loop over iceberg size classes and write them to diagnostics
      &                   myThid )
        ENDDO
 
-
+C Fill diagnostics for volume loss
        DO iCl = 1, ICEBERG_numClUsed
-        WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)
+        WRITE(diagName,'(A8)') 'IBL'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_FILL( iceberg_Vloss(1-Olx,1-Oly,1,1,iCl),
      &                         diagName,0,1, 0, 1, 1,
      &                         myThid )
        ENDDO
 
+C Fill diagnostics for iceberg velocity in u-direction
+       DO iCl = 1, ICEBERG_numClUsed
+        WRITE(diagName,'(A8)') 'IBU'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_FILL( iceberg_uvel(1-Olx,1-Oly,1,1,iCl),
+     &                         diagName,0,1, 0, 1, 1,
+     &                         myThid )
+       ENDDO
+
+C Fill diagnostics for iceberg velocity in v-direction
+       DO iCl = 1, ICEBERG_numClUsed
+        WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)
+        CALL DIAGNOSTICS_FILL( iceberg_vvel(1-Olx,1-Oly,1,1,iCl),
+     &                         diagName,0,1, 0, 1, 1,
+     &                         myThid )
+       ENDDO
       ENDIF
 #endif /* ALLOW_DIAGNOSTICS */
 

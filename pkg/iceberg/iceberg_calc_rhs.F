@@ -24,6 +24,7 @@ C myIter    :: Current time-step number
 C myThid    :: my Thread Id number
       _RL     myTime
       INTEGER myIter, myThid
+      _RL     sum_concentration
 
 C !OUTPUT PARAMETERS: ==================================================
 
@@ -38,10 +39,13 @@ CEOP
 
 C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
        DO iCl = 1, ICEBERG_numClUsed
+       sum_concentration = 0.0
         DO bj=myByLo(myThid),myByHi(myThid)
          DO bi=myBxLo(myThid),myBxHi(myThid)
           DO j=1-OLy+1,sNy+OLy
            DO i=1-OLx+1,sNx+OLx
+            sum_concentration = sum_concentration
+     &        + iceberg_concentration(i,j,bi,bj,iCl)
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         + iceberg_concentration(i-1,j,bi,bj,iCl)
@@ -74,6 +78,7 @@ C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
           ENDDO
          ENDDO
         ENDDO
+        PRINT * , 'debug conc' ,sum_concentration
 
 
 C--   Calculate iceberg velocities
@@ -148,7 +153,7 @@ C catch values that are too small or values that are negative because of too str
        CALL ICEBERG_CHANGE_SALINITY( iCl,
      I     myTime, myIter, myThid)
 
-      CALL EXCH_3D_RL( iceberg_concentration,  iCl, myThid )
+
       ENDDO !ENDDO over size classes
 
       RETURN

@@ -443,8 +443,7 @@ C Calculated at C-Point
      &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               ))
-                IF(iceberg_uvel(i,j,bi,bj,nCl).NE. 0. _d 0)THEN
-                ENDIF
+
                ENDDO
              ENDDO
 
