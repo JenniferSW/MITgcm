@@ -91,9 +91,10 @@ C--   Melt iceberg concentration
         CALL ICEBERG_MELTING(myTime,myIter,myThid)
 #endif
 
-
+#ifdef ALLOW_ICEBERG_CALVING
         CALL ICEBERG_CALVING( iCl,
      I                  myTime, myIter, myThid)
+#endif
 
 C--   Advect iceberg (effective height and fractional area)
         CALL ICEBERG_ADV(myTime, myIter, myThid)

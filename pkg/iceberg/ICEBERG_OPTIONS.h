@@ -10,6 +10,7 @@ C Use this file for selecting options within package "Iceberg"
 C Place CPP define/undef flag here
 
 #define ALLOW_ICEBERG_MELTING
+#define ALLOW_ICEBERG_CALVING
 
 C to reduce memory storage, disable unused array with those CPP flags :
 #define ICEBERG_3D_STATE
