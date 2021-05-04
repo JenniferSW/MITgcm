@@ -144,8 +144,8 @@ C u-point -> 0.5*( c(i,j) + c(i-1,j))
 C v-point -> 0.5*( c(i,j) + c(i,j-1))
 
 C This is the mass of all icebergs at grid point
-            DO j=1-OLy+1,sNy+OLy
-              DO i=1-OLx+1,sNx+OLx
+            DO j=1,sNy !j=1-OLy+1,sNy+OLy
+              DO i=1,sNx !i=1-OLx+1,sNx+OLx
                 iceberg_MassC(i,j,bi,bj) =
      &                 ICEBERG_rhoSeaice
      &                 * iceberg_concentration(i,j,bi,bj,nCl)
@@ -170,7 +170,8 @@ C  Fc = -M * f * k x v_i[n]
 C _fCori  ::  Makro from model for Coriolis parameter at cell center
 C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
-C HINT section is working (compilable and run without error)
+#ifdef ALLOW_ICEBERG_CORIOLIS
+           PRINT*,'Use Force Coriolis'
            DO j=1,sNy
              DO i=1,sNx
                 Fcu(i,j,bi,bj)=
@@ -189,25 +190,26 @@ C HINT section is working (compilable and run without error)
      &            )
              ENDDO
            ENDDO
-
+#endif
 c   *------- Ocean Drag -------*
 C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocean -v_i)
 c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
 
 
-
+#ifdef ALLOW_ICEBERG_OCEAN_DRAG
+            PRINT*,'Use Force Ocean Drag'
             DO j=0,sNy+1
               DO i=0,sNx+1
-               duw = 0.5 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
+               duw = 0.5 _d 0 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
-               dvw = 0.5 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
+               dvw = 0.5 _d 0 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
      &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
 
 c Calculate Norm on C-Point with constants for ocean stress
                 IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
                   CDw(i,j) = 0. _d 0
                 ELSE
-                 form_w = 0.5 * ICEBERG_OceanDragform
+                 form_w = 0.5 _d 0 * ICEBERG_OceanDragform
      &              * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
      &              * ICEBERG_height(nCl) * ICEBERG_width(nCl)
 
@@ -218,8 +220,7 @@ c Calculate Norm on C-Point with constants for ocean stress
      &              * sqrt(duw**2+dvw**2)
                 ENDIF
 
-                IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
-                ENDIF
+
               ENDDO
             ENDDO
 
@@ -233,7 +234,7 @@ C calculate rhs of ocean drag force
      &            * vVel(i,j,1,bi,bj)
               ENDDO
             ENDDO
-
+#endif
 c   *------ Atmosphere Drag ------*
 C Uwind/Vwind is located on southwest C-Grid points
 
@@ -241,6 +242,8 @@ C   Fa = 1/2 * rho_atm * C_atm * A_atm * |v_atm - v_i| (v_atm -v_i)
 C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
+#ifdef ALLOW_ICEBERG_ATMOSPHERE_DRAG
+            PRINT*,'Use Force atmosphere'
 #ifdef ALLOW_EXF
 
 
@@ -281,7 +284,7 @@ c                  PRINT *, 'debug forma', form_a
             ENDDO
 
 #endif /* ALLOW_EXF */
-
+#endif
 
 c   *------ Seaice Drag ------*
 c   Fs = 1/2 * rho_sice * C_sice * A_sice * |v_sice - v_i| (v_sice - v_i)
@@ -290,6 +293,8 @@ C A_sice = L*h = length of iceberg * seaice thickness
 C seaice thickness = HEFF * AREA
 
 C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
+#ifdef ALLOW_ICEBERG_SEAICE_DRAG
+      PRINT*,'Use Force Seaice drag'
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
            cds_const = 0.5 * ICEBERG_rhoSeaice
@@ -331,11 +336,13 @@ C     AREA can be zero, so avoid division by regularisation stolen from seaice_g
       ENDIF
 
 #endif /*ALLOW_SEAICE*/
-
+#endif
 
 c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a^2 * L * v_air/|v_air|
 C term conversion as shown in Rackow (2011)
+#ifdef ALLOW_ICEBERG_WAVE_RADIATION
+           PRINT*,'Use Force Wave radiation'
            cdr_const = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity * (0.5 * 0.02025)**2
             DO j=0,sNy+1
@@ -380,11 +387,14 @@ C term conversion as shown in Rackow (2011)
               ENDDO
             ENDDO
 
+#endif
 
 
 c   *------ Pressure Gradient Force ------*
 c   Fp = -M * g * Nabla * sea surface height
 c   phiSurf = g * etaN
+#ifdef ALLOW_ICEBERG_PRESSURE_GRADIENT
+           PRINT*,'Use Force pressure gradient'
            DO j=1,sNy+1
              DO i=1,sNx+1
                 Fpu(i,j,bi,bj) = - iceberg_MassU(i,j,bi,bj) *
@@ -399,7 +409,7 @@ c   phiSurf = g * etaN
              ENDDO
            ENDDO
 
-
+#endif
 
 C   *------ Momentum Equation ------*
 C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp

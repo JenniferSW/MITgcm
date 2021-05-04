@@ -39,19 +39,19 @@ CEOP
 
 C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
        DO iCl = 1, ICEBERG_numClUsed
-       sum_concentration = 0.0
+
         DO bj=myByLo(myThid),myByHi(myThid)
          DO bi=myBxLo(myThid),myBxHi(myThid)
           DO j=1-OLy+1,sNy+OLy
            DO i=1-OLx+1,sNx+OLx
-            sum_concentration = sum_concentration
-     &        + iceberg_concentration(i,j,bi,bj,iCl)
+
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         + iceberg_concentration(i-1,j,bi,bj,iCl)
 
             IF ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) THEN
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
+             PRINT*,'mask uvel',j,i
             ELSE
              iceberg_MaskU(i,j,bi,bj) = 0. _d 0
             ENDIF
@@ -62,6 +62,7 @@ C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
 
             IF ( iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) THEN
              iceberg_MaskV(i,j,bi,bj) = 1. _d 0
+             PRINT*,'mask vvel',j,i
             ELSE
              iceberg_MaskV(i,j,bi,bj) = 0. _d 0
             ENDIF
@@ -78,14 +79,13 @@ C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
           ENDDO
          ENDDO
         ENDDO
-        PRINT * , 'debug conc' ,sum_concentration
 
-
+#ifdef ALLOW_ICEBERG_DYNAMICS
 C--   Calculate iceberg velocities
         CALL ICEBERG_MOM_EQ(
      I              iCl,
      I              myTime, myIter, myThid)
-
+#endif
 C--   Melt iceberg concentration
 #ifdef ALLOW_ICEBERG_MELTING
         CALL ICEBERG_MELTING(myTime,myIter,myThid)
@@ -96,16 +96,22 @@ C--   Melt iceberg concentration
      I                  myTime, myIter, myThid)
 #endif
 
+#ifdef ALLOW_ICEBERG_DYNAMICS
 C--   Advect iceberg (effective height and fractional area)
         CALL ICEBERG_ADV(myTime, myIter, myThid)
+#endif
       ENDDO
-C calculate new iceberg volume in grid cell
+
+C calculate new iceberg volume in grid cell after melting
+
+
       DO iCl = 1, ICEBERG_numClUsed
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1-OLy+1,sNy+OLy
           DO i=1-OLx+1,sNx+OLx
 
+#ifdef ALLOW_ICEBERG_MELTING
             IF(iCl .EQ. 1 .AND. ICEBERG_numClUsed .GT. 1) THEN
             ! there is no transition from the smallest size class
             ! from the smallest size class the iceberg go to a non iceberg status
@@ -145,7 +151,7 @@ C calculate new iceberg volume in grid cell
      &         /(iceberg_Vsgl(iCl)-0)
             ENDIF
 C catch values that are too small or values that are negative because of too strong melting
-
+#endif
             IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
             ENDIF
@@ -154,9 +160,10 @@ C catch values that are too small or values that are negative because of too str
         ENDDO
        ENDDO
 
+#ifdef ALLOW_FRESHWATER_INPUT
        CALL ICEBERG_CHANGE_SALINITY( iCl,
      I     myTime, myIter, myThid)
-
+#endif
 
       ENDDO !ENDDO over size classes
 
