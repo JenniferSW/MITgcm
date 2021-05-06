@@ -159,6 +159,7 @@ C Fix Fields after Advection
 C ------------------------------------------------------------------------------------------------
 C- after advection fix possible negative values of effective iceberg thickness and fractional area
 C followed the example of seaice_reg_ridge.F
+#ifdef ALLOW_FIXING
           DO i = 1,sNy
             DO j = 1, sNx
              tmpscal = 0. _d 0
@@ -169,18 +170,7 @@ C followed the example of seaice_reg_ridge.F
             ENDDO
           ENDDO
 
-
-C- Handle very small iceberg parts in grid cell and change
-C  area and height if effective thickness is set to 0.0
-C TODO ersetze 1. _d -5 durch einen Parameter
-         DO j=1,sNy
-          DO i=1,sNx
-           IF (iceberg_concentration(i,j,bi,bj,iCl)
-     &        .LE.1. _d -5) THEN
-            iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
-           ENDIF
-          ENDDO
-         ENDDO
+#endif
 
          CALL EXCH_3D_RL( iceberg_concentration,  iCl, myThid )
 

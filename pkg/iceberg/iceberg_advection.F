@@ -811,7 +811,6 @@ C--   End of ipass loop
       ENDDO
 
 
-
 C-    explicit advection is done ; store tendency in gFld:
       DO j=1-OLy,sNy+OLy
        DO i=1-OLx,sNx+OLx

@@ -16,7 +16,7 @@ C !USES: ===============================================================
 #include "PARAMS.h"
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
-
+#include "GRID.h"
 
 C !INPUT PARAMETERS: ===================================================
 C myTime    :: Current time in simulation
@@ -51,7 +51,6 @@ C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
 
             IF ( iceberg_MaskU(i,j,bi,bj) .GT. 0. _d 0 ) THEN
              iceberg_MaskU(i,j,bi,bj) = 1. _d 0
-             PRINT*,'mask uvel',j,i
             ELSE
              iceberg_MaskU(i,j,bi,bj) = 0. _d 0
             ENDIF
@@ -62,7 +61,6 @@ C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
 
             IF ( iceberg_MaskV(i,j,bi,bj) .GT. 0. _d 0) THEN
              iceberg_MaskV(i,j,bi,bj) = 1. _d 0
-             PRINT*,'mask vvel',j,i
             ELSE
              iceberg_MaskV(i,j,bi,bj) = 0. _d 0
             ENDIF
@@ -85,6 +83,7 @@ C--   Calculate iceberg velocities
         CALL ICEBERG_MOM_EQ(
      I              iCl,
      I              myTime, myIter, myThid)
+
 #endif
 C--   Melt iceberg concentration
 #ifdef ALLOW_ICEBERG_MELTING
@@ -152,9 +151,17 @@ C calculate new iceberg volume in grid cell after melting
             ENDIF
 C catch values that are too small or values that are negative because of too strong melting
 #endif
-            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
-             iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
+            IF (iceberg_concentration(i,j,bi,bj,iCl).NE.0. _d 0) THEN
+
+             PRINT*,'dbg conc',iceberg_concentration(i,j,bi,bj,iCl)
             ENDIF
+#ifdef ALLOW_FIXING
+            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -10) THEN
+             iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
+             PRINT*,'removed low concentration'
+            ENDIF
+#endif
+
           ENDDO
          ENDDO
         ENDDO

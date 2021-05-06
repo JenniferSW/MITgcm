@@ -73,6 +73,7 @@ C     i,j,bi,bj :: Loop counters
 C     nCl       :: Loop counter for iceberg size classes
 C     u_temp
       INTEGER i, j, bi, bj
+      _RL CFL_test
       _RL duw , dvw
       _RL dua , dva
       _RL dus , dvs
@@ -171,7 +172,6 @@ C _fCori  ::  Makro from model for Coriolis parameter at cell center
 C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
 #ifdef ALLOW_ICEBERG_CORIOLIS
-           PRINT*,'Use Force Coriolis'
            DO j=1,sNy
              DO i=1,sNx
                 Fcu(i,j,bi,bj)=
@@ -197,7 +197,6 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
 
 
 #ifdef ALLOW_ICEBERG_OCEAN_DRAG
-            PRINT*,'Use Force Ocean Drag'
             DO j=0,sNy+1
               DO i=0,sNx+1
                duw = 0.5 _d 0 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
@@ -243,7 +242,6 @@ C   Assumed that v_i is much smaller than v_atm (v_i << v_atm)
 c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
 #ifdef ALLOW_ICEBERG_ATMOSPHERE_DRAG
-            PRINT*,'Use Force atmosphere'
 #ifdef ALLOW_EXF
 
 
@@ -294,7 +292,6 @@ C seaice thickness = HEFF * AREA
 
 C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_ICEBERG_SEAICE_DRAG
-      PRINT*,'Use Force Seaice drag'
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
            cds_const = 0.5 * ICEBERG_rhoSeaice
@@ -342,7 +339,6 @@ c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a^2 * L * v_air/|v_air|
 C term conversion as shown in Rackow (2011)
 #ifdef ALLOW_ICEBERG_WAVE_RADIATION
-           PRINT*,'Use Force Wave radiation'
            cdr_const = 0.25 * ICEBERG_rhoOcean
      &            * ICEBERG_gravity * (0.5 * 0.02025)**2
             DO j=0,sNy+1
@@ -353,6 +349,9 @@ C term conversion as shown in Rackow (2011)
      &             + (VWIND(i,j,bi,bj)
      &             - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
      &              **2
+                IF (uVel(i-1,j,1,bi,bj) .NE. 0. _d 0) THEN
+                 PRINT*,'dbg uvel', uVel(i-1,j,1,bi,bj)
+                ENDIF
 
                 cwave(i,j) = 0.06 * MIN(MAX(0. _d 0,
      &           (iceberg_length(nCl)
@@ -394,7 +393,6 @@ c   *------ Pressure Gradient Force ------*
 c   Fp = -M * g * Nabla * sea surface height
 c   phiSurf = g * etaN
 #ifdef ALLOW_ICEBERG_PRESSURE_GRADIENT
-           PRINT*,'Use Force pressure gradient'
            DO j=1,sNy+1
              DO i=1,sNx+1
                 Fpu(i,j,bi,bj) = - iceberg_MassU(i,j,bi,bj) *
@@ -433,7 +431,7 @@ C Calculated at C-Point
              DO i=1,sNx+1
 
                   iceberg_uvel(i,j,bi,bj,nCl) =
-     &              iceberg_MaskU(i,j,bi,bj) *
+     &              iceberg_MaskU(i,j,bi,bj) * (
      &              (iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
      &              + urhs(i,j,bi,bj) * ICEBERG_deltaT)
      &              / (1. - iceberg_MaskU(i,j,bi,bj)
@@ -441,10 +439,10 @@ C Calculated at C-Point
      &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
-     &               ))
+     &               )))
 
                  iceberg_vvel(i,j,bi,bj,nCl) =
-     &              iceberg_MaskV(i,j,bi,bj) *
+     &              iceberg_MaskV(i,j,bi,bj) * (
      &              (iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
      &              + vrhs(i,j,bi,bj) * ICEBERG_deltaT)
      &              / (1. - iceberg_MaskV(i,j,bi,bj)
@@ -452,7 +450,7 @@ C Calculated at C-Point
      &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
-     &               ))
+     &               )))
 
                ENDDO
              ENDDO

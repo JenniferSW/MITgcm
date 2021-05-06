@@ -40,6 +40,7 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_width, ICEBERG_height,
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
+     &       ICEBERG_AirDragform, ICEBERG_OceanDragform,
      &       ICEBERG_gravity, ICEBERG_temp
 
       IF (.NOT.useICEBERG) THEN
