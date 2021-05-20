@@ -156,9 +156,8 @@ C catch values that are too small or values that are negative because of too str
              PRINT*,'dbg conc',iceberg_concentration(i,j,bi,bj,iCl)
             ENDIF
 #ifdef ALLOW_FIXING
-            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -10) THEN
+            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
-             PRINT*,'removed low concentration'
             ENDIF
 #endif
 
