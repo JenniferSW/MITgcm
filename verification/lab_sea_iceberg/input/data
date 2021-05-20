@@ -133,7 +133,7 @@
 #   saltClimFile    - File containing salt climatology used for relaxation
 #
  &PARM05
- bathyFile       = 'bathy.labsea1979',
+ bathyFile       = 'bathy.labsea_no_land',
  hydrogThetaFile = 'LevCli_temp.labsea1979',
  hydrogSaltFile  = 'LevCli_salt.labsea1979',
  &

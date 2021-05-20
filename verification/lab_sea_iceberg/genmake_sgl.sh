@@ -7,11 +7,11 @@ experiment="lab_sea_iceberg"
 
 cd build
 
-~/MITgcm_home/MITgcm/tools/genmake2 -rootdir=/home/jwesselbaum/MITgcm_home/MITgcm \
--mods=/home/jwesselbaum/MITgcm_home/MITgcm/verification/$experiment/code \
+~/MITgcm/tools/genmake2 -rootdir=/home/jwesselbaum/MITgcm \
+-mods=/home/jwesselbaum/MITgcm/verification/$experiment/code \
 -devel \
 -of \
-/home/jwesselbaum/MITgcm_home/MITgcm/tools/build_options/linux_amd64_gfortran_path
+/home/jwesselbaum/MITgcm/tools/build_options/linux_amd64_gfortran_path
 
 make depend
 make

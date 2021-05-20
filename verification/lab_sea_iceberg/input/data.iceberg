@@ -5,6 +5,9 @@
  ICEBERG_CalvFile(1) = 'iceberg_calvrates.bin',
  ICEBERG_height(1) = 250,
  ICEBERG_width(1) = 200,
- ICEBERG_deltaT = 3600.0,
- ICEBERG_Iter0 = 3600,
+ ICEBERG_deltaT = 1800.0,
+ ICEBERG_Iter0 = 1800,
+ ICEBERGadvScheme = 77,
+ ICEBERG_OceanDrag = 0.1e-6,
+#0.5e-3
  &
