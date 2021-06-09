@@ -160,8 +160,8 @@ C ------------------------------------------------------------------------------
 C- after advection fix possible negative values of effective iceberg thickness and fractional area
 C followed the example of seaice_reg_ridge.F
 #ifdef ALLOW_FIXING
-          DO i = 1,sNy
-            DO j = 1, sNx
+          DO j = 1,sNy
+            DO i = 1, sNx
              tmpscal = 0. _d 0
              tmpscal =
      &        MAX(-iceberg_concentration(i,j,bi,bj,iCl),0. _d 0)
