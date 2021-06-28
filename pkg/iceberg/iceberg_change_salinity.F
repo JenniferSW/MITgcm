@@ -80,6 +80,6 @@ C new salinity
          ENDDO
         ENDDO
        ENDDO
-
+       _EXCH_XYZ_RL( salt, myThid )
       RETURN
       END
