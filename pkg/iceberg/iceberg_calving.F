@@ -61,8 +61,8 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
 
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
-         DO j=1-OLy+1,sNy+OLy
-          DO i=1-OLx+1,sNx+OLx
+         DO j=1 ,sNy
+          DO i= 1,sNx
           addV = 0. _d 0
            IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
 
