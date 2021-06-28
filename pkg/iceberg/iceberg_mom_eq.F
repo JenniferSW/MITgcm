@@ -218,11 +218,8 @@ c Calculate Norm on C-Point with constants for ocean stress
      &              * iceberg_length(nCl)*iceberg_width(nCl))
      &              * sqrt(duw**2+dvw**2)
                 ENDIF
-
-
               ENDDO
             ENDDO
-
 C calculate rhs of ocean drag force
             DO j=1,sNy+1
               DO i=1,sNx+1
@@ -457,7 +454,7 @@ C Calculated at C-Point
 
           ENDDO
         ENDDO
-        CALL EXCH_UV_XY_RL(iceberg_vvel(1-OLx,1-OLy,1,1,nCl),
+        CALL EXCH_UV_XY_RL(iceberg_uvel(1-OLx,1-OLy,1,1,nCl),
      &    iceberg_vvel(1-OLx,1-OLy,1,1,nCl),.TRUE.,myThid)
 
       RETURN
