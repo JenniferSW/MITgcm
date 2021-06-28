@@ -24,7 +24,7 @@ C myIter    :: Current time-step number
 C myThid    :: my Thread Id number
       _RL     myTime
       INTEGER myIter, myThid
-      _RL     sum_concentration
+
 
 C !OUTPUT PARAMETERS: ==================================================
 
@@ -151,10 +151,7 @@ C calculate new iceberg volume in grid cell after melting
             ENDIF
 C catch values that are too small or values that are negative because of too strong melting
 #endif
-            IF (iceberg_concentration(i,j,bi,bj,iCl).NE.0. _d 0) THEN
 
-             PRINT*,'dbg conc',iceberg_concentration(i,j,bi,bj,iCl)
-            ENDIF
 #ifdef ALLOW_FIXING
             IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
              iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
@@ -165,6 +162,10 @@ C catch values that are too small or values that are negative because of too str
          ENDDO
         ENDDO
        ENDDO
+
+C Update calculated fields (iceberg concentration and iceberg volume loss
+       CALL EXCH_3D_RL(iceberg_concentration, ICEBERG_numClUsed, myThid)
+       CALL EXCH_3D_RL(iceberg_Vloss, ICEBERG_numClUsed, myThid)
 
 #ifdef ALLOW_FRESHWATER_INPUT
        CALL ICEBERG_CHANGE_SALINITY( iCl,
