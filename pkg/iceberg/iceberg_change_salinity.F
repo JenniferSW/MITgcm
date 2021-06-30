@@ -48,9 +48,10 @@ C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
       INTEGER i, j, bi, bj, k, l
       _RL Vmelt
-      _RL FW
-      _RL VFW
-      _RL FW_melt
+      _RL Vmelt_cell
+      _RL FW_frac_oce
+      _RL V_FW_oce
+      _RL FW_frac_new
       _RL cell_volume
       _RL iceberg_maxlayer
 
@@ -59,48 +60,57 @@ CEOP
 
 C Initialise local variables
       Vmelt = 0. _d 0
-      FW = 0. _d 0
-      VFW = 0. _d 0
-      FW_melt = 0. _d 0
+      FW_frac_oce = 0. _d 0
+      V_FW_oce = 0. _d 0
+      FW_frac_new = 0. _d 0
       cell_volume = 0. _d 0
       iceberg_maxlayer = 0. _d 0
 
 
-       k = 1
+      IF(usingPCoords)THEN
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1,sNy
           DO i=1,sNx
-           IF(usingPCoords)THEN
-             Vmelt = 0. _d 0
-             IF(maskC(i,j,k,bi,bj) .EQ. 1. _d 0)THEN
+           k = 1
+           Vmelt = 0. _d 0
+           IF(maskC(i,j,k,bi,bj) .EQ. 1. _d 0)THEN
 C Evaluate Vmelt for this grid cell
               Vmelt = iceberg_Vloss(i,j,bi,bj,nCl)
-
               cell_volume = rA(i,j,bi,bj)*drF(k)*hFacC(i,j,k,bi,bj)
 C actual freshwater fraction
-              FW = 1 - 1e-3 * salt(i,j,1,bi,bj)
+              FW_frac_oce = 1 - 1e-3 * salt(i,j,1,bi,bj)
 C actual freshwater volume
-              VFW = cell_volume * FW
+              V_FW_oce = cell_volume * FW_frac_oce
 C new freshwater fraction
-              FW_melt = (VFW + Vmelt)/(cell_volume + Vmelt)
+              FW_frac_new = (V_FW_oce + Vmelt)/(cell_volume + Vmelt)
 C new salinity
-              salt(i,j,1,bi,bj) = (1 - FW_melt) *1e3
-             ENDIF
+              salt(i,j,1,bi,bj) = (1 - FW_frac_new) *1e3
+           ENDIF
+           PRINT*,'test melting',drF(k),hFacC(i,j,k,bi,bj),cell_volume
+          ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
 
-
-           ELSEIF (usingZCoords)THEN
+      ELSEIF (usingZCoords)THEN
+       DO bj=myByLo(myThid),myByHi(myThid)
+        DO bi=myBxLo(myThid),myBxHi(myThid)
+         DO j=1,sNy
+          DO i=1,sNx
+           IF(maskC(i,j,k,bi,bj) .EQ. 1. _d 0)THEN
 C get Vmelt for actual size class in this grid cell
-             Vmelt = iceberg_Vloss(i,j,bi,bj,nCl)
+            Vmelt = iceberg_Vloss(i,j,bi,bj,nCl)
 C get iceberg_maxlayer
-             DO l =1,Nr
-               IF(ABS(rF(l)) .GT. iceberg_height(nCl))THEN
-C check if the depth at cell bottom is higher  than hieght of iceberg. Then the actual layer is the maximum layer
+            DO l =1,Nr
+             IF(ABS(rF(l)) .GT. iceberg_height(nCl))THEN
+C check if the depth at cell bottom is higher  than height of iceberg. Then the actual layer is the maximum layer
 C the iceberg reaches into. The index of the bottom boundary of the layer is one higher than the layer index
                  iceberg_maxlayer = l-1
-                 EXIT
-               ENDIF
-             ENDDO
+              PRINT*, 'maxlayer', iceberg_maxlayer
+              EXIT
+             ENDIF
+            ENDDO
 
 C calculate freshwater volume per layer as follows
 C  - get cell volume
@@ -108,30 +118,34 @@ C  - get actual freshwater volume in this cell
 C  - calculate new freshwater fraction in this layer
 C  - calculate new salinity in certain layer
 C loop over all layers that are "filled" completely by iceberg height
+            IF(R_low(i,j,bi,bj) .GT. iceberg_height(nCl))THEN
              DO l = 1, iceberg_maxlayer -1
                cell_volume = rA(i,j,bi,bj)*drF(l)*hFacC(i,j,l,bi,bj)
-               FW = 1 - 1e-3 * salt(i,j,l,bi,bj)
-               VFW = cell_volume * FW
+
+               FW_frac_oce = 1 - 1e-3 * salt(i,j,l,bi,bj)
+               V_FW_oce = cell_volume * FW_frac_oce
                Vmelt_cell = Vmelt * drF(l)/iceberg_height(nCl)
-               FW_melt = (VFW + Vmelt_cell)/(cell_volume + Vmelt_cell)
+               FW_melt = (V_FW_oce + Vmelt_cell)/(cell_volume + Vmelt_cell)
                salt(i,j,l,bi,bj) = (1 - FW_melt) *1e3
              ENDDO
 C last layer only partly covered by iceberg
-             cell_volume = rA(i,j,bi,bj)*drF(iceberg_maxlayer)*hFacC(i,j,iceberg_maxlayer,bi,bj)
-             FW = 1 - 1e-3 * salt(i,j,iceberg_maxlayer,bi,bj)
-             VFW = cell_volume * FW
-             Vmelt_cell = Vmelt * (iceberg_height(nCl) - rF(iceberg_maxlayer))/iceberg_height(nCl)
-             FW_melt = (VFW + Vmelt_cell)/(cell_volume + Vmelt_cell)
+             cell_volume = rA(i,j,bi,bj)*drF(iceberg_maxlayer)
+     &         *hFacC(i,j,iceberg_maxlayer,bi,bj)
+             FW_frac_oce = 1 - 1e-3 * salt(i,j,iceberg_maxlayer,bi,bj)
+             V_FW_oce = cell_volume * FW_frac_oce
+             Vmelt_cell = Vmelt * (iceberg_height(nCl)
+     &         - rF(iceberg_maxlayer))/iceberg_height(nCl)
+             FW_melt = (V_FW_oce + Vmelt_cell)/(cell_volume + Vmelt_cell)
+            ELSE
+C if water is shallower than iceberg height
 
-
-
-
-
-           ENDIF
+            ENDIF
+            ENDIF
           ENDDO
          ENDDO
         ENDDO
        ENDDO
+      ENDIF
        _EXCH_XYZ_RL( salt, myThid )
       RETURN
       END
