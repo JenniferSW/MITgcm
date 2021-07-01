@@ -60,7 +60,7 @@ CEOP
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1,sNy
           DO i=1,sNx
-           IF(maskC(i,j,k,bi,bj) .EQ. 1. _d 0)THEN
+           IF(ICEBERG_MaskC(i,j,bi,bj) .NE. 0. _d 0)THEN
 C Evaluate Vmelt for this grid cell
             Vmelt = 0. _d 0
 c            DO nCl = 1, ICEBERG_numClUsed
