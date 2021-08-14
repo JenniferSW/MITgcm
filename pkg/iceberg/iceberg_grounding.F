@@ -37,16 +37,6 @@ C     === Global variables ===
 #include "FFIELDS.h"
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
-#include "DYNVARS.h"
-#ifdef ALLOW_EXF
-# include "EXF_FIELDS.h"
-# include "EXF_PARAM.h"
-#endif
-#ifdef ALLOW_SEAICE
-#include "SEAICE_SIZE.h"
-#include "SEAICE_PARAMS.h"
-#include "SEAICE.h"
-#endif
 
 C !INPUT/OUTPUT PARAMETERS: ===================================================
 C     === Routine arguments ===
