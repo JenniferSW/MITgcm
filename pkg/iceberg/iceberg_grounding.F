@@ -7,7 +7,7 @@ CBOP
 C !ROUTINE: ICEBERG_GROUNDING
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_GROUND( nCl,
+      SUBROUTINE ICEBERG_GROUNDING(nCl,
      I                  myTime, myIter, myThid)
 
 C !DESCRIPTION: \bv
@@ -54,19 +54,18 @@ C     === Local variables ===
       INTEGER i, j, bi, bj
       INTEGER nCl
 
-
-
-
-C      DO bj=myByLo(myThid),myByHi(myThid)
-C       DO bi=myBxLo(myThid),myBxHi(myThid)
-C        DO j=1 ,sNy
-C         DO i= 1,sNx
-C          IF (ICEBERG_height(nCl) .GT. R_low(i,j,bi,bj)) THEN
-C            iceberg_velocity(i,j,bi,bj,nCl) = 0. _d 0
-C          ENDIF
-C         ENDDO ! end i loop
-C        ENDDO ! end j loop
-C       ENDDO ! end bi loop
-C      ENDDO ! end bj loop
+      PRINT *, 'dbg grounding'
+      DO bj=myByLo(myThid),myByHi(myThid)
+       DO bi=myBxLo(myThid),myBxHi(myThid)
+        DO j=1 ,sNy
+         DO i= 1,sNx
+          IF (ICEBERG_height(nCl) .GT. R_low(i,j,bi,bj)) THEN
+            iceberg_uvel(i,j,bi,bj,nCl) = 0. _d 0
+            iceberg_vvel(i,j,bi,bj,nCl) = 0. _d 0
+          ENDIF
+         ENDDO ! end i loop
+        ENDDO ! end j loop
+       ENDDO ! end bi loop
+      ENDDO ! end bj loop
       RETURN
       END
