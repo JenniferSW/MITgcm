@@ -7,3 +7,4 @@ iceberg_advection.f
 iceberg_mom_eq.f
 iceberg_melting.f
 iceberg_calving.f
+iceberg_change_salinity.f
