@@ -7,7 +7,7 @@ CBOP
 C !ROUTINE: ICEBERG_GROUNDING
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_GROUNDING(nCl,
+      SUBROUTINE ICEBERG_GROUND( nCl,
      I                  myTime, myIter, myThid)
 
 C !DESCRIPTION: \bv
@@ -37,6 +37,7 @@ C     === Global variables ===
 #include "FFIELDS.h"
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
+#include "DYNVARS.h"
 
 C !INPUT/OUTPUT PARAMETERS: ===================================================
 C     === Routine arguments ===
@@ -50,16 +51,22 @@ C     myThid    :: my Thread Id number
 
 C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
-        DO j=1 ,sNy
-         DO i= 1,sNx
-          IF (ICEBERG_height(nCl) .GT. R_low)
-            iceberg_velocity(i,j,bi,bj,nCl) = 0. _d 0
+      INTEGER i, j, bi, bj
+      INTEGER nCl
 
-         ENDDO ! end i loop
-        ENDDO ! end j loop
-       ENDDO ! end bi loop
-      ENDDO ! end bj loop
+
+
+
+C      DO bj=myByLo(myThid),myByHi(myThid)
+C       DO bi=myBxLo(myThid),myBxHi(myThid)
+C        DO j=1 ,sNy
+C         DO i= 1,sNx
+C          IF (ICEBERG_height(nCl) .GT. R_low(i,j,bi,bj)) THEN
+C            iceberg_velocity(i,j,bi,bj,nCl) = 0. _d 0
+C          ENDIF
+C         ENDDO ! end i loop
+C        ENDDO ! end j loop
+C       ENDDO ! end bi loop
+C      ENDDO ! end bj loop
       RETURN
       END
