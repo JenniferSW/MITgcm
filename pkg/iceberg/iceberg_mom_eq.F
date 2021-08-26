@@ -197,6 +197,16 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
 
 
 #ifdef ALLOW_ICEBERG_OCEAN_DRAG
+
+            DO l =1,Nr
+             IF(ABS(rF(l)) .GT. max_depth)THEN
+C check if the depth at cell bottom is higher  than height of iceberg. Then the actual layer is the maximum layer
+C the iceberg reaches into. The index of the bottom boundary of the layer is one higher than the layer index
+                 iceberg_maxlayer = l-1
+c              PRINT*, 'maxlayer', iceberg_maxlayer, rF(l-1), rF(l)
+              EXIT
+             ENDIF
+            ENDDO
             DO j=0,sNy+1
               DO i=0,sNx+1
                duw = 0.5 _d 0 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
