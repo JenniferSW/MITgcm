@@ -20,7 +20,7 @@ c     ICEBERG_OceanDrag ::  ocean drag coefficient
 c     ICEBERG_SeaiceDrag  ::  sea ice drag coefficient
 c     ICEEBERG_gravity  ::  gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
-C
+C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
@@ -37,6 +37,7 @@ C
       _RL ICEBERG_SeaiceDrag
       _RL ICEBERG_gravity
       _RL ICEBERG_temp
+      _RL ICEBERG_minV
 
 
 C-    additional parameters:
@@ -72,7 +73,8 @@ C Common block for real parameters
      &     ICEBERG_AirDrag, ICEBERG_AirDragform,
      &     ICEBERG_OceanDrag, ICEBERG_OceanDragform,
      &     ICEBERG_SeaiceDrag,
-     &     ICEBERG_gravity, ICEBERG_temp
+     &     ICEBERG_gravity, ICEBERG_temp,
+     &     ICEBERG_minV
 
 
 

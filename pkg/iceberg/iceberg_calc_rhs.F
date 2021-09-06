@@ -118,7 +118,7 @@ C calculate new iceberg volume in grid cell after melting
             iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         - iceberg_Vloss(i,j,bi,bj,iCl)
-     &         /(iceberg_Vsgl(iCl)-0) !dann ist kein Eisberg mehr da
+     &         /(iceberg_Vsgl(iCl)-ICEBERG_minV) !dann ist kein Eisberg mehr da
      &         + iceberg_Vloss(i,j,bi,bj,iCl+1)
      &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl))
 

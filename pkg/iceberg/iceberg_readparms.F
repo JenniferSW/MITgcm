@@ -41,7 +41,8 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
      &       ICEBERG_AirDragform, ICEBERG_OceanDragform,
-     &       ICEBERG_gravity, ICEBERG_temp
+     &       ICEBERG_gravity, ICEBERG_temp,
+     &       ICEBERG_minV
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -76,6 +77,7 @@ c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
       ICEBERG_SeaiceDrag = 0.91e-3
       ICEBERG_gravity = 9.81
       ICEBERG_temp = -4
+      ICEBERG_minV = 0.0
 
 C-    additional parameters:
       ICEBERG_Iter0      = 0
