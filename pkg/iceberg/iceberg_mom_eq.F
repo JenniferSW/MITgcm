@@ -102,6 +102,9 @@ C     u_temp
       _RL CDr(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL cwave(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL phiSurf(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL massC(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL massU(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL massV(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
 CEOP
 
@@ -136,6 +139,9 @@ CEOP
               CDs(i,j) = 0. _d 0
               CDr(i,j) = 0. _d 0
               cwave(i,j) = 0. _d 0
+              massC(i,j) = 0. _d 0
+              massU(i,j) = 0. _d 0
+              massV(i,j) = 0. _d 0
             ENDDO
            ENDDO
 
@@ -145,19 +151,41 @@ C u-point -> 0.5*( c(i,j) + c(i-1,j))
 C v-point -> 0.5*( c(i,j) + c(i,j-1))
 
 C This is the mass of all icebergs at grid point
-            DO j=1,sNy !j=1-OLy+1,sNy+OLy
-              DO i=1,sNx !i=1-OLx+1,sNx+OLx
-                iceberg_MassC(i,j,bi,bj) =
+!           DO j=1-OLy+1,sNy+OLy
+!             DO i=1-OLx+1,sNx+OLx
+!               iceberg_MassC(i,j,bi,bj) =
+!    &                 ICEBERG_rhoSeaice
+!    &                 * iceberg_concentration(i,j,bi,bj,nCl)
+!    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
+!    &                 * ICEBERG_height(nCl)
+!               iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
+!    &                 (iceberg_concentration(i,j,bi,bj,nCl)
+!    &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
+!    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
+!    &                 * ICEBERG_height(nCl)
+!               iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
+!    &                 (iceberg_concentration(i,j,bi,bj,nCl)
+!    &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
+!    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
+!    &                 * ICEBERG_height(nCl)
+!             ENDDO
+!           ENDDO
+!           _EXCH_XY_RL( iceberg_MassC, mythid )
+!           _EXCH_XY_RL( iceberg_MassU, mythid )
+!           _EXCH_XY_RL( iceberg_MassV, mythid )
+            DO j=0,sNy+1
+              DO i=0,sNx+1
+                massC(i,j) =
      &                 ICEBERG_rhoSeaice
      &                 * iceberg_concentration(i,j,bi,bj,nCl)
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
+                massU(i,j) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_concentration(i,j,bi,bj,nCl)
      &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
+                massV(i,j) = ICEBERG_rhoSeaice * 0.5 *
      &                 (iceberg_concentration(i,j,bi,bj,nCl)
      &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
@@ -165,27 +193,28 @@ C This is the mass of all icebergs at grid point
               ENDDO
             ENDDO
 
-
 c   *------- Coriolis Force -------*
 C  Fc = -M * f * k x v_i[n]
 C _fCori  ::  Makro from model for Coriolis parameter at cell center
 C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
 #ifdef ALLOW_ICEBERG_CORIOLIS
-           DO j=1,sNy
-             DO i=1,sNx
+           DO j=1,sNy+1
+             DO i=1,sNx+1
+
+
                 Fcu(i,j,bi,bj)=
      &            0.5 _d 0 * (
-     &            iceberg_MassC(i  ,j,bi,bj) * _fCori(i  ,j,bi,bj)
+     &            massC(i  ,j) * _fCori(i  ,j,bi,bj)
      &            * 0.5 _d 0*( vtemp(i  ,j,bi,bj)+vtemp(i  ,j+1,bi,bj) )
-     &            + iceberg_MassC(i-1,j,bi,bj) * _fCori(i-1,j,bi,bj)
+     &            + massC(i-1,j) * _fCori(i-1,j,bi,bj)
      &            * 0.5 _d 0*( vtemp(i-1,j,bi,bj)+vtemp(i-1,j+1,bi,bj) )
      &            )
                 Fcv(i,j,bi,bj)=
      &            - 0.5 _d 0*(
-     &            iceberg_MassC(i,j  ,bi,bj) * _fCori(i,j  ,bi,bj)
+     &            massC(i,j) * _fCori(i,j  ,bi,bj)
      &            * 0.5 _d 0*( utemp(i,j  ,bi,bj)+utemp(i+1,  j,bi,bj) )
-     &            + iceberg_MassC(i,j-1,bi,bj) * _fCori(i,j-1,bi,bj)
+     &            + massC(i,j-1) * _fCori(i,j-1,bi,bj)
      &            * 0.5 _d 0*( utemp(i,j-1,bi,bj)+utemp(i+1,j-1,bi,bj) )
      &            )
              ENDDO
@@ -259,7 +288,7 @@ C Calculate Norm on C-Point with constant values for wind stress
      &              * iceberg_length(nCl)*iceberg_width(nCl))
      &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
                 ENDIF
-                IF(iceberg_MassC(i,j,bi,bj) .NE. 0. _d 0)THEN
+                IF(massC(i,j) .NE. 0. _d 0)THEN
 c                  PRINT *, 'debug forma', form_a
                 ENDIF
               ENDDO
@@ -392,12 +421,12 @@ c   phiSurf = g * etaN
 #ifdef ALLOW_ICEBERG_PRESSURE_GRADIENT
            DO j=1,sNy+1
              DO i=1,sNx+1
-                Fpu(i,j,bi,bj) = - iceberg_MassU(i,j,bi,bj) *
+                Fpu(i,j,bi,bj) = - massU(i,j) *
      &           _recip_dxC(i,j,bi,bj) *
      &           (phiSurf(i,j)
      &         - phiSurf(i-1,j))
 
-                Fpv(i,j,bi,bj) = - iceberg_MassV(i,j,bi,bj) *
+                Fpv(i,j,bi,bj) = - massV(i,j) *
      &          _recip_dyC(i,j,bi,bj) *
      &          (phiSurf(i,j)
      &         - phiSurf(i,j-1))
@@ -429,10 +458,10 @@ C Calculated at C-Point
 
                   iceberg_uvel(i,j,bi,bj,nCl) =
      &              iceberg_MaskU(i,j,bi,bj) * (
-     &              (iceberg_MassU(i,j,bi,bj) * utemp(i,j,bi,bj)
+     &              (massU(i,j) * utemp(i,j,bi,bj)
      &              + urhs(i,j,bi,bj) * ICEBERG_deltaT)
      &              / (1. - iceberg_MaskU(i,j,bi,bj)
-     &              + iceberg_MassU(i,j,bi,bj)
+     &              + massU(i,j)
      &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
@@ -440,10 +469,10 @@ C Calculated at C-Point
 
                  iceberg_vvel(i,j,bi,bj,nCl) =
      &              iceberg_MaskV(i,j,bi,bj) * (
-     &              (iceberg_MassV(i,j,bi,bj) * vtemp(i,j,bi,bj)
+     &              (massV(i,j) * vtemp(i,j,bi,bj)
      &              + vrhs(i,j,bi,bj) * ICEBERG_deltaT)
      &              / (1. - iceberg_MaskV(i,j,bi,bj)
-     &              + iceberg_MassV(i,j,bi,bj)
+     &              + massV(i,j)
      &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
