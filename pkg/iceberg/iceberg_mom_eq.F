@@ -173,8 +173,8 @@ C This is the mass of all icebergs at grid point
 !           _EXCH_XY_RL( iceberg_MassC, mythid )
 !           _EXCH_XY_RL( iceberg_MassU, mythid )
 !           _EXCH_XY_RL( iceberg_MassV, mythid )
-            DO j=0,sNy+1
-              DO i=0,sNx+1
+            DO j=-1,sNy+1
+              DO i=-1,sNx+1
                 massC(i,j) =
      &                 ICEBERG_rhoSeaice
      &                 * iceberg_concentration(i,j,bi,bj,nCl)
@@ -199,8 +199,8 @@ C _fCori  ::  Makro from model for Coriolis parameter at cell center
 C iceberg_mass and _fcori are already on C-points, only iceberg velocity is interpolated
 
 #ifdef ALLOW_ICEBERG_CORIOLIS
-           DO j=1,sNy+1
-             DO i=1,sNx+1
+           DO j=0,sNy+1
+             DO i=0,sNx+1
 
 
                 Fcu(i,j,bi,bj)=
@@ -226,8 +226,8 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
 
 
 #ifdef ALLOW_ICEBERG_OCEAN_DRAG
-            DO j=0,sNy+1
-              DO i=0,sNx+1
+            DO j=-1,sNy+1
+              DO i=-1,sNx+1
                duw = 0.5 _d 0 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
                dvw = 0.5 _d 0 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
@@ -250,8 +250,8 @@ c Calculate Norm on C-Point with constants for ocean stress
               ENDDO
             ENDDO
 C calculate rhs of ocean drag force
-            DO j=1,sNy+1
-              DO i=1,sNx+1
+            DO j=0,sNy+1
+              DO i=0,sNx+1
                 Fwu(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i-1,j) )
      &            * uVel(i,j,1,bi,bj)
 
@@ -271,8 +271,8 @@ c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 #ifdef ALLOW_EXF
 
 
-            DO j=0,sNy+1
-              DO i=0,sNx+1
+            DO j=-1,sNy+1
+              DO i=-1,sNx+1
 
 C Calculate Norm on C-Point with constant values for wind stress
                 IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
@@ -294,8 +294,8 @@ c                  PRINT *, 'debug forma', form_a
               ENDDO
             ENDDO
 
-            DO j=1,sNy+1
-              DO i=1,sNx+1
+            DO j=0,sNy+1
+              DO i=0,sNx+1
                 Fau(i,j,bi,bj) = 0.5 *
      &          ( CDa(i,j) * UWIND(i,j,bi,bj)
      &           + CDa(i-1,j)* UWIND(i-1,j,bi,bj))
@@ -322,8 +322,8 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
       IF (useSEAICE) THEN
            cds_const = 0.5 * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
-           DO j=0,sNy+1
-             DO i=0,sNx+1
+           DO j=-1,sNy+1
+             DO i=-1,sNx+1
 
                dus = 0.5 * ((UICE(i,j,bi,bj)-utemp(i,j,bi,bj))
      &          + (UICE(i+1,j,bi,bj)-utemp(i+1,j,bi,bj)))
@@ -338,8 +338,8 @@ C     AREA can be zero, so avoid division by regularisation stolen from seaice_g
              ENDDO
            ENDDO
 
-           DO j=1,sNy+1
-              DO i=1,sNx+1
+           DO j=0,sNy+1
+              DO i=0,sNx+1
 
                 IF (seaiceMaskU(i,j,bi,bj) .EQ. 0.0) THEN
                   Fsu(i,j,bi,bj) = 0. _d 0
@@ -401,8 +401,8 @@ C term conversion as shown in Rackow (2011)
               ENDDO
            ENDDO
 
-           DO j=1,sNy+1
-              DO i=1,sNx+1
+           DO j=0,sNy+1
+              DO i=0,sNx+1
 
                 Fru(i,j,bi,bj) = 0.5 * ( CDr(i,j) + CDr(i-1,j))
      &            * 0.5 * ( UWIND(i,j,bi,bj) + UWIND(i-1,j,bi,bj) )
@@ -419,8 +419,8 @@ c   *------ Pressure Gradient Force ------*
 c   Fp = -M * g * Nabla * sea surface height
 c   phiSurf = g * etaN
 #ifdef ALLOW_ICEBERG_PRESSURE_GRADIENT
-           DO j=1,sNy+1
-             DO i=1,sNx+1
+           DO j=0,sNy+1
+             DO i=0,sNx+1
                 Fpu(i,j,bi,bj) = - massU(i,j) *
      &           _recip_dxC(i,j,bi,bj) *
      &           (phiSurf(i,j)
@@ -437,8 +437,8 @@ c   phiSurf = g * etaN
 
 C   *------ Momentum Equation ------*
 C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
-            DO j=1,sNy+1
-              DO i=1,sNx+1
+            DO j=0,sNy+1
+              DO i=0,sNx+1
                 urhs(i,j,bi,bj) = Fcu(i,j,bi,bj) + Fwu(i,j,bi,bj)
      &              + Fau(i,j,bi,bj) + Fsu(i,j,bi,bj)+ Fpu(i,j,bi,bj)
      &              + Fru(i,j,bi,bj)
@@ -453,8 +453,8 @@ C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
 C   *------ Euler Forward Step ------*
 c   v_i[n+1] = v_i[n] + dv_i * dt
 C Calculated at C-Point
-            DO j=1,sNy+1
-             DO i=1,sNx+1
+            DO j=0,sNy+1
+             DO i=0,sNx+1
 
                   iceberg_uvel(i,j,bi,bj,nCl) =
      &              iceberg_MaskU(i,j,bi,bj) * (
@@ -483,8 +483,9 @@ C Calculated at C-Point
 
           ENDDO
         ENDDO
-        CALL EXCH_UV_XY_RL(iceberg_uvel(1-OLx,1-OLy,1,1,nCl),
-     &    iceberg_vvel(1-OLx,1-OLy,1,1,nCl),.TRUE.,myThid)
+        CALL EXCH_UV_3D_RL(iceberg_uvel,
+     &    iceberg_vvel,
+     &    .TRUE.,ICEBERG_numClUsed,myThid)
 
       RETURN
       END

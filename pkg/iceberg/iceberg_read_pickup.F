@@ -144,7 +144,7 @@ c#ifdef ICEBERG_3D_STATE
         ENDDO
 
         CALL EXCH_3D_RL( iceberg_concentration,
-     &                   iCl, myThid )
+     &                   ICEBERG_numClUsed, myThid )
 
 c#endif /* ICEBERG_3D_STATE */
         nj = nj*Nr
