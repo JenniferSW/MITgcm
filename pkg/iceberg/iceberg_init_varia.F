@@ -85,7 +85,9 @@ c      _BARRIER
      &                0, myThid )
 
         ENDDO
-        _EXCH_XY_RL(iceberg_concentration , myThid)
+C        _EXCH_XY_RL(iceberg_concentration , myThid)
+        CALL EXCH_3D_RL( iceberg_concentration, ICEBERG_numClUsed
+     &    , myThid )
 
 
        ENDIF
@@ -111,7 +113,9 @@ C--   end start-from-iter-zero if/else block
      &                0, myThid )
 
          ENDDO
-        _EXCH_XY_RL(iceberg_CalvRate , myThid)
+C        _EXCH_XY_RL(iceberg_CalvRate , myThid)
+         CALL EXCH_3D_RL( iceberg_CalvRate, ICEBERG_numClUsed, myThid )
+
 
 C calculate iceberg length from iceberg width
       DO iCl = 1,ICEBERG_numClUsed

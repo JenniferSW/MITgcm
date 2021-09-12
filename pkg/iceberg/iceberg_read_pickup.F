@@ -99,7 +99,7 @@ C-      No meta-file or old meta-file without List of Fields
      &      ' in file: "data", NameList: "PARM03"'
           CALL PRINT_MESSAGE( msgBuf, ioUnit, SQUEEZE_RIGHT, myThid )
           CALL ALL_PROC_DIE( myThid )
-          STOP 'ABNORMAL END: S/R ICEBERG_READ_PICKUP'
+          STOP 'ABNORMAL END: S/R ICEBERG_READ_PICKUP 1'
         ELSE
           WRITE(msgBuf,'(4A)') 'WARNING >> ICEBERG_READ_PICKUP: ',
      &      ' no field-list found'
@@ -121,7 +121,7 @@ c         CALL PRINT_MESSAGE( msgBuf, ioUnit, SQUEEZE_RIGHT, myThid )
      &      'no field-list found in meta-file'
           CALL PRINT_ERROR( msgBuf, myThid )
           CALL ALL_PROC_DIE( myThid )
-          STOP 'ABNORMAL END: S/R ICEBERG_READ_PICKUP'
+          STOP 'ABNORMAL END: S/R ICEBERG_READ_PICKUP 2'
          ENDIF
         ENDIF
        ENDIF
@@ -143,9 +143,24 @@ c#ifdef ICEBERG_3D_STATE
          nj = nj +1
         ENDDO
 
+        DO iCl = 1, ICEBERG_numClUsed
+         DO bj=myByLo(myThid),myByHi(myThid)
+          DO bi=myBxLo(myThid),myBxHi(myThid)
+           DO j=1-OLy+1,sNy+OLy
+            DO i=1-OLx+1,sNx+OLx
+             IF (ISNAN(iceberg_concentration(i,j,iCl,bi,bj))) THEN
+              STOP 'ABNORMAL found NAN'
+             ELSE IF(iceberg_concentration(i,j,iCl,bi,bj) .GT. 0.0) THEN
+              STOP 'ABNORMAL found iceberg'
+             ENDIF
+            ENDDO
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+
         CALL EXCH_3D_RL( iceberg_concentration,
      &                   ICEBERG_numClUsed, myThid )
-
 c#endif /* ICEBERG_3D_STATE */
         nj = nj*Nr
 C---    read ICEBERG 2-D fields for restart
@@ -177,7 +192,7 @@ C--    Check for missing fields:
          CALL PRINT_ERROR( msgBuf, myThid )
         ENDDO
         CALL ALL_PROC_DIE( myThid )
-        STOP 'ABNORMAL END: S/R ICEBERG_READ_PICKUP'
+        STOP 'ABNORMAL END: S/R ICEBERG_READ_PICKUP 3'
        ENDIF
 
 C--    Update overlap regions:
