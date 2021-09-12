@@ -172,11 +172,13 @@ C followed the example of seaice_reg_ridge.F
 
 #endif
 
-         CALL EXCH_3D_RL( iceberg_concentration,  iCl, myThid )
 
 C---   end iCl bi,bj loops
         ENDDO !bi
        ENDDO !bj
+        CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &   myThid)
+
       ENDDO !iCl
       RETURN
       END

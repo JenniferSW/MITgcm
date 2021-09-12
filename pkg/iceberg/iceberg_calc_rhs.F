@@ -164,8 +164,10 @@ C catch values that are too small or values that are negative because of too str
        ENDDO
 
 C Update calculated fields (iceberg concentration and iceberg volume loss
-       CALL EXCH_3D_RL(iceberg_concentration, ICEBERG_numClUsed, myThid)
-       CALL EXCH_3D_RL(iceberg_Vloss, ICEBERG_numClUsed, myThid)
+        CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &   myThid)
+        CALL EXCH_XY_RL(iceberg_Vloss(1-OLx,1-OLy,1,1,iCl),
+     &   myThid)
 
 #ifdef ALLOW_FRESHWATER_INPUT
        CALL ICEBERG_CHANGE_SALINITY( iCl,

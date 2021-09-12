@@ -483,9 +483,9 @@ C Calculated at C-Point
 
           ENDDO
         ENDDO
-        CALL EXCH_UV_3D_RL(iceberg_uvel,
-     &    iceberg_vvel,
-     &    .TRUE.,ICEBERG_numClUsed,myThid)
+        CALL EXCH_UV_XY_RL(iceberg_uvel(1-OLx,1-OLy,1,1,nCl),
+     &    iceberg_vvel(1-OLx,1-OLy,1,1,nCl),
+     &    .TRUE.,myThid)
 
       RETURN
       END

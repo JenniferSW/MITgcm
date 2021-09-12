@@ -83,9 +83,10 @@ c      _BARRIER
          CALL READ_FLD_XY_RL( tmpInitialConcentration, ' ',
      &                iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
      &                0, myThid )
-
+         CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
         ENDDO
-        _EXCH_XY_RL(iceberg_concentration , myThid)
+
 
 
        ENDIF
@@ -109,9 +110,9 @@ C--   end start-from-iter-zero if/else block
         CALL READ_FLD_XY_RL( tmpCalvFile, ' ',
      &                iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl),
      &                0, myThid )
+        CALL EXCH_XY_RL(iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl), myThid)
+      ENDDO
 
-         ENDDO
-        _EXCH_XY_RL(iceberg_CalvRate , myThid)
 
 C calculate iceberg length from iceberg width
       DO iCl = 1,ICEBERG_numClUsed
