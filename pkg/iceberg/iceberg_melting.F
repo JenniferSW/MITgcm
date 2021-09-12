@@ -96,7 +96,7 @@ C     factor    :: factor for conversion of m^3 per day to m^3 per second
         DO j = 1, sNy
          DO i = 1, sNx
           IF(ICEBERG_MaskC(i,j,bi,bj) .EQ. 0. _d 0) THEN
-           iceberg_Vloss(i,j,bi,bj,iCl) = 0. _d 0
+           iceberg_Vloss(i,j,iCl,bi,bj) = 0. _d 0
 
           ELSE
 
@@ -109,14 +109,14 @@ C L_a - berg's horizontal long axis [m]
 
             norm_b = sqrt(
      &       (0.5 * ((uVel(i,j,1,bi,bj)
-     &       -iceberg_uvel(i,j,bi,bj,iCl))
+     &       -iceberg_uvel(i,j,iCl,bi,bj))
      &       + (uVel(i+1,j,1,bi,bj)
-     &       -iceberg_uvel(i+1,j,bi,bj,iCl))))**2
+     &       -iceberg_uvel(i+1,j,iCl,bi,bj))))**2
      &       +
      &       (0.5 * ((vVel(i,j,1,bi,bj)
-     &       -iceberg_vvel(i,j,bi,bj,iCl))
+     &       -iceberg_vvel(i,j,iCl,bi,bj))
      &       +(vVel(i,j+1,1,bi,bj)
-     &       -iceberg_vvel(i,j+1,bi,bj,iCl))))**2
+     &       -iceberg_vvel(i,j+1,iCl,bi,bj))))**2
      &       )
 
             Mb(i,j) = 1/factor * 0.58 *
@@ -161,7 +161,7 @@ C iceberg_Vloss = basal melting (change of height)
 C               + wave erosion (change of area)
 C               + buoyant convection (change of area)
 
-            iceberg_Vloss(i,j,bi,bj,iCl) =
+            iceberg_Vloss(i,j,iCl,bi,bj) =
      &       iceberg_length(iCl) * iceberg_width(iCl)
      &       * Mb(i,j) * iceberg_deltaT
      &       + ICEBERG_height(iCl)

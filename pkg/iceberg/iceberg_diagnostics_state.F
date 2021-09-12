@@ -52,7 +52,7 @@ C Fill diagnostics for iceberg concentration
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_FILL(
-     &                   iceberg_concentration(1-Olx,1-Oly,1,1,iCl),
+     &                   iceberg_concentration(1-Olx,1-Oly,iCl,1,1),
      &                   diagName,0,1, 0, 1, 1,
      &                   myThid )
        ENDDO
@@ -60,7 +60,7 @@ C Fill diagnostics for iceberg concentration
 C Fill diagnostics for volume loss
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBL'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_FILL( iceberg_Vloss(1-Olx,1-Oly,1,1,iCl),
+        CALL DIAGNOSTICS_FILL( iceberg_Vloss(1-Olx,1-Oly,iCl,1,1),
      &                         diagName,0,1, 0, 1, 1,
      &                         myThid )
        ENDDO
@@ -68,7 +68,7 @@ C Fill diagnostics for volume loss
 C Fill diagnostics for iceberg velocity in u-direction
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBU'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_FILL( iceberg_uvel(1-Olx,1-Oly,1,1,iCl),
+        CALL DIAGNOSTICS_FILL( iceberg_uvel(1-Olx,1-Oly,iCl,1,1),
      &                         diagName,0,1, 0, 1, 1,
      &                         myThid )
        ENDDO
@@ -76,7 +76,7 @@ C Fill diagnostics for iceberg velocity in u-direction
 C Fill diagnostics for iceberg velocity in v-direction
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)
-        CALL DIAGNOSTICS_FILL( iceberg_vvel(1-Olx,1-Oly,1,1,iCl),
+        CALL DIAGNOSTICS_FILL( iceberg_vvel(1-Olx,1-Oly,iCl,1,1),
      &                         diagName,0,1, 0, 1, 1,
      &                         myThid )
        ENDDO

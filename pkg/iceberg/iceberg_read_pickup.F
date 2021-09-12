@@ -138,7 +138,7 @@ C---    read ICEBERG 3-D fields for restart
 c#ifdef ICEBERG_3D_STATE
         DO iCl = 1,ICEBERG_numClUsed
          CALL READ_MFLDS_3D_RL( 'IBC'//ICEBERG_ClLbl(iCl),
-     C             iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     C             iceberg_concentration(1-OLx,1-OLy,iCl,1,1),
      &             nj, fp, 1, myIter, myThid )
          nj = nj +1
         ENDDO

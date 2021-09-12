@@ -110,10 +110,10 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
 
 /* TODO die Listen in eine eigene Kategorie fassen */
 
-      _RL iceberg_concentration(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
-     &     ICEBERG_numCl)
-      _RL iceberg_CalvRate(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
-     &     ICEBERG_numCl)
+      _RL iceberg_concentration(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
+     &     ICEBERG_numCl,nSx,nSy)
+      _RL iceberg_CalvRate(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
+     &     ICEBERG_numCl,nSx,nSy)
       _RL ICEBERG_width (ICEBERG_numCl)
       _RL iceberg_length (ICEBERG_numCl)
       _RL ICEBERG_height (ICEBERG_numCl)
@@ -125,12 +125,12 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
       _RL iceberg_MaskC(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MaskU(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL iceberg_MaskV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL iceberg_uvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
-     &     ICEBERG_numCl)
-      _RL iceberg_vvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
-     &     ICEBERG_numCl)
-      _RL iceberg_Vloss(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
-     &     ICEBERG_numCl)
+      _RL iceberg_uvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
+     &     ICEBERG_numCl,nSx,nSy)
+      _RL iceberg_vvel(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
+     &     ICEBERG_numCl,nSx,nSy)
+      _RL iceberg_Vloss(1-OLx:sNx+OLx,1-OLy:sNy+OLy,
+     &     ICEBERG_numCl,nSx,nSy)
 
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_concentration, iceberg_CalvRate,

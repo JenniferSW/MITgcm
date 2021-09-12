@@ -49,7 +49,7 @@ C     2-dim.
           DO j=1-Oly,sNy+OLy
            DO i=1-Olx,sNx+Olx
 
-            iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_concentration(i,j,iCl,bi,bj) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO
@@ -81,7 +81,7 @@ c      _BARRIER
          ENDIF
 
          CALL READ_FLD_XY_RL( tmpInitialConcentration, ' ',
-     &                iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &                iceberg_concentration(1-OLx,1-OLy,iCl,1,1),
      &                0, myThid )
 
         ENDDO
@@ -107,7 +107,7 @@ C--   end start-from-iter-zero if/else block
         ENDIF
 
         CALL READ_FLD_XY_RL( tmpCalvFile, ' ',
-     &                iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl),
+     &                iceberg_CalvRate(1-OLx,1-OLy,iCl,1,1),
      &                0, myThid )
 
          ENDDO
@@ -125,10 +125,10 @@ C initialize iceberg velocity and mass loss
         DO bi = myBxLo(myThid), myBxHi(myThid)
           DO j=1-Oly,sNy+OLy
            DO i=1-Olx,sNx+Olx
-            iceberg_uvel(i,j,bi,bj,iCl) = 0. _d 0
-            iceberg_vVel(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_uvel(i,j,iCl,bi,bj) = 0. _d 0
+            iceberg_vVel(i,j,iCl,bi,bj) = 0. _d 0
 
-            iceberg_Vloss(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_Vloss(i,j,iCl,bi,bj) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO

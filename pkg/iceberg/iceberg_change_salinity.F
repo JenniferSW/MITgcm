@@ -64,7 +64,7 @@ CEOP
 C Evaluate Vmelt for this grid cell
             Vmelt = 0. _d 0
 c            DO nCl = 1, ICEBERG_numClUsed
-              Vmelt = Vmelt + iceberg_Vloss(i,j,bi,bj,nCl)
+              Vmelt = Vmelt + iceberg_Vloss(i,j,nCl,bi,bj)
 c            ENDDO
             cell_volume = rA(i,j,bi,bj)*drF(k)*hFacC(i,j,k,bi,bj)
 C actual freshwater fraction

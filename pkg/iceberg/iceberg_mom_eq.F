@@ -115,8 +115,8 @@ CEOP
 
            DO j = 1-OLy, sNy+OLy
             DO i = 1-OLx, sNx+OLx
-              utemp(i,j,bi,bj) = iceberg_uvel(i,j,bi,bj,nCl)
-              vtemp(i,j,bi,bj) = iceberg_vvel(i,j,bi,bj,nCl)
+              utemp(i,j,bi,bj) = iceberg_uvel(i,j,nCl,bi,bj)
+              vtemp(i,j,bi,bj) = iceberg_vvel(i,j,nCl,bi,bj)
 
               phiSurf(i,j) = Bo_surf(i,j,bi,bj)*etaN(i,j,bi,bj) ! calculate sea surface height
 
@@ -155,17 +155,17 @@ C This is the mass of all icebergs at grid point
 !             DO i=1-OLx+1,sNx+OLx
 !               iceberg_MassC(i,j,bi,bj) =
 !    &                 ICEBERG_rhoSeaice
-!    &                 * iceberg_concentration(i,j,bi,bj,nCl)
+!    &                 * iceberg_concentration(i,j,nCl,bi,bj)
 !    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
 !    &                 * ICEBERG_height(nCl)
 !               iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
-!    &                 (iceberg_concentration(i,j,bi,bj,nCl)
-!    &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
+!    &                 (iceberg_concentration(i,j,nCl,bi,bj)
+!    &                 + iceberg_concentration(i-1,j,nCl,bi,bj))
 !    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
 !    &                 * ICEBERG_height(nCl)
 !               iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
-!    &                 (iceberg_concentration(i,j,bi,bj,nCl)
-!    &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
+!    &                 (iceberg_concentration(i,j,nCl,bi,bj)
+!    &                 + iceberg_concentration(i,j-1,nCl,bi,bj))
 !    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
 !    &                 * ICEBERG_height(nCl)
 !             ENDDO
@@ -177,17 +177,17 @@ C This is the mass of all icebergs at grid point
               DO i=-1,sNx+1
                 massC(i,j) =
      &                 ICEBERG_rhoSeaice
-     &                 * iceberg_concentration(i,j,bi,bj,nCl)
+     &                 * iceberg_concentration(i,j,nCl,bi,bj)
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
                 massU(i,j) = ICEBERG_rhoSeaice * 0.5 *
-     &                 (iceberg_concentration(i,j,bi,bj,nCl)
-     &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
+     &                 (iceberg_concentration(i,j,nCl,bi,bj)
+     &                 + iceberg_concentration(i-1,j,nCl,bi,bj))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
                 massV(i,j) = ICEBERG_rhoSeaice * 0.5 *
-     &                 (iceberg_concentration(i,j,bi,bj,nCl)
-     &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
+     &                 (iceberg_concentration(i,j,nCl,bi,bj)
+     &                 + iceberg_concentration(i,j-1,nCl,bi,bj))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
               ENDDO
@@ -456,7 +456,7 @@ C Calculated at C-Point
             DO j=0,sNy+1
              DO i=0,sNx+1
 
-                  iceberg_uvel(i,j,bi,bj,nCl) =
+                  iceberg_uvel(i,j,nCl,bi,bj) =
      &              iceberg_MaskU(i,j,bi,bj) * (
      &              (massU(i,j) * utemp(i,j,bi,bj)
      &              + urhs(i,j,bi,bj) * ICEBERG_deltaT)
@@ -467,7 +467,7 @@ C Calculated at C-Point
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
      &               )))
 
-                 iceberg_vvel(i,j,bi,bj,nCl) =
+                 iceberg_vvel(i,j,nCl,bi,bj) =
      &              iceberg_MaskV(i,j,bi,bj) * (
      &              (massV(i,j) * vtemp(i,j,bi,bj)
      &              + vrhs(i,j,bi,bj) * ICEBERG_deltaT)

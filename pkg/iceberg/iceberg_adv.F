@@ -114,8 +114,8 @@ C
 C-    Calculate "volume transports" through tracer cell faces.
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
-           uTrans(i,j) = iceberg_uvel(i,j,bi,bj,iCl)*xA(i,j,bi,bj)
-           vTrans(i,j) = iceberg_vvel(i,j,bi,bj,iCl)*yA(i,j,bi,bj)
+           uTrans(i,j) = iceberg_uvel(i,j,iCl,bi,bj)*xA(i,j,bi,bj)
+           vTrans(i,j) = iceberg_vvel(i,j,iCl,bi,bj)*yA(i,j,bi,bj)
           ENDDO
          ENDDO
 
@@ -136,19 +136,19 @@ C afx, afy - horizontal advective flux
 C- advection of concentration
          CALL ICEBERG_ADVECTION(
      I        GAD_HEFF, ICEBERGadvScheme,
-     I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
-     I        iceberg_vvel(1-OLx,1-OLy,bi,bj,iCl),
+     I        iceberg_uvel(1-OLx,1-OLy,iCl,bi,bj),
+     I        iceberg_vvel(1-OLx,1-OLy,iCl,bi,bj),
      I        uTrans, vTrans,
-     I        iceberg_concentration(1-OLx,1-OLy,bi,bj,iCl),
+     I        iceberg_concentration(1-OLx,1-OLy,iCl,bi,bj),
      I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
-              iceberg_concentration(i,j,bi,bj,iCl) =
+              iceberg_concentration(i,j,iCl,bi,bj) =
      &            maskC(i,j,1,bi,bj) * (
-     &            iceberg_concentration(i,j,bi,bj,iCl)
+     &            iceberg_concentration(i,j,iCl,bi,bj)
      &            + ICEBERG_deltaT * gFld(i,j))
           ENDDO
          ENDDO
@@ -164,9 +164,9 @@ C followed the example of seaice_reg_ridge.F
             DO i = 1, sNx
              tmpscal = 0. _d 0
              tmpscal =
-     &        MAX(-iceberg_concentration(i,j,bi,bj,iCl),0. _d 0)
-             iceberg_concentration(i,j,bi,bj,iCl) =
-     &          iceberg_concentration(i,j,bi,bj,iCl) + tmpscal
+     &        MAX(-iceberg_concentration(i,j,iCl,bi,bj),0. _d 0)
+             iceberg_concentration(i,j,iCl,bi,bj) =
+     &          iceberg_concentration(i,j,iCl,bi,bj) + tmpscal
             ENDDO
           ENDDO
 
