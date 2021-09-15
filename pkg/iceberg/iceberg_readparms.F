@@ -42,7 +42,7 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
      &       ICEBERG_AirDragform, ICEBERG_OceanDragform,
      &       ICEBERG_gravity, ICEBERG_temp,
-     &       ICEBERG_minV
+     &       ICEBERG_minV, calvRateInKgpersecond
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -65,6 +65,8 @@ C     ICEBERG_OceanDrag :: ocean drag coefficient
 C     ICEBERG_SeaiceDrag :: seaice drag coefficient
 C     ICEBERG_gravity :: gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
+C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
+C     calvRateInKgpersecond :: toggle between calvrates given in kg per second or cubic meter per second (default .TRUE.)
 
       ICEBERG_rhoAir = 1.3
       ICEBERG_rhoOcean = 1026.0
@@ -78,6 +80,7 @@ c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
       ICEBERG_gravity = 9.81
       ICEBERG_temp = -4
       ICEBERG_minV = 0.0
+      calvRateInKgpersecond = .TRUE.
 
 C-    additional parameters:
       ICEBERG_Iter0      = 0

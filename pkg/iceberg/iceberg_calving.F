@@ -65,10 +65,14 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
           DO i= 1,sNx
           addV = 0. _d 0
            IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
-
+             IF(calvRateInKgpersecond)THEN
+               addV(i,j,bi,bj) =
+     &          iceberg_CalvRate(i,j,bi,bj,nCl)/ICEBERG_rhoIceberg
+     &          * ICEBERG_deltaT
+             ELSE
              addV(i,j,bi,bj) = iceberg_CalvRate(i,j,bi,bj,nCl)
      &         * ICEBERG_deltaT
-
+             ENDIF
              iceberg_concentration(i,j,bi,bj,nCl) =
      &         iceberg_concentration(i,j,bi,bj,nCl)
      &         + addV(i,j,bi,bj)/iceberg_Vsgl(nCl)

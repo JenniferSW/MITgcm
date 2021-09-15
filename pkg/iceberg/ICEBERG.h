@@ -21,10 +21,13 @@ c     ICEBERG_SeaiceDrag  ::  sea ice drag coefficient
 c     ICEEBERG_gravity  ::  gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
 C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
+C     calvRateInKgpersecond :: toggle between calvrates given in kg per second or cubic meter per second (default .TRUE.)
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
       INTEGER ICEBERGadvScheme
+
+      LOGICAL calvRateInKgpersecond
 
       _RL ICEBERG_rhoAir
       _RL ICEBERG_rhoOcean
