@@ -53,7 +53,7 @@ C !USES: ===============================================================
 #endif
 #ifdef ALLOW_AUTODIFF_TAMC
 # include "tamc.h"
-# include "tamc_keys.h"
+C# include "tamc_keys.h"
 # ifdef ALLOW_PTRACERS
 #  include "PTRACERS_SIZE.h"
 # endif
@@ -145,6 +145,11 @@ C     msgBuf     :: Informational/error message buffer
 
       INTEGER ioUnit
       _RL tmpFac
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER act0, act1, act2, act3, act4
+      INTEGER max0, max1, max2, max3
+      INTEGER passkey, igadkey
+#endif
 
 CEOP
 
