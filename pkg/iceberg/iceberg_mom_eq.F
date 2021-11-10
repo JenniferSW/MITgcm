@@ -375,9 +375,7 @@ C term conversion as shown in Rackow (2011)
      &             + (VWIND(i,j,bi,bj)
      &             - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
      &              **2
-                IF (uVel(i-1,j,1,bi,bj) .NE. 0. _d 0) THEN
-                 PRINT*,'dbg uvel', uVel(i-1,j,1,bi,bj)
-                ENDIF
+
 
                 cwave(i,j) = 0.06 * MIN(MAX(0. _d 0,
      &           (iceberg_length(nCl)
