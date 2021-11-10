@@ -87,7 +87,7 @@ C--   Calculate iceberg velocities
 #endif
 C--   Melt iceberg concentration
 #ifdef ALLOW_ICEBERG_MELTING
-        CALL ICEBERG_MELTING(myTime,myIter,myThid)
+        CALL ICEBERG_MELTING(iCl, myTime,myIter,myThid)
 #endif
 
 #ifdef ALLOW_ICEBERG_CALVING

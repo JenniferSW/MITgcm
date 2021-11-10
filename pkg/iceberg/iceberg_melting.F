@@ -8,7 +8,7 @@ CBOP
 C !ROUTINE: ICEBERG_ADVDIFF
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_MELTING(
+      SUBROUTINE ICEBERG_MELTING( nCl,
      I                  myTime, myIter, myThid)
 
 C !DESCRIPTION: \bv
@@ -70,7 +70,7 @@ C     Mv        :: buoyant convection
 C     norm_b    :: norm for basal melting |v_w - v_i|
 C     norm_aw   :: norm for wave erosion |u_a-u_o|
 C     factor    :: factor for conversion of m^3 per day to m^3 per second
-      INTEGER i, j, bi, bj, iCl
+      INTEGER i, j, bi, bj, nCl
       _RL factor
       _RL S
       _RL norm_b, norm_aw
@@ -79,7 +79,6 @@ C     factor    :: factor for conversion of m^3 per day to m^3 per second
       _RL Me(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
 
       factor = 86400. _d 0
-      DO iCl = 1, ICEBERG_numClUsed
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
 
@@ -96,7 +95,7 @@ C     factor    :: factor for conversion of m^3 per day to m^3 per second
         DO j = 1, sNy
          DO i = 1, sNx
           IF(ICEBERG_MaskC(i,j,bi,bj) .EQ. 0. _d 0) THEN
-           iceberg_Vloss(i,j,bi,bj,iCl) = 0. _d 0
+           iceberg_Vloss(i,j,bi,bj,nCl) = 0. _d 0
 
           ELSE
 
@@ -109,20 +108,20 @@ C L_a - berg's horizontal long axis [m]
 
             norm_b = sqrt(
      &       (0.5 * ((uVel(i,j,1,bi,bj)
-     &       -iceberg_uvel(i,j,bi,bj,iCl))
+     &       -iceberg_uvel(i,j,bi,bj,nCl))
      &       + (uVel(i+1,j,1,bi,bj)
-     &       -iceberg_uvel(i+1,j,bi,bj,iCl))))**2
+     &       -iceberg_uvel(i+1,j,bi,bj,nCl))))**2
      &       +
      &       (0.5 * ((vVel(i,j,1,bi,bj)
-     &       -iceberg_vvel(i,j,bi,bj,iCl))
+     &       -iceberg_vvel(i,j,bi,bj,nCl))
      &       +(vVel(i,j+1,1,bi,bj)
-     &       -iceberg_vvel(i,j+1,bi,bj,iCl))))**2
+     &       -iceberg_vvel(i,j+1,bi,bj,nCl))))**2
      &       )
 
             Mb(i,j) = 1/factor * 0.58 *
      &       norm_b**0.8
      &       * (SST(i,j,bi,bj) - ICEBERG_temp)
-     &       /iceberg_length(iCl) **0.2
+     &       /iceberg_length(nCl) **0.2
 
 
 
@@ -161,11 +160,11 @@ C iceberg_Vloss = basal melting (change of height)
 C               + wave erosion (change of area)
 C               + buoyant convection (change of area)
 
-            iceberg_Vloss(i,j,bi,bj,iCl) =
-     &       iceberg_length(iCl) * iceberg_width(iCl)
+            iceberg_Vloss(i,j,bi,bj,nCl) =
+     &       iceberg_length(nCl) * iceberg_width(nCl)
      &       * Mb(i,j) * iceberg_deltaT
-     &       + ICEBERG_height(iCl)
-     &       * (iceberg_length(iCl)+iceberg_width(iCl))
+     &       + ICEBERG_height(nCl)
+     &       * (iceberg_length(nCl)+iceberg_width(nCl))
      &       * (Me(i,j) + Mv(i,j)) * iceberg_deltaT
 
 
@@ -174,6 +173,5 @@ C               + buoyant convection (change of area)
          ENDDO ! end j loop
         ENDDO ! end bi loop
        ENDDO ! end bj loop
-      ENDDO
       RETURN
       END
