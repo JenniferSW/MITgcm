@@ -84,6 +84,7 @@ c if iceberg reservoir contains more than a full iceberg, then release it
      &            iceberg_concentration(i,j,bi,bj,nCl) + calved_iceberg
                 iceberg_Reservoir(i,j,bi,bj,nCl) =
      &            iceberg_Reservoir(i,j,bi,bj,nCl) - calved_iceberg
+            ENDIF
 
            ENDIF
           ENDDO
