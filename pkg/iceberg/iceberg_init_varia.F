@@ -50,6 +50,7 @@ C     2-dim.
            DO i=1-Olx,sNx+Olx
 
             iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_Reservoir(i,j,bi,bj,iCl) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO
