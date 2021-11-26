@@ -61,7 +61,7 @@ C     ICEBERG_CalvFile            :: File with calving rates for each size class
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_initConcentration(ICEBERG_numCl)
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_CalvFile(ICEBERG_numCl)
 
-c      COMMON /ICEBERG_PARAMS_L/
+c      COMMON /ICEBERG_PARAMS_L/ calvRateInKgpersecond
 
 C Common Block for integer parameters
 

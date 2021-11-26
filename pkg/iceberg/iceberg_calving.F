@@ -57,7 +57,8 @@ C     u_temp
 
 
 CEOP
-
+      calvRateInKgpersecond = .TRUE.
+C TODO fix if statement: calRateInkgpersecond wird bei einigen Kernen vor der declaration aufgerufen
 C ICEBERG_calvrate :: field with calving rates at calving spots matching the calving mask
 
        DO bj=myByLo(myThid),myByHi(myThid)
@@ -66,7 +67,7 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
           DO i= 1,sNx
           addV = 0. _d 0
            IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
-             IF(calvRateInKgpersecond)THEN ! calving rate in kg/s
+             IF(calvRateInKgpersecond .EQV. .TRUE.)THEN ! calving rate in kg/s
                addV(i,j,bi,bj) =
      &          iceberg_CalvRate(i,j,bi,bj,nCl)/ICEBERG_rhoIceberg
      &          * ICEBERG_deltaT
@@ -80,6 +81,9 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
 c if iceberg reservoir contains more than a full iceberg, then release it
             IF (iceberg_Reservoir(i,j,bi,bj,nCl) .GT. 1. _d 0) THEN
                 calved_iceberg = AINT(iceberg_Reservoir(i,j,bi,bj,nCl))
+            PRINT*, 'dbg calving',iceberg_concentration(i,j,bi,bj,nCl),
+     &       calved_iceberg,iceberg_Reservoir(i,j,bi,bj,nCl),
+     &       iceberg_Reservoir(i,j,bi,bj,nCl) - calved_iceberg
                 iceberg_concentration(i,j,bi,bj,nCl) =
      &            iceberg_concentration(i,j,bi,bj,nCl) + calved_iceberg
                 iceberg_Reservoir(i,j,bi,bj,nCl) =
