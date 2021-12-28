@@ -105,11 +105,16 @@ C     u_temp
       _RL massC(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL massU(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL massV(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL ibmaskU
+      _RL ibmaskV
+      _RL ibmaskC
 
 CEOP
 
 
-
+        ibmaskC = 0. _d 0
+        ibmaskU = 0. _d 0
+        ibmaskV = 0. _d 0
         DO bj=myByLo(myThid),myByHi(myThid)
           DO bi=myBxLo(myThid),myBxHi(myThid)
 
@@ -173,23 +178,25 @@ C This is the mass of all icebergs at grid point
 !           _EXCH_XY_RL( iceberg_MassC, mythid )
 !           _EXCH_XY_RL( iceberg_MassU, mythid )
 !           _EXCH_XY_RL( iceberg_MassV, mythid )
+C TODO replace Iceberg_rhoSeaice with rhoIceberg
             DO j=-1,sNy+1
               DO i=-1,sNx+1
                 massC(i,j) =
      &                 ICEBERG_rhoSeaice
-     &                 * iceberg_concentration(i,j,bi,bj,nCl)
+!    &                 * iceberg_concentration(i,j,bi,bj,nCl)
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                massU(i,j) = ICEBERG_rhoSeaice * 0.5 *
-     &                 (iceberg_concentration(i,j,bi,bj,nCl)
-     &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
+                massU(i,j) = ICEBERG_rhoSeaice
+!    &                 * 0.5 *(iceberg_concentration(i,j,bi,bj,nCl)
+!    &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                massV(i,j) = ICEBERG_rhoSeaice * 0.5 *
-     &                 (iceberg_concentration(i,j,bi,bj,nCl)
-     &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
+                massV(i,j) = ICEBERG_rhoSeaice
+!    &                 * 0.5 *(iceberg_concentration(i,j,bi,bj,nCl)
+!    &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
+
               ENDDO
             ENDDO
 
@@ -228,13 +235,20 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
 #ifdef ALLOW_ICEBERG_OCEAN_DRAG
             DO j=-1,sNy+1
               DO i=-1,sNx+1
+               ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
+               IF ( ibmaskC .GT. 0. _d 0 ) THEN
+                ibmaskC = 1. _d 0
+               ELSE
+                ibmaskC = 0. _d 0
+               ENDIF
+               PRINT*,'dbg ibmaskC',ibmaskC
+
                duw = 0.5 _d 0 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
                dvw = 0.5 _d 0 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
      &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
-
 c Calculate Norm on C-Point with constants for ocean stress
-                IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
+                IF (ibmaskC .EQ. 0. _d 0 ) THEN
                   CDw(i,j) = 0. _d 0
                 ELSE
                  form_w = 0.5 _d 0 * ICEBERG_OceanDragform
@@ -275,7 +289,14 @@ c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
               DO i=-1,sNx+1
 
 C Calculate Norm on C-Point with constant values for wind stress
-                IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
+                ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
+                IF ( ibmaskC .GT. 0. _d 0 ) THEN
+                 ibmaskC = 1. _d 0
+                ELSE
+                 ibmaskC = 0. _d 0
+                ENDIF
+                PRINT*,'dbg ibmaskC',ibmaskC
+                IF (ibmaskC .EQ. 0. _d 0 ) THEN
                   CDa(i,j) = 0. _d 0
                 ELSE
                   form_a = 0.5 * ICEBERG_AirDragform
@@ -386,9 +407,16 @@ C term conversion as shown in Rackow (2011)
 
            DO j=0,sNy+1
               DO i=0,sNx+1
+                ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
+                IF ( ibmaskC .GT. 0. _d 0 ) THEN
+                 ibmaskC = 1. _d 0
+                ELSE
+                 ibmaskC = 0. _d 0
+                ENDIF
+                PRINT*,'dbg ibmaskC',ibmaskC
                 norm_a = sqrt(UWIND(i,j,bi,bj)**2
      &                      +VWIND(i,j,bi,bj)**2)
-               IF (iceberg_MaskC(i,j,bi,bj) .EQ. 0. _d 0 ) THEN
+               IF (ibmaskC .EQ. 0. _d 0 ) THEN
                 Cdr(i,j) = 0. _d 0
                ELSE
                 Cdr(i,j) = cdr_const * cwave(i,j)
@@ -453,12 +481,33 @@ c   v_i[n+1] = v_i[n] + dv_i * dt
 C Calculated at C-Point
             DO j=0,sNy+1
              DO i=0,sNx+1
+C TODO insert u and V
+                  ibmaskU = iceberg_concentration(i,j,bi,bj,nCl)
+     &         + iceberg_concentration(i-1,j,bi,bj,nCl)
+            IF ( ibmaskU .GT. 0. _d 0 ) THEN
+             ibmaskU = 1. _d 0
+            ELSE
+             ibmaskU = 0. _d 0
+            ENDIF
+            PRINT*,'dbg ibmaskU',ibmaskU
+
+
+            ibmaskV = iceberg_concentration(i,j,bi,bj,nCl)
+     &         + iceberg_concentration(i,j-1,bi,bj,nCl)
+            IF ( ibmaskV .GT. 0. _d 0) THEN
+             ibmaskV = 1. _d 0
+            ELSE
+             ibmaskV = 0. _d 0
+            ENDIF
+            PRINT*,'dbg ibmaskV',ibmaskV
+
+
 
                   iceberg_uvel(i,j,bi,bj,nCl) =
-     &              iceberg_MaskU(i,j,bi,bj) * (
+     &              ibmaskU * (
      &              (massU(i,j) * utemp(i,j,bi,bj)
      &              + urhs(i,j,bi,bj) * ICEBERG_deltaT)
-     &              / (1. - iceberg_MaskU(i,j,bi,bj)
+     &              / (1. - ibmaskU
      &              + massU(i,j)
      &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
@@ -466,15 +515,32 @@ C Calculated at C-Point
      &               )))
 
                  iceberg_vvel(i,j,bi,bj,nCl) =
-     &              iceberg_MaskV(i,j,bi,bj) * (
+     &              ibmaskV * (
      &              (massV(i,j) * vtemp(i,j,bi,bj)
      &              + vrhs(i,j,bi,bj) * ICEBERG_deltaT)
-     &              / (1. - iceberg_MaskV(i,j,bi,bj)
+     &              / (1. - ibmaskV
      &              + massV(i,j)
      &              + ICEBERG_deltaT * (
      &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               )))
+               IF(ISNAN(iceberg_vvel(i,j,bi,bj,nCl)))THEN
+                 PRINT*,'dbg nan in vvel', myIter,
+     &            ibmaskV,
+     &            massV(i,j),vtemp(i,j,bi,bj),
+     &            vrhs(i,j,bi,bj),ICEBERG_deltaT,
+     &           ICEBERG_deltaT,CDw(i,j),CDw(i,j-1),CDs(i,j),CDs(i,j-1)
+                 STOP 'Nan found in vvel'
+               ENDIF
+               IF(ISNAN(iceberg_uvel(i,j,bi,bj,nCl)))THEN
+             PRINT*,'dbg nan in uvel', myIter,
+     &        ibmaskU,massU(i,j),utemp(i,j,bi,bj),
+     &        urhs(i,j,bi,bj),ICEBERG_deltaT,
+     &        ICEBERG_deltaT,CDw(i,j),CDw(i-1,j),
+     &        CDs(i,j), CDs(i-1,j)
+
+             STOP 'Nan found in uvel'
+             ENDIF
 
                ENDDO
              ENDDO
