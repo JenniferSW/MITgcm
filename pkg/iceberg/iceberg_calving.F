@@ -65,7 +65,8 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1 ,sNy
           DO i= 1,sNx
-          addV = 0. _d 0
+          addV(i,j,bi,bj) = 0. _d 0
+          calved_iceberg = 0. _d 0
            IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
              IF(calvRateInKgpersecond .EQV. .TRUE.)THEN ! calving rate in kg/s
                addV(i,j,bi,bj) =
@@ -81,7 +82,8 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
 c if iceberg reservoir contains more than a full iceberg, then release it
             IF (iceberg_Reservoir(i,j,bi,bj,nCl) .GT. 1. _d 0) THEN
                 calved_iceberg = AINT(iceberg_Reservoir(i,j,bi,bj,nCl))
-            PRINT*, 'dbg calving',iceberg_concentration(i,j,bi,bj,nCl),
+            PRINT*, 'dbg calving before',
+     &       iceberg_concentration(i,j,bi,bj,nCl),
      &       calved_iceberg,iceberg_Reservoir(i,j,bi,bj,nCl),
      &       iceberg_Reservoir(i,j,bi,bj,nCl) - calved_iceberg
                 iceberg_concentration(i,j,bi,bj,nCl) =
