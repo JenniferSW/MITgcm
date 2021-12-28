@@ -142,7 +142,7 @@ C     msgBuf     :: Informational/error message buffer
 #ifdef ALLOW_DIAGNOSTICS
       CHARACTER*8 diagName
 #endif
-
+      LOGICAL dBug
       INTEGER ioUnit
       _RL tmpFac
 #ifdef ALLOW_AUTODIFF_TAMC
@@ -191,6 +191,10 @@ C Wenn die tracerNummer groeßer ist als die maximale Anzahl an Dingen, die uebe
           endif
 #endif /* ALLOW_AUTODIFF_TAMC */
 
+
+      ioUnit = standardMessageUnit
+      dBug = debugLevel.GE.debLevC
+     &     .AND. myIter.EQ.nIter0
 
 C--   Set up work arrays with valid (i.e. not NaN) values
 C     These inital values do not alter the numerical results. They
@@ -311,7 +315,13 @@ C-     Initialise Advective flux in X & Y
        ENDDO
 #endif
 
-
+cph-exch2#ifndef ALLOW_AUTODIFF_TAMC
+      IF (useCubedSphereExchange) THEN
+       withSigns = .FALSE.
+       CALL FILL_CS_CORNER_UV_RS(
+     &      withSigns, maskLocW,maskLocS, bi,bj, myThid )
+      ENDIF
+cph-exch2#endif
 
 C--   Multiple passes for different directions on different tiles
 C--   For cube need one pass for each of red, green and blue axes.
@@ -353,6 +363,8 @@ C--   not CubedSphere
         calc_fluxes_X = MOD(ipass,2).EQ.1
         calc_fluxes_Y = .NOT.calc_fluxes_X
        ENDIF
+       IF (dBug.AND.bi.EQ.3 ) WRITE(ioUnit,*)'ICE_adv:',tracerIdentity,
+     &   ipass,calc_fluxes_X,calc_fluxes_Y,overlapOnly,interiorOnly
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
 C--   X direction
@@ -410,9 +422,13 @@ C Upwind 1st order (1) or 2nd order DST (Lax-Wendroff) (2)
           CALL GAD_DST2U1_ADV_X( bi,bj,k, advectionScheme, .TRUE.,
      I         ICEBERG_deltaT, uTrans, uFld, localTij,
      O         af, myThid )
-
-C flux limiter
-         ELSEIF (advectionScheme.EQ.ENUM_FLUX_LIMIT) THEN
+          IF ( dBug .AND. bi.EQ.3 ) THEN
+            i=MIN(12,sNx)
+            j=MIN(11,sNy)
+            WRITE(ioUnit,'(A,1P4E14.6)') 'ICE_adv: xFx=', af(i+1,j),
+     &        localTij(i,j), uTrans(i+1,j), af(i+1,j)/uTrans(i+1,j)
+          ENDIF
+         ELSEIF ( advectionScheme.EQ.ENUM_FLUX_LIMIT ) THEN
           CALL GAD_FLUXLIMIT_ADV_X( bi,bj,k, .TRUE.,
      I         ICEBERG_deltaT, uTrans, uFld, maskLocW, localTij,
      O         af, myThid )
@@ -633,10 +649,10 @@ C if cube sphere and overlap only or it is the first tile
 cph-exch2#endif
 
 #ifdef ALLOW_AUTODIFF_TAMC
-#ifndef DISABLE_MULTIDIM_ADVECTION
+# ifndef DISABLE_MULTIDIM_ADVECTION
 CADJ STORE localTij(:,:)  =
 CADJ &     comlev1_bibj_k_gadice_pass, key=passkey, byte=isbyte
-#endif
+# endif
 #endif /* ALLOW_AUTODIFF_TAMC */
 
          IF ( advectionScheme.EQ.ENUM_UPWIND_1RST
@@ -644,8 +660,13 @@ CADJ &     comlev1_bibj_k_gadice_pass, key=passkey, byte=isbyte
           CALL GAD_DST2U1_ADV_Y( bi,bj,k, advectionScheme, .TRUE.,
      I         ICEBERG_deltaT, vTrans, vFld, localTij,
      O         af, myThid )
-
-         ELSEIF (advectionScheme.EQ.ENUM_FLUX_LIMIT) THEN
+          IF ( dBug .AND. bi.EQ.3 ) THEN
+            i=MIN(12,sNx)
+            j=MIN(11,sNy)
+            WRITE(ioUnit,'(A,1P4E14.6)') 'ICE_adv: yFx=', af(i,j+1),
+     &        localTij(i,j), vTrans(i,j+1), af(i,j+1)/vTrans(i,j+1)
+          ENDIF
+         ELSEIF ( advectionScheme.EQ.ENUM_FLUX_LIMIT ) THEN
           CALL GAD_FLUXLIMIT_ADV_Y( bi,bj,k, .TRUE.,
      I         ICEBERG_deltaT, vTrans, vFld, maskLocS, localTij,
      O         af, myThid )
@@ -822,17 +843,25 @@ C-    explicit advection is done ; store tendency in gFld:
         gFld(i,j)=(localTij(i,j)-iceFld(i,j))/ICEBERG_deltaT
        ENDDO
       ENDDO
+      IF ( dBug .AND. bi.EQ.3 ) THEN
+       i=MIN(12,sNx)
+       j=MIN(11,sNy)
+       tmpFac= ICEBERG_deltaT*recip_rA(i,j,bi,bj)
+       WRITE(ioUnit,'(A,1P4E14.6)') 'ICE_adv:',
+     &      afx(i,j)*tmpFac,afx(i+1,j)*tmpFac,
+     &      afy(i,j)*tmpFac,afy(i,j+1)*tmpFac
+      ENDIF
 
 
-
-c#ifdef ALLOW_DIAGNOSTICS
-c        IF ( useDiagnostics ) THEN
-c         diagName = ICEBERG_ClLbl(tracerIdentity)
-c         CALL DIAGNOSTICS_FILL(afx,diagName, k,1, 2,bi,bj, myThid)
-c         diagName = 'ADVy'//diagSufx
-c         CALL DIAGNOSTICS_FILL(afy,diagName, k,1, 2,bi,bj, myThid)
-c        ENDIF
-c#endif
+#ifdef ALLOW_DEBUG
+      IF ( debugLevel .GE. debLevC
+     &     .AND. k.LE.3 .AND. myIter.EQ.1+nIter0
+     &     .AND. nPx.EQ.1 .AND. nPy.EQ.1
+     &     .AND. useCubedSphereExchange ) THEN
+       CALL DEBUG_CS_CORNER_UV( ' afx,afy from SEAICE_ADVECTION',
+     &      afx,afy, k, standardMessageUnit,bi,bj,myThid )
+      ENDIF
+#endif /* ALLOW_DEBUG */
 
 #endif /* ALLOW_GENERIC_ADVDIFF */
       RETURN
