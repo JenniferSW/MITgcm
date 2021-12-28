@@ -18,6 +18,8 @@ C     | SUBROUTINE ICEBERG_CHANGE_SALINITY
 C     | o in this routine the salinity is changed due to meltwater input
 C     |
 C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 C
 C !USES: ===============================================================
       IMPLICIT NONE

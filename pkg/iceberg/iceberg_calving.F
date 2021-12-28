@@ -18,6 +18,8 @@ C     | SUBROUTINE ICEBERG_CALVING
 C     | o in this routine the calving of icebergs is done
 C     |   The calving sites are given by an input file as well as the rates
 C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 C
 
 

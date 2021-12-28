@@ -9,6 +9,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION:
 C     Reads current state of ICEBERG from a pickup file
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C     !USES:
       IMPLICIT NONE

@@ -9,6 +9,9 @@ C !INTERFACE:
 
 C     !DESCRIPTION:
 C     Initialize ICEBERG variables and constants.
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C     !USES:
       IMPLICIT NONE

@@ -39,6 +39,11 @@ C \item{$G_\theta = ( \theta^{(n+2/2)} - \theta^{(n)} )/\Delta t$}
 C \end{itemize}
 C
 C The tendency (output) is over-written by this routine.
+C     *===========================================================*
+C     | Routine taken from seaice package and adabpted
+C     | by Jennifer S. Wesselbaum for usage in iceberg package
+C     *===========================================================*
+
 
 C !USES: ===============================================================
       IMPLICIT NONE

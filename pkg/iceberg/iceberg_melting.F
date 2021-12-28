@@ -16,6 +16,8 @@ C     *===========================================================*
 C     | SUBROUTINE ICEBERG_MELTING
 C     | o calculate mass loss from melting terms on C-point
 C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 C
 c   *------------
 c   Melting consists of

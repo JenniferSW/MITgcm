@@ -19,6 +19,8 @@ C     |   advection routines of pkg/generic_advdiff
 C     | o the advection runs for every iceberg class separately in a loop
 C     | this routine is based on the advection of seaice in the pkg seaice
 C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 C \ev
 
 C !USES: ===============================================================

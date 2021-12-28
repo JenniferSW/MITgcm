@@ -21,6 +21,8 @@ C     | 1) calculate parts of momentum equation
 C     | 2) Sum parts of Momentum equation
 C     | 3) use Euler forward method to calculate iceberg velocity in next time step
 C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 C
 c   *------------
 c   Momentum Equation consists of
