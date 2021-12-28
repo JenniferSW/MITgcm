@@ -9,6 +9,9 @@ C !INTERFACE: ==========================================================
 
 C !DESCRIPTION:
 C     Writes current state of passive tracers to a pickup file
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C !USES: ===============================================================
       IMPLICIT NONE

@@ -6,8 +6,14 @@ C !ROUTINE: ICEBERG_CALC_RHS
 C !INTERFACE: ==========================================================
       SUBROUTINE ICEBERG_CALC_RHS( myTime, myIter, myThid )
 
-C !DESCRIPTION:
-C Calculate custom tendency terms outside k-loop in DO_OCEANIC_PHYS
+C !DESCRIPTION: \bv
+C     *===========================================================*
+C     | SUBROUTINE ICEBERG_CALC_RHS
+C     | Calculate custom tendency terms outside k-loop in DO_OCEANIC_PHYS
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
+C \ev
 
 C !USES: ===============================================================
       IMPLICIT NONE

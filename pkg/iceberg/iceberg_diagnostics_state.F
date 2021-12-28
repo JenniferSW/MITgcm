@@ -10,6 +10,9 @@ C !INTERFACE:
 
 C     !DESCRIPTION:
 C     Fill-in diagnostics array for ICEBERG state variables
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C     !USES:
       IMPLICIT NONE
