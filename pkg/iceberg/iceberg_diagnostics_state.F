@@ -25,6 +25,8 @@ C  code dir but pkg/iceberg is not compiled (missing file ICEBERG.h).
 #ifdef ALLOW_ICEBERG
 #include "ICEBERG.h"
 #endif
+#include "GRID.h"
+
 
 
 C     !INPUT PARAMETERS:
@@ -32,6 +34,7 @@ C     myTime   :: Current time of simulation ( s )
 C     myIter   :: Current iteration number in simulation
 C     myThid   :: my Thread Id number
       _RL     myTime
+      _RL     ib_conc_save(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       INTEGER myIter, myThid
 
       CHARACTER*(8) diagName
@@ -42,7 +45,7 @@ CEOP
 C     !LOCAL VARIABLES:
 c     iCl  ::  loop parameter for size classes
 
-      INTEGER iCl
+      INTEGER iCl, bi,bj,i,j
 
 
 #ifdef ALLOW_DIAGNOSTICS
@@ -54,8 +57,28 @@ c     Loop over iceberg size classes and write them to diagnostics
 C Fill diagnostics for iceberg concentration
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
+        DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO j=1-Oly,sNy+OLy
+            DO i=1-Olx,sNx+Olx
+C change iceberg number to icebergs per grid area
+
+             ib_conc_save(i,j,bi,bj)=
+     &          iceberg_concentration(i,j,bi,bj,iCl)
+     &          * recip_rA(1,1,1,1) * rA(i,j,bi,bj)
+            IF(iceberg_concentration(i,j,bi,bj,iCl).GT. 0. _d 0)THEN
+            PRINT*,'dbg conc write',
+     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+            ENDIF
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+       CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
         CALL DIAGNOSTICS_FILL(
-     &                   iceberg_concentration(1-Olx,1-Oly,1,1,iCl),
+C     &                   iceberg_concentration(1-Olx,1-Oly,1,1,iCl),
+     &                   ib_conc_save(1-Olx,1-Oly,1,1),
      &                   diagName,0,1, 0, 1, 1,
      &                   myThid )
        ENDDO

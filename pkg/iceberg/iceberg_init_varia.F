@@ -89,6 +89,25 @@ c      _BARRIER
      &                0, myThid )
          CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
      &    myThid)
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO j=1-Oly,sNy+OLy
+            DO i=1-Olx,sNx+Olx
+C change iceberg number to icebergs per grid area
+            PRINT*,'dbg conc read init',
+     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+
+             iceberg_concentration(i,j,bi,bj,iCl)=
+     &          iceberg_concentration(i,j,bi,bj,iCl) / rA(i,j,bi,bj)
+            PRINT*,'dbg conc save init',
+     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+       CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
         ENDDO
 
 
@@ -99,6 +118,31 @@ c      _BARRIER
 C--   restart from a pickup:
          CALL ICEBERG_READ_PICKUP( nIter0, myThid )
 C--   end start-from-iter-zero if/else block
+        DO iCl = 1, ICEBERG_numClUsed
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO j=1-Oly,sNy+OLy
+            DO i=1-Olx,sNx+Olx
+C change iceberg number to icebergs per grid area
+            IF(iceberg_concentration(i,j,bi,bj,iCl).GT. 0. _d 0)THEN
+            PRINT*,'dbg conc read pickup',
+     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+            ENDIF
+             iceberg_concentration(i,j,bi,bj,iCl)=
+     &          iceberg_concentration(i,j,bi,bj,iCl)
+     &            * rA(1,1,1,1) *recip_rA(i,j,bi,bj)
+            ENDDO
+           ENDDO
+          ENDDO
+         ENDDO
+        ENDDO
+            IF(iceberg_concentration(i,j,bi,bj,iCl).GT. 0. _d 0)THEN
+            PRINT*,'dbg conc save pickup',
+     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+            ENDIF
+       CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
+
       ENDIF
 
       DO iCl = 1, ICEBERG_numClUsed
