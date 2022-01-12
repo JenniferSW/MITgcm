@@ -117,6 +117,8 @@ C calculate new iceberg volume in grid cell after melting
           DO i=1-OLx+1,sNx+OLx
 
 #ifdef ALLOW_ICEBERG_MELTING
+            PRINT*,'dbg melting class transition'
+
             IF(iCl .EQ. 1 .AND. ICEBERG_numClUsed .GT. 1) THEN
             ! there is no transition from the smallest size class
             ! from the smallest size class the iceberg go to a non iceberg status
@@ -159,7 +161,12 @@ C catch values that are too small or values that are negative because of too str
 #endif
 
 #ifdef ALLOW_FIXING
-            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -5) THEN
+            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.0. _d 0) THEN
+C REMOVE debugging output when not needed anymore
+                IF (iceberg_concentration(i,j,bi,bj,iCl).GT.0. _d 0) THEN
+                PRINT*,'dbg fixing low ',
+     &              iceberg_concentration(i,j,bi,bj,iCl)
+                ENDIF
              iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
             ENDIF
 #endif
