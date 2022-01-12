@@ -243,7 +243,6 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
                ELSE
                 ibmaskC = 0. _d 0
                ENDIF
-               PRINT*,'dbg ibmaskC',ibmaskC
 
                duw = 0.5 _d 0 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
      &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
@@ -297,7 +296,6 @@ C Calculate Norm on C-Point with constant values for wind stress
                 ELSE
                  ibmaskC = 0. _d 0
                 ENDIF
-                PRINT*,'dbg ibmaskC',ibmaskC
                 IF (ibmaskC .EQ. 0. _d 0 ) THEN
                   CDa(i,j) = 0. _d 0
                 ELSE
@@ -415,7 +413,6 @@ C term conversion as shown in Rackow (2011)
                 ELSE
                  ibmaskC = 0. _d 0
                 ENDIF
-                PRINT*,'dbg ibmaskC',ibmaskC
                 norm_a = sqrt(UWIND(i,j,bi,bj)**2
      &                      +VWIND(i,j,bi,bj)**2)
                IF (ibmaskC .EQ. 0. _d 0 ) THEN
@@ -491,7 +488,6 @@ C TODO insert u and V
             ELSE
              ibmaskU = 0. _d 0
             ENDIF
-            PRINT*,'dbg ibmaskU',ibmaskU
 
 
             ibmaskV = iceberg_concentration(i,j,bi,bj,nCl)
@@ -501,7 +497,6 @@ C TODO insert u and V
             ELSE
              ibmaskV = 0. _d 0
             ENDIF
-            PRINT*,'dbg ibmaskV',ibmaskV
 
 
 

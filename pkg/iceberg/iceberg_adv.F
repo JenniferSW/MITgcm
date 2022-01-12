@@ -167,6 +167,10 @@ C followed the example of seaice_reg_ridge.F
              tmpscal = 0. _d 0
              tmpscal =
      &        MAX(-iceberg_concentration(i,j,bi,bj,nCl),0. _d 0)
+C REMOVE debugging output when not needed anymore
+             IF (tmpscal .NE. 0. _d 0) THEN
+                PRINT*,'dbg fixing neg ',tmpscal
+             ENDIF
              iceberg_concentration(i,j,bi,bj,nCl) =
      &          iceberg_concentration(i,j,bi,bj,nCl) + tmpscal
             ENDDO
