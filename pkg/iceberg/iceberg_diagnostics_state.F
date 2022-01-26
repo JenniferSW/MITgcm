@@ -57,28 +57,10 @@ c     Loop over iceberg size classes and write them to diagnostics
 C Fill diagnostics for iceberg concentration
        DO iCl = 1, ICEBERG_numClUsed
         WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
-        DO bj = myByLo(myThid), myByHi(myThid)
-          DO bi = myBxLo(myThid), myBxHi(myThid)
-           DO j=1-Oly,sNy+OLy
-            DO i=1-Olx,sNx+Olx
-C change iceberg number to icebergs per grid area
-
-             ib_conc_save(i,j,bi,bj)=
-     &          iceberg_concentration(i,j,bi,bj,iCl)
-     &          * recip_rA(1,1,1,1) * rA(i,j,bi,bj)
-            IF(iceberg_concentration(i,j,bi,bj,iCl).GT. 0. _d 0)THEN
-            PRINT*,'dbg conc write',
-     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
-            ENDIF
-           ENDDO
-          ENDDO
-         ENDDO
-        ENDDO
        CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
      &    myThid)
         CALL DIAGNOSTICS_FILL(
-C     &                   iceberg_concentration(1-Olx,1-Oly,1,1,iCl),
-     &                   ib_conc_save(1-Olx,1-Oly,1,1),
+     &                   iceberg_concentration(1-Olx,1-Oly,1,1,iCl),
      &                   diagName,0,1, 0, 1, 1,
      &                   myThid )
        ENDDO
