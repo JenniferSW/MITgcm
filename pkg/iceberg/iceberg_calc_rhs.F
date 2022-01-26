@@ -50,7 +50,7 @@ C--   Masking of iceberg - Mask cells with icebergs (1) and without (0)
          DO bi=myBxLo(myThid),myBxHi(myThid)
           DO j=1-OLy+1,sNy+OLy
            DO i=1-OLx+1,sNx+OLx
-
+C REMOVE calculation of iceberg_MaskX and the left usages of the global masks
             iceberg_MaskU(i,j,bi,bj) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
      &         + iceberg_concentration(i-1,j,bi,bj,iCl)
