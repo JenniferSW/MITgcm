@@ -125,10 +125,12 @@ C calculate new iceberg volume in grid cell after melting
             ! This is only happening when there are minimum two size classes
             iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
-     &         - iceberg_Vloss(i,j,bi,bj,iCl)
-     &         /(iceberg_Vsgl(iCl)-ICEBERG_minV) !dann ist kein Eisberg mehr da
-     &         + iceberg_Vloss(i,j,bi,bj,iCl+1)
-     &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl))
+!    &         - MIN(iceberg_Vloss(i,j,bi,bj,iCl)
+!    &         /(iceberg_Vsgl(iCl)-ICEBERG_minV),
+!    &          iceberg_concentration(i,j,bi,bj,iCl))!dann ist kein Eisberg mehr da
+     &         + MIN(iceberg_Vloss(i,j,bi,bj,iCl+1)
+     &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl)),
+     &          iceberg_concentration(i,j,bi,bj,iCl+1))
 
             ELSE IF(iCl .EQ. ICEBERG_numClUsed
      &        .AND. ICEBERG_numClUsed .GT. 1) THEN
@@ -137,25 +139,29 @@ C calculate new iceberg volume in grid cell after melting
             ! This is only happening when there are minimum two size classes
                iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
-     &         - iceberg_Vloss(i,j,bi,bj,iCl)
-     &         /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1))
+     &         - MIN(iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1)),
+     &          iceberg_concentration(i,j,bi,bj,iCl))
             ELSE IF(ICEBERG_numClUsed .GT. 2) THEN
             ! Icebergs go to the next lower size class and icebergs are added
             ! from next higher size class
             ! only works if there are more than two size classes
              iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
-     &         - iceberg_Vloss(i,j,bi,bj,iCl)
-     &         /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1))
-     &         + iceberg_Vloss(i,j,bi,bj,iCl+1)
-     &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl))
+     &         - MIN(iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-iceberg_Vsgl(iCl-1)),
+     &          iceberg_concentration(i,j,bi,bj,iCl))
+     &         + MIN(iceberg_Vloss(i,j,bi,bj,iCl+1)
+     &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl)),
+     &          iceberg_concentration(i,j,bi,bj,iCl+1))
             ELSE !ICEBERG_numClUsed is 1
             ! if there is only one size class there are no transitions to
             ! other size classes, only to non iceberg status
              iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
-     &         - iceberg_Vloss(i,j,bi,bj,iCl)
-     &         /(iceberg_Vsgl(iCl)-0)
+     &         - MIN(iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-ICEBERG_minV),
+     &          iceberg_concentration(i,j,bi,bj,iCl))
             ENDIF
 C catch values that are too small or values that are negative because of too strong melting
 #endif
