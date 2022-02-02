@@ -163,11 +163,13 @@ C               + wave erosion (change of area)
 C               + buoyant convection (change of area)
 
             iceberg_Vloss(i,j,bi,bj,nCl) =
+     &       iceberg_concentration(i,j,bi,bj,nCl) * (
      &       iceberg_length(nCl) * iceberg_width(nCl)
      &       * Mb(i,j) * iceberg_deltaT
      &       + ICEBERG_height(nCl)
      &       * (iceberg_length(nCl)+iceberg_width(nCl))
      &       * (Me(i,j) + Mv(i,j)) * iceberg_deltaT
+     &       )
 
 
            ENDIF ! end if iceberg_maskC = 0
