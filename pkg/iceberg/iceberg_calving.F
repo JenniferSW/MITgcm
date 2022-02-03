@@ -55,46 +55,35 @@ C     addV       :: Volumen to be added to iceberg_concentration
 C     u_temp
       INTEGER i, j, bi, bj
       _RL calved_iceberg
-      _RL addV(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL addV
 
 
 CEOP
-      calvRateInKgpersecond = .TRUE.
-C TODO fix if statement: calRateInkgpersecond wird bei einigen Kernen vor der declaration aufgerufen
 C ICEBERG_calvrate :: field with calving rates at calving spots matching the calving mask
 
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1 ,sNy
           DO i= 1,sNx
-          addV(i,j,bi,bj) = 0. _d 0
+          addV = 0. _d 0
           calved_iceberg = 0. _d 0
            IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
-             IF(calvRateInKgpersecond .EQV. .TRUE.)THEN ! calving rate in kg/s
-               addV(i,j,bi,bj) =
-     &          iceberg_CalvRate(i,j,bi,bj,nCl)/ICEBERG_rhoIceberg
-     &          * ICEBERG_deltaT
-             ELSE ! calving rate in m3/s
-               addV(i,j,bi,bj) = iceberg_CalvRate(i,j,bi,bj,nCl)
-     &         * ICEBERG_deltaT
-             ENDIF
-             iceberg_Reservoir(i,j,bi,bj,nCl) =
-     &         iceberg_Reservoir(i,j,bi,bj,nCl)
-     &         + addV(i,j,bi,bj)/iceberg_Vsgl(nCl)
+             ! calving rate in m3/s
+             !calved iceberg concentration
+               calved_iceberg = iceberg_CalvRate(i,j,bi,bj,nCl)
+     &         /iceberg_Vsgl(nCl)* ICEBERG_deltaT* recip_rA(i,j,bi,bj)
 c if iceberg reservoir contains more than a full iceberg, then release it
-            IF (iceberg_Reservoir(i,j,bi,bj,nCl) .GT. 1. _d 0) THEN
-                calved_iceberg = AINT(iceberg_Reservoir(i,j,bi,bj,nCl))
-            PRINT*, 'dbg calving before',
-     &       iceberg_concentration(i,j,bi,bj,nCl),
-     &       calved_iceberg,iceberg_Reservoir(i,j,bi,bj,nCl),
-     &       iceberg_Reservoir(i,j,bi,bj,nCl) - calved_iceberg
                 iceberg_concentration(i,j,bi,bj,nCl) =
-     &            iceberg_concentration(i,j,bi,bj,nCl) + calved_iceberg
-                iceberg_Reservoir(i,j,bi,bj,nCl) =
-     &            iceberg_Reservoir(i,j,bi,bj,nCl) - calved_iceberg
-            ENDIF
+     &             iceberg_concentration(i,j,bi,bj,nCl)
+     &             + calved_iceberg
+                PRINT*, 'dbg calving',iceberg_CalvRate(i,j,bi,bj,nCl),
+     &           calved_iceberg,recip_rA(i,j,bi,bj),
+     &           iceberg_concentration(i,j,bi,bj,nCl),
+     &           iceberg_concentration(i,j,bi,bj,nCl)*rA(i,j,bi,bj),
+     &           myIter
 
-           ENDIF
+
+            ENDIF
           ENDDO
          ENDDO
         ENDDO
