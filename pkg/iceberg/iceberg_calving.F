@@ -55,32 +55,50 @@ C     addV       :: Volumen to be added to iceberg_concentration
 C     u_temp
       INTEGER i, j, bi, bj
       _RL calved_iceberg
-      _RL addV
+      _RL added_iceberg
+      _RL norm_val
 
 
 CEOP
 C ICEBERG_calvrate :: field with calving rates at calving spots matching the calving mask
-
+        norm_val = 1.18960909e+10
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1 ,sNy
           DO i= 1,sNx
-          addV = 0. _d 0
+          added_iceberg = 0. _d 0
           calved_iceberg = 0. _d 0
            IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
              ! calving rate in m3/s
-             !calved iceberg concentration
+             ! calved iceberg concentration
                calved_iceberg = iceberg_CalvRate(i,j,bi,bj,nCl)
-     &         /iceberg_Vsgl(nCl)* ICEBERG_deltaT* recip_rA(i,j,bi,bj)
+     &         /iceberg_Vsgl(nCl)* ICEBERG_deltaT
+
+             iceberg_Reservoir(i,j,bi,bj,nCl) =
+     &         iceberg_Reservoir(i,j,bi,bj,nCl)
+     &         + calved_iceberg
 c if iceberg reservoir contains more than a full iceberg, then release it
+            IF (iceberg_Reservoir(i,j,bi,bj,nCl) .GT.
+     &       norm_val)THEN
+                ! determine the number of whole icebergs stored in reservoir
+                added_iceberg =  AINT(iceberg_Reservoir(i,j,bi,bj,nCl)
+     &           /norm_val)
+
+                ! add whole icebergs
                 iceberg_concentration(i,j,bi,bj,nCl) =
      &             iceberg_concentration(i,j,bi,bj,nCl)
-     &             + calved_iceberg
-                PRINT*, 'dbg calving',iceberg_CalvRate(i,j,bi,bj,nCl),
+     &             + added_iceberg * norm_val * recip_rA(i,j,bi,bj)
+                ! delete whole icebergs from reservoir
+                iceberg_Reservoir(i,j,bi,bj,nCl) =
+     &            iceberg_Reservoir(i,j,bi,bj,nCl)
+     &              - added_iceberg * norm_val
+                PRINT*, 'dbg calving',
      &           calved_iceberg,recip_rA(i,j,bi,bj),
-     &           iceberg_concentration(i,j,bi,bj,nCl),
      &           iceberg_concentration(i,j,bi,bj,nCl)*rA(i,j,bi,bj),
+     &           iceberg_Reservoir(i,j,bi,bj,nCl),
+     &           added_iceberg,
      &           myIter
+            ENDIF
 
 
             ENDIF
