@@ -22,13 +22,10 @@ c     ICEEBERG_gravity  ::  gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
 C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
 C     ICEBERG_conc_norm_val :: Normalization value used for the concentration to avoid too small concentration values (default 1.0)
-C     calvRateInKgpersecond :: toggle between calvrates given in kg per second or cubic meter per second (default .TRUE.)
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
       INTEGER ICEBERGadvScheme
-
-      LOGICAL calvRateInKgpersecond
 
       _RL ICEBERG_rhoAir
       _RL ICEBERG_rhoOcean
@@ -63,7 +60,7 @@ C     ICEBERG_CalvFile            :: File with calving rates for each size class
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_initConcentration(ICEBERG_numCl)
       CHARACTER*(MAX_LEN_FNAM) ICEBERG_CalvFile(ICEBERG_numCl)
 
-c      COMMON /ICEBERG_PARAMS_L/ calvRateInKgpersecond
+c      COMMON /ICEBERG_PARAMS_L/
 
 C Common Block for integer parameters
 

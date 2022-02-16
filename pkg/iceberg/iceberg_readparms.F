@@ -84,7 +84,6 @@ C     calvRateInKgpersecond :: toggle between calvrates given in kg per second o
       ICEBERG_gravity = 9.81
       ICEBERG_temp = -4
       ICEBERG_minV = 0.0
-      calvRateInKgpersecond = .TRUE.
       ICEBERG_conc_norm_val = 1. _d 0
 
 C-    additional parameters:
