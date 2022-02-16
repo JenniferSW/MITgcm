@@ -45,7 +45,8 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
      &       ICEBERG_AirDragform, ICEBERG_OceanDragform,
      &       ICEBERG_gravity, ICEBERG_temp,
-     &       ICEBERG_minV, calvRateInKgpersecond
+     &       ICEBERG_minV, calvRateInKgpersecond,
+     &       ICEBERG_conc_norm_val
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -84,6 +85,7 @@ C     calvRateInKgpersecond :: toggle between calvrates given in kg per second o
       ICEBERG_temp = -4
       ICEBERG_minV = 0.0
       calvRateInKgpersecond = .TRUE.
+      ICEBERG_conc_norm_val = 1. _d 0
 
 C-    additional parameters:
       ICEBERG_Iter0      = 0

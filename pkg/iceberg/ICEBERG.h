@@ -21,6 +21,7 @@ c     ICEBERG_SeaiceDrag  ::  sea ice drag coefficient
 c     ICEEBERG_gravity  ::  gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
 C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
+C     ICEBERG_conc_norm_val :: Normalization value used for the concentration to avoid too small concentration values (default 1.0)
 C     calvRateInKgpersecond :: toggle between calvrates given in kg per second or cubic meter per second (default .TRUE.)
 
       INTEGER ICEBERG_Iter0
@@ -41,6 +42,7 @@ C     calvRateInKgpersecond :: toggle between calvrates given in kg per second o
       _RL ICEBERG_gravity
       _RL ICEBERG_temp
       _RL ICEBERG_minV
+      _RL ICEBERG_conc_norm_val
 
 
 C-    additional parameters:
@@ -77,7 +79,8 @@ C Common block for real parameters
      &     ICEBERG_OceanDrag, ICEBERG_OceanDragform,
      &     ICEBERG_SeaiceDrag,
      &     ICEBERG_gravity, ICEBERG_temp,
-     &     ICEBERG_minV
+     &     ICEBERG_minV,
+     &     ICEBERG_conc_norm_val
 
 
 
