@@ -45,7 +45,7 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
      &       ICEBERG_AirDragform, ICEBERG_OceanDragform,
      &       ICEBERG_gravity, ICEBERG_temp,
-     &       ICEBERG_minV, calvRateInKgpersecond,
+     &       ICEBERG_minV,
      &       ICEBERG_conc_norm_val
 
       IF (.NOT.useICEBERG) THEN

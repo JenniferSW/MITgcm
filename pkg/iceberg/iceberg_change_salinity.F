@@ -62,13 +62,12 @@ CEOP
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1,sNy
           DO i=1,sNx
-           IF(ICEBERG_MaskC(i,j,bi,bj) .NE. 0. _d 0)THEN
+          Vmelt = 0. _d 0
+           IF(iceberg_Vloss(i,j,bi,bj,nCl) .NE. 0. _d 0)THEN
 C Evaluate Vmelt for this grid cell
-            Vmelt = 0. _d 0
-c            DO nCl = 1, ICEBERG_numClUsed
-              Vmelt = Vmelt + iceberg_Vloss(i,j,bi,bj,nCl)
-c            ENDDO
-            cell_volume = rA(i,j,bi,bj)*drF(k)*hFacC(i,j,k,bi,bj)
+            Vmelt = iceberg_Vloss(i,j,bi,bj,nCl)
+     &          /ICEBERG_conc_norm_val*rA(i,j,bi,bj)
+            cell_volume = drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)
 C actual freshwater fraction
             FW = 1 - 1e-3 * salt(i,j,1,bi,bj)
 C actual freshwater volume
