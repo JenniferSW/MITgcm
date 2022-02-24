@@ -125,9 +125,9 @@ C calculate new iceberg volume in grid cell after melting
             ! This is only happening when there are minimum two size classes
             iceberg_concentration(i,j,bi,bj,iCl) =
      &         iceberg_concentration(i,j,bi,bj,iCl)
-!    &         - MIN(iceberg_Vloss(i,j,bi,bj,iCl)
-!    &         /(iceberg_Vsgl(iCl)-ICEBERG_minV),
-!    &          iceberg_concentration(i,j,bi,bj,iCl))!dann ist kein Eisberg mehr da
+     &         - MIN(iceberg_Vloss(i,j,bi,bj,iCl)
+     &         /(iceberg_Vsgl(iCl)-ICEBERG_minV),
+     &          iceberg_concentration(i,j,bi,bj,iCl))!dann ist kein Eisberg mehr da
      &         + MIN(iceberg_Vloss(i,j,bi,bj,iCl+1)
      &         /(iceberg_Vsgl(iCl+1)-iceberg_Vsgl(iCl)),
      &          iceberg_concentration(i,j,bi,bj,iCl+1))
