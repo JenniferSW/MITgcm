@@ -123,6 +123,9 @@ C--   end start-from-iter-zero if/else block
 
       ENDIF
 
+
+#ifdef ALLOW_ICEBERG_CALVING
+#ifndef ALLOW_EXF
       DO iCl = 1, ICEBERG_numClUsed
         tmpCalvFile = ICEBERG_CalvFile(iCl)
         IF ( tmpCalvFile .EQ.' ' ) THEN
@@ -138,7 +141,8 @@ C--   end start-from-iter-zero if/else block
      &                0, myThid )
         CALL EXCH_XY_RL(iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl), myThid)
       ENDDO
-
+#endif
+#endif
 
 C calculate iceberg length from iceberg width
       DO iCl = 1,ICEBERG_numClUsed

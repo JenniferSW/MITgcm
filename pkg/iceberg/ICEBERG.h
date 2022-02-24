@@ -22,6 +22,7 @@ c     ICEEBERG_gravity  ::  gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
 C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
 C     ICEBERG_conc_norm_val :: Normalization value used for the concentration to avoid too small concentration values (default 1.0)
+C     ICEBERG_calv_fraction :: Fraction to distribute the calving to the size classes
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
@@ -40,6 +41,7 @@ C     ICEBERG_conc_norm_val :: Normalization value used for the concentration to
       _RL ICEBERG_temp
       _RL ICEBERG_minV
       _RL ICEBERG_conc_norm_val
+      _RL ICEBERG_calv_fraction(ICEBERG_numCl)
 
 
 C-    additional parameters:
@@ -77,7 +79,8 @@ C Common block for real parameters
      &     ICEBERG_SeaiceDrag,
      &     ICEBERG_gravity, ICEBERG_temp,
      &     ICEBERG_minV,
-     &     ICEBERG_conc_norm_val
+     &     ICEBERG_conc_norm_val,
+     &     ICEBERG_calv_fraction
 
 
 

@@ -46,7 +46,8 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_AirDragform, ICEBERG_OceanDragform,
      &       ICEBERG_gravity, ICEBERG_temp,
      &       ICEBERG_minV,
-     &       ICEBERG_conc_norm_val
+     &       ICEBERG_conc_norm_val,
+     &       ICEBERG_calv_fraction
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -102,6 +103,10 @@ C-    file names for initial conditions and calving rates:
       DO iCl = 1, ICEBERG_numCl
         ICEBERG_initConcentration(iCl)   = ' '
         ICEBERG_CalvFile = ' '
+      ENDDO
+
+      DO iCl = 1, ICEBERG_numCl
+        ICEBERG_calv_fraction(iCl) = 1. _d 0
       ENDDO
 
       WRITE(msgBuf,'(A)') 'ICEBERG_READPARMS: opening data.iceberg'

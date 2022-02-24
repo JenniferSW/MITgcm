@@ -36,6 +36,10 @@ C     === Global variables ===
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
 #include "DYNVARS.h"
+#ifdef ALLOW_EXF
+# include "EXF_FIELDS.h"
+# include "EXF_PARAM.h"
+#endif
 
 C !INPUT/OUTPUT PARAMETERS: ===================================================
 C     === Routine arguments ===
@@ -67,21 +71,25 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
           DO i= 1,sNx
           addV = 0. _d 0
           calved_iceberg = 0. _d 0
-           IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
+#ifdef EXF_ICEBERG_CALVING
+          IF( CalvingRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
+#else
+          IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
+#endif
              ! calving rate in m3/s
              !calved iceberg concentration
-               calved_iceberg = iceberg_CalvRate(i,j,bi,bj,nCl)
+               calved_iceberg =
+#ifdef EXF_ICEBERG_CALVING
+    &          CalvingRate(i,j,bi,bj,nCl) * calv_fraction(nCl)
+               PRINT*,'use right phrase'
+#else
+     &          iceberg_CalvRate(i,j,bi,bj,nCl)
+#endif /* ALLOW_EXF */
      &         /iceberg_Vsgl(nCl)* ICEBERG_deltaT* recip_rA(i,j,bi,bj)
-c if iceberg reservoir contains more than a full iceberg, then release it
+
                 iceberg_concentration(i,j,bi,bj,nCl) =
      &             iceberg_concentration(i,j,bi,bj,nCl)
      &             + calved_iceberg
-                PRINT*, 'dbg calving',iceberg_CalvRate(i,j,bi,bj,nCl),
-     &           calved_iceberg,recip_rA(i,j,bi,bj),
-     &           iceberg_concentration(i,j,bi,bj,nCl),
-     &           iceberg_concentration(i,j,bi,bj,nCl)*rA(i,j,bi,bj),
-     &           myIter
-
 
             ENDIF
           ENDDO
