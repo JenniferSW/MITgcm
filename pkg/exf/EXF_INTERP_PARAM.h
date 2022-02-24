@@ -111,6 +111,9 @@ C----
       _RL areamask_lon0,areamask_lon_inc
       _RL areamask_lat0,areamask_lat_inc(MAX_LAT_INC)
       INTEGER areamask_nlon,areamask_nlat,areamask_interpMethod
+      _RL calvrate_lon0,calvrate_lon_inc
+      _RL calvrate_lat0,calvrate_lat_inc(MAX_LAT_INC)
+      INTEGER calvrate_nlon,calvrate_nlat,calvrate_interpMethod
 
       LOGICAL exf_output_interp
       LOGICAL uvInterp_stress

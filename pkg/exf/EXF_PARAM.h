@@ -412,6 +412,17 @@ C     Calendar data.
       _RL     climvstr_exfremo_slope
       CHARACTER*1 climvstrmask
 
+      INTEGER calvratestartdate1
+      INTEGER calvratestartdate2
+      _RL     calvrateStartTime
+      _RL     calvrateperiod
+      _RL     calvrateRepCycle
+      _RL     calvrateTauRelax
+      _RL     calvrateconst
+      _RL     calvrate_exfremo_intercept
+      _RL     calvrate_exfremo_slope
+      CHARACTER*1 calvratemask
+
 C-    The following variables are used in conjunction with pkg/obcs
 C     to describe S/T/U/V open boundary condition files
       INTEGER obcsNstartdate1
@@ -488,6 +499,7 @@ C-    File names.
       CHARACTER*(128) climsssfile
       CHARACTER*(128) climustrfile
       CHARACTER*(128) climvstrfile
+      CHARACTER*(128) calvratefile
 
       COMMON /EXF_PARAM_L/
      &       useExfCheckRange,
@@ -531,7 +543,8 @@ C-    File names.
      &       siobNstartdate1,   siobNstartdate2,
      &       siobSstartdate1,   siobSstartdate2,
      &       siobEstartdate1,   siobEstartdate2,
-     &       siobWstartdate1,   siobWstartdate2
+     &       siobWstartdate1,   siobWstartdate2,
+     &       calvratestartdate1,   calvratestartdate2
 
       COMMON /EXF_PARAM_R/
      &       repeatPeriod,      exf_monFreq,     exf_adjMonFreq,
@@ -590,7 +603,9 @@ C-    File names.
      &       siobNrepCycle,     siobNperiod,     siobNstartTime,
      &       siobSrepCycle,     siobSperiod,     siobSstartTime,
      &       siobErepCycle,     siobEperiod,     siobEstartTime,
-     &       siobWrepCycle,     siobWperiod,     siobWstartTime
+     &       siobWrepCycle,     siobWperiod,     siobWstartTime,
+     &       calvrateRepCycle,  calvratePeriod,
+     &       calvrateStartTime, calvrateConst
 
       COMMON /EXF_PARAM_TREND_REMOVAL/
      &       hflux_exfremo_intercept,
@@ -617,6 +632,7 @@ C-    File names.
      &       apressure_exfremo_intercept,
      &       tidePot_exfremo_intercept,
      &       areamask_exfremo_intercept,
+     &       calvrate_exfremo_intercept,
      &       hflux_exfremo_slope,
      &       atemp_exfremo_slope,
      &       aqh_exfremo_slope,
@@ -640,7 +656,8 @@ C-    File names.
      &       lwdown_exfremo_slope,
      &       apressure_exfremo_slope,
      &       tidePot_exfremo_slope,
-     &       areamask_exfremo_slope
+     &       areamask_exfremo_slope,
+     &       calvrate_exfremo_slope
 
       COMMON /EXF_PARAM_C/
      &       hfluxfile,     hfluxmask,
@@ -666,7 +683,8 @@ C-    File names.
      &       lwdownfile,    lwdownmask,
      &       apressurefile, apressuremask,
      &       tidePotFile,   tidePotMask,
-     &       areamaskfile,  areamaskmask
+     &       areamaskfile,  areamaskmask,
+     &       calvratefile,  calvratemask
 
       COMMON /EXF_CLIM_I/
      &       climsststartdate1,  climsststartdate2,
@@ -745,6 +763,7 @@ c     _RL     exf_inscal_sss
       _RL     exf_inscal_climsss
       _RL     exf_inscal_climustr
       _RL     exf_inscal_climvstr
+      _RL     exf_inscal_calvrate
 
       _RL     exf_outscal_hflux
       _RL     exf_outscal_sflux
@@ -784,6 +803,7 @@ c    &                      exf_inscal_sss,
      &                      exf_inscal_lwdown,
      &                      exf_inscal_tidePot,
      &                      exf_inscal_areamask,
+     &                      exf_inscal_calvrate,
      &                      exf_outscal_hflux,
      &                      exf_outscal_sflux,
      &                      exf_outscal_ustress,
