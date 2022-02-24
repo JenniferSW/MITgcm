@@ -140,7 +140,9 @@ C     Surface flux data.
      &       climvstrfile,  climvstrstartdate1,  climvstrstartdate2,
      &       climvstrRepCycle,  climvstrperiod,  climvstrStartTime,
      &     areamaskTauRelax,  climsstTauRelax,    climsssTauRelax,
-     &                       climustrTauRelax,   climvstrTauRelax
+     &                       climustrTauRelax,   climvstrTauRelax,
+     &       calvratefile,  calvratestartdate1,  calvratestartdate2,
+     &       calvrateRepCycle,  calvrateperiod,  calvrateStartTime
 
       NAMELIST /EXF_NML_03/
      &   exf_inscal_hflux,  exf_inscal_sflux,    exf_inscal_evap,
@@ -155,6 +157,7 @@ C     Surface flux data.
      &  exf_inscal_swdown,  exf_inscal_lwdown,
      & exf_inscal_climsst, exf_inscal_climsss,
      & exf_inscal_climustr, exf_inscal_climvstr,
+     & exf_inscal_calvrate,
      &  exf_outscal_hflux,  exf_outscal_ustress, exf_outscal_vstress,
      & exf_outscal_swflux,  exf_outscal_sst,     exf_outscal_sss,
      &  exf_outscal_sflux,  exf_outscal_apressure,
@@ -194,7 +197,8 @@ C     Surface flux data.
      &     climsst_exfremo_intercept, climsst_exfremo_slope,
      &     climsss_exfremo_intercept, climsss_exfremo_slope,
      &     climustr_exfremo_intercept, climustr_exfremo_slope,
-     &     climvstr_exfremo_intercept, climvstr_exfremo_slope
+     &     climvstr_exfremo_intercept, climvstr_exfremo_slope,
+     &     calvrate_exfremo_intercept, calvrate_exfremo_slope
 
 #ifdef USE_EXF_INTERPOLATION
       NAMELIST /EXF_NML_04/
@@ -255,7 +259,9 @@ C     Surface flux data.
      & climustr_nlon, climustr_nlat, climustr_interpMethod,
      & climvstr_lon0, climvstr_lon_inc, climvstr_lat0, climvstr_lat_inc,
      & climvstr_nlon, climvstr_nlat, climvstr_interpMethod,
-     & exf_output_interp
+     & exf_output_interp,
+     & calvrate_lon0, calvrate_lon_inc, calvrate_lat0, calvrate_lat_inc,
+     & calvrate_nlon, calvrate_nlat, calvrate_interpMethod
 #endif /* USE_EXF_INTERPOLATION */
 
 #ifdef ALLOW_OBCS
@@ -560,6 +566,15 @@ C     Calendar data.
       climvstr_exfremo_intercept = 0.0 _d 0
       climvstr_exfremo_slope = 0.0 _d 0
 
+      calvratestartdate1 = 0
+      calvratestartdate2 = 0
+      calvrateperiod     = 0.0 _d 0
+      calvrateTauRelax   = 0.0 _d 0
+      calvrateconst      = 0.0 _d 0
+      calvrate_exfremo_intercept = 0. _d 0
+      calvrate_exfremo_slope = 0. _d 0
+
+
       useOBCSYearlyFields = .FALSE.
       obcsNstartdate1    = 0
       obcsNstartdate2    = 0
@@ -624,6 +639,7 @@ C     Data files.
       climsssfile        = ' '
       climustrfile       = ' '
       climvstrfile       = ' '
+      calvratefile       = ' '
 
 C     Start Time.
       hfluxStartTime     = UNSET_RL
@@ -653,6 +669,7 @@ C     Start Time.
       climsssStartTime   = UNSET_RL
       climustrStartTime  = UNSET_RL
       climvstrStartTime  = UNSET_RL
+      calvrateStartTime  = UNSET_RL
       obcsNstartTime     = UNSET_RL
       obcsSstartTime     = UNSET_RL
       obcsEstartTime     = UNSET_RL
@@ -701,6 +718,7 @@ c     exf_inscal_sss       =  1. _d 0
       exf_inscal_climvstr  =  1. _d 0
       exf_inscal_tidePot   =  1. _d 0
       exf_inscal_areamask  =  1. _d 0
+      exf_inscal_calvrate  =  1. _d 0
 
 C     Output scaling factors.
       exf_outscal_hflux    =  1. _d 0
@@ -738,6 +756,7 @@ C     Output scaling factors.
       apressure_lon0 = inp_lon0
       tidePot_lon0   = inp_lon0
       areamask_lon0  = inp_lon0
+      calvrate_lon0  = inp_lon0
       vstress_lat0   = inp_lat0
       vwind_lat0     = inp_lat0
       wspeed_lat0    = inp_lat0
@@ -761,6 +780,7 @@ C     Output scaling factors.
       apressure_lat0 = inp_lat0
       tidePot_lat0   = inp_lat0
       areamask_lat0  = inp_lat0
+      calvrate_lat0  = inp_lat0
       ustress_nlon   = inp_gNx
       ustress_nlat   = inp_gNy
       vstress_nlon   = inp_gNx
@@ -807,6 +827,8 @@ C     Output scaling factors.
       tidePot_nlat   = inp_gNy
       areamask_nlon  = inp_gNx
       areamask_nlat  = inp_gNy
+      calvrate_nlon  = inp_gNx
+      calvrate_nlat  = inp_gNy
       ustress_lon_inc   = inp_dLon
       vstress_lon_inc   = inp_dLon
       hflux_lon_inc     = inp_dLon
@@ -830,6 +852,7 @@ C     Output scaling factors.
       apressure_lon_inc = inp_dLon
       tidePot_lon_inc   = inp_dLon
       areamask_lon_inc  = inp_dLon
+      calvrate_lon_inc  = inp_dLon
 
       climsst_lon0    = inp_lon0
       climsss_lon0    = inp_lon0
@@ -876,6 +899,7 @@ C     Output scaling factors.
         apressure_lat_inc(j) = inp_dLat(j)
         tidePot_lat_inc(j)   = inp_dLat(j)
         areamask_lat_inc(j)  = inp_dLat(j)
+        calvrate_lat_inc(j)  = inp_dLat(j)
         climsst_lat_inc(j)   = inp_dLat(j)
         climsss_lat_inc(j)   = inp_dLat(j)
         climustr_lat_inc(j)  = inp_dLat(j)
@@ -905,6 +929,7 @@ C     Output scaling factors.
       apressure_interpMethod =  1
       tidePot_interpMethod   =  1
       areamask_interpMethod  =  1
+      calvrate_interpMethod  =  1
       climsst_interpMethod   =  2
       climsss_interpMethod   =  2
       climustr_interpMethod  = 12
@@ -952,6 +977,7 @@ C-    Set default fldRepeatCycle to repeatPeriod
       apressureRepCycle  = repeatPeriod
       tidePotRepCycle    = repeatPeriod
       areamaskRepCycle   = repeatPeriod
+      calvrateRepCycle   = repeatPeriod
       climsstRepCycle    = repeatPeriod
       climsssRepCycle    = repeatPeriod
       climustrRepCycle   = repeatPeriod

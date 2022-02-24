@@ -31,6 +31,9 @@ C     == global variables ==
 #ifdef ALLOW_BULK_OFFLINE
 # include "DYNVARS.h"
 #endif
+#ifdef ALLOW_ICEBERG
+# include "ICEBERG_OPTIONS.h"
+#endif
 
 C !INPUT/OUTPUT PARAMETERS:
 C     myThid         :: My Thread Id number
@@ -441,6 +444,21 @@ C      will be over-written at first time-step when calling EXF_SET_UV.
 #endif
      I     myThid )
 #endif /* CLIMSTRESS_RELAXATION */
+
+#ifdef EXF_ICEBERG_CALVING
+        CALL EXF_INIT_FLD(
+     I     'CalvingRate', calvratefile, calvratemask,
+     I     calvrateperiod, exf_inscal_calvrate, calvrateconst,
+     O     CalvingRate, CalvingRate0, CalvingRate1,
+#ifdef USE_EXF_INTERPOLATION
+     I     calvrate_lon0, calvrate_lon_inc,
+     I     calvrate_lat0, calvrate_lat_inc,
+     I     calvrate_nlon, calvrate_nlat, xC, yC, calvrate_interpMethod,
+#endif
+     I     myThid )
+
+#endif /* EXF_ICEBERG_CALVNG */
+
 
 #ifdef ALLOW_BULK_OFFLINE
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|

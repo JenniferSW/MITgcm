@@ -489,6 +489,22 @@ C-    Salt flux
      I     myTime, myIter, myThid )
 #endif
 
+#ifdef EXF_ICEBERG_CALVING
+      PRINT*,'dbg exf reading'
+      CALL EXF_SET_FLD(
+     I     'CalvingRate', calvratefile, calvratemask,
+     I     calvrateStartTime, calvrateperiod, calvrateRepCycle,
+     I     exf_inscal_calvrate,
+     I     calvrate_exfremo_intercept, calvrate_exfremo_slope,
+     U     CalvingRate, CalvingRate0, CalvingRate1,
+#ifdef USE_EXF_INTERPOLATION
+     I     calvrate_lon0, calvrate_lon_inc,
+     I     calvrate_lat0, calvrate_lat_inc,
+     I     calvrate_nlon, calvrate_nlat, xC, yC, calvrate_interpMethod,
+#endif
+     I     myTime, myIter, myThid )
+#endif
+
 #ifdef ALLOW_ROTATE_UV_CONTROLS
       IF ( useCTRL ) THEN
         DO bj = myByLo(myThid),myByHi(myThid)
