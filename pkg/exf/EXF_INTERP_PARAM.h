@@ -170,7 +170,9 @@ C----
      & tidePot_lon0, tidePot_lon_inc,
      & tidePot_lat0, tidePot_lat_inc,
      & areamask_lon0, areamask_lon_inc,
-     & areamask_lat0, areamask_lat_inc
+     & areamask_lat0, areamask_lat_inc,
+     & calvrate_lon0, calvrate_lon_inc,
+     & calvrate_lat0, calvrate_lat_inc
 
       COMMON /EXF_INTERPOLATION_I/
      & inp_gNx, inp_gNy,
@@ -196,7 +198,8 @@ C----
      & lwdown_nlon, lwdown_nlat, lwdown_interpMethod,
      & apressure_nlon, apressure_nlat, apressure_interpMethod,
      & tidePot_nlon, tidePot_nlat, tidePot_interpMethod,
-     & areamask_nlon, areamask_nlat, areamask_interpMethod
+     & areamask_nlon, areamask_nlat, areamask_interpMethod,
+     & calvrate_nlon, calvrate_nlat, calvrate_interpMethod
 
       _RL climsst_lon0, climsst_lon_inc
       _RL climsst_lat0, climsst_lat_inc(MAX_LAT_INC)
