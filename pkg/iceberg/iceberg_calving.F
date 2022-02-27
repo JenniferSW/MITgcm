@@ -1,6 +1,9 @@
 #include "ICEBERG_OPTIONS.h"
 C     Without ALLOW_SEAICE, this would never work anyway.
 C     Needs to be checked in iceberg_check.F
+#ifdef ALLOW_EXF
+# include "EXF_OPTIONS.h"
+#endif
 #ifdef ALLOW_AUTODIFF
 # include "AUTODIFF_OPTIONS.h"
 #endif
@@ -72,7 +75,7 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
           addV = 0. _d 0
           calved_iceberg = 0. _d 0
 #ifdef EXF_ICEBERG_CALVING
-          IF( CalvingRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
+         IF( CalvingRate(i,j,bi,bj) .GT. 0. _d 0) THEN
 #else
           IF( iceberg_CalvRate(i,j,bi,bj,nCl) .GT. 0. _d 0) THEN
 #endif
@@ -80,8 +83,7 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
              !calved iceberg concentration
                calved_iceberg =
 #ifdef EXF_ICEBERG_CALVING
-    &          CalvingRate(i,j,bi,bj,nCl) * calv_fraction(nCl)
-               PRINT*,'use right phrase'
+     &          CalvingRate(i,j,bi,bj) * ICEBERG_calv_fraction(nCl)
 #else
      &          iceberg_CalvRate(i,j,bi,bj,nCl)
 #endif /* ALLOW_EXF */
