@@ -490,7 +490,6 @@ C-    Salt flux
 #endif
 
 #ifdef EXF_ICEBERG_CALVING
-      PRINT*,'dbg exf reading'
       CALL EXF_SET_FLD(
      I     'CalvingRate', calvratefile, calvratemask,
      I     calvrateStartTime, calvrateperiod, calvrateRepCycle,
