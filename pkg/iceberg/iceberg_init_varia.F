@@ -125,7 +125,7 @@ C--   end start-from-iter-zero if/else block
 
 
 #ifdef ALLOW_ICEBERG_CALVING
-#ifndef ALLOW_EXF
+#ifndef EXF_ICEBERG_CALVING
       DO iCl = 1, ICEBERG_numClUsed
         tmpCalvFile = ICEBERG_CalvFile(iCl)
         IF ( tmpCalvFile .EQ.' ' ) THEN
