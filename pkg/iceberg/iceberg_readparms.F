@@ -9,6 +9,9 @@ C !INTERFACE:
 
 C     !DESCRIPTION:
 C     Initialize ICEBERG variables and constants.
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C     !USES:
       IMPLICIT NONE
@@ -41,7 +44,10 @@ C     iUnit      :: Work variable for IO unit number
      &       ICEBERG_rhoAir, ICEBERG_rhoOcean, ICEBERG_rhoSeaice,
      &       ICEBERG_AirDrag, ICEBERG_OceanDrag, ICEBERG_SeaiceDrag,
      &       ICEBERG_AirDragform, ICEBERG_OceanDragform,
-     &       ICEBERG_gravity, ICEBERG_temp
+     &       ICEBERG_gravity, ICEBERG_temp,
+     &       ICEBERG_minV,
+     &       ICEBERG_conc_norm_val,
+     &       ICEBERG_calv_fraction
 
       IF (.NOT.useICEBERG) THEN
 C-    pkg ICEBERG is not used
@@ -64,6 +70,8 @@ C     ICEBERG_OceanDrag :: ocean drag coefficient
 C     ICEBERG_SeaiceDrag :: seaice drag coefficient
 C     ICEBERG_gravity :: gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
+C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
+C     calvRateInKgpersecond :: toggle between calvrates given in kg per second or cubic meter per second (default .TRUE.)
 
       ICEBERG_rhoAir = 1.3
       ICEBERG_rhoOcean = 1026.0
@@ -76,6 +84,8 @@ c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
       ICEBERG_SeaiceDrag = 0.91e-3
       ICEBERG_gravity = 9.81
       ICEBERG_temp = -4
+      ICEBERG_minV = 0.0
+      ICEBERG_conc_norm_val = 1. _d 0
 
 C-    additional parameters:
       ICEBERG_Iter0      = 0
@@ -93,6 +103,10 @@ C-    file names for initial conditions and calving rates:
       DO iCl = 1, ICEBERG_numCl
         ICEBERG_initConcentration(iCl)   = ' '
         ICEBERG_CalvFile = ' '
+      ENDDO
+
+      DO iCl = 1, ICEBERG_numCl
+        ICEBERG_calv_fraction(iCl) = 1. _d 0
       ENDDO
 
       WRITE(msgBuf,'(A)') 'ICEBERG_READPARMS: opening data.iceberg'

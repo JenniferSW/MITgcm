@@ -44,29 +44,44 @@ C     twoDigitYear       :: when set, use 2-digit year extension YR
 C                           instead of _YEAR for useExfYearlyFields
 C    useOBCSYearlyFields :: when reading Open-Boundary values, assume yearly
 C                           climatology (def=false)
-C     readStressOnAgrid  :: read wind-streess located on model-grid, A-grid position
-C     rotateStressOnAgrid  :: rotate from zonal/meridional components to U/V components
-C     readStressOnCgrid  :: read wind-streess located on model-grid, C-grid position
+C     readStressOnAgrid  :: read wind-streess located on model-grid,
+C                            A-grid position
+C     rotateStressOnAgrid:: rotate from zonal/meridional components to
+C                           U/V components
+C     readStressOnCgrid  :: read wind-streess located on model-grid, C-grid
+C                           position
 C     stressIsOnCgrid    :: ustress & vstress are positioned on Arakawa C-grid
 C     useAtmWind         :: use wind vector (uwind/vwind) to compute
 C                           the wind stress (ustress/vstress)
 C     useRelativeWind    :: Subtract U/VVEL or U/VICE from U/VWIND before
 C                           computing U/VSTRESS
 C     noNegativeEvap     :: prevent negative evap (= sea-surface condensation)
-C    useStabilityFct_overIce :: over sea-ice, compute turbulent transfert
-C                               coeff. function of stability (like over
-C                               open ocean) rather than using fixed Coeff.
-C    diags_opOceWeighted :: weight surface flux diagnostics with open-ocean fraction
+C     useStabilityFct_overIce :: over sea-ice, compute turbulent transfert
+C                           coeff. function of stability (like over
+C                           open ocean) rather than using fixed Coeff.
+C     diags_opOceWeighted:: weight surface flux diagnostics with open-ocean
+C                           fraction
 C     useExfZenAlbedo    :: ocean albedo (direct part) may vary
 C                           with zenith angle (see select_ZenAlbedo)
-C     select_ZenAlbedo   :: switch to different methods to compute albedo (direct part)
+C     select_ZenAlbedo   :: switch to different methods to compute albedo
+C                           (direct part)
 C                        :: 0 just use exf_albedo
 C                        :: 1 use daily mean albedo from exf_zenithangle_table.F
 C                        :: 2 use daily mean albedo computed as in pkg/aim_v23
 C                        :: 3 use daily variable albedo
-C     useExfZenIncoming  :: compute incoming solar radiation along with zenith angle
-C     exf_debugLev       :: select message printing to STDOUT (e.g., when read rec)
+C     useExfZenIncoming  :: compute incoming solar radiation along with
+C                           zenith angle
+C     exf_debugLev       :: select message printing to STDOUT (e.g., when
+C                           read rec)
 C     exf_monFreq        :: Monitor Frequency (s) for EXF
+C     exf_adjMonFreq     :: Monitor Frequency (s) for AD exf variables
+C     exf_adjMonSelect   :: select group of exf AD-variables to monitor
+C                           =0 : none
+C                           =1 : ocean forcing fu, fv, qnet, empmr (default)
+C                           =2 : + atmospheric forcing fields (u/vwind,
+C                                  atemp, lwdown, precip, etc.)
+C                           =3 : + derived forcing fields (u/vstress,
+C                                  h/sflux, wspeed)
 
       LOGICAL useExfCheckRange
       LOGICAL useExfYearlyFields, twoDigitYear
@@ -87,6 +102,8 @@ C     exf_monFreq        :: Monitor Frequency (s) for EXF
 
       INTEGER exf_debugLev
       _RL     exf_monFreq
+      _RL     exf_adjMonFreq
+      INTEGER exf_adjMonSelect
 
 C     Drag coefficient scaling factor
       _RL     exf_scal_BulkCdn
@@ -395,6 +412,17 @@ C     Calendar data.
       _RL     climvstr_exfremo_slope
       CHARACTER*1 climvstrmask
 
+      INTEGER calvratestartdate1
+      INTEGER calvratestartdate2
+      _RL     calvrateStartTime
+      _RL     calvrateperiod
+      _RL     calvrateRepCycle
+      _RL     calvrateTauRelax
+      _RL     calvrateconst
+      _RL     calvrate_exfremo_intercept
+      _RL     calvrate_exfremo_slope
+      CHARACTER*1 calvratemask
+
 C-    The following variables are used in conjunction with pkg/obcs
 C     to describe S/T/U/V open boundary condition files
       INTEGER obcsNstartdate1
@@ -471,6 +499,7 @@ C-    File names.
       CHARACTER*(128) climsssfile
       CHARACTER*(128) climustrfile
       CHARACTER*(128) climvstrfile
+      CHARACTER*(128) calvratefile
 
       COMMON /EXF_PARAM_L/
      &       useExfCheckRange,
@@ -483,7 +512,7 @@ C-    File names.
      &       useStabilityFct_overIce, diags_opOceWeighted
 
       COMMON /EXF_PARAM_I/
-     &       select_ZenAlbedo,  exf_debugLev,
+     &       select_ZenAlbedo,  exf_debugLev,    exf_adjMonSelect,
      &       hfluxstartdate1,   hfluxstartdate2,
      &       atempstartdate1,   atempstartdate2,
      &       aqhstartdate1,     aqhstartdate2,
@@ -514,10 +543,11 @@ C-    File names.
      &       siobNstartdate1,   siobNstartdate2,
      &       siobSstartdate1,   siobSstartdate2,
      &       siobEstartdate1,   siobEstartdate2,
-     &       siobWstartdate1,   siobWstartdate2
+     &       siobWstartdate1,   siobWstartdate2,
+     &       calvratestartdate1,   calvratestartdate2
 
       COMMON /EXF_PARAM_R/
-     &       repeatPeriod,      exf_monFreq,
+     &       repeatPeriod,      exf_monFreq,     exf_adjMonFreq,
      &       exf_scal_BulkCdn,  windstressmax,
      &       hfluxconst,        hfluxRepCycle,
      &       hfluxperiod,       hfluxStartTime,
@@ -573,7 +603,9 @@ C-    File names.
      &       siobNrepCycle,     siobNperiod,     siobNstartTime,
      &       siobSrepCycle,     siobSperiod,     siobSstartTime,
      &       siobErepCycle,     siobEperiod,     siobEstartTime,
-     &       siobWrepCycle,     siobWperiod,     siobWstartTime
+     &       siobWrepCycle,     siobWperiod,     siobWstartTime,
+     &       calvrateRepCycle,  calvratePeriod,
+     &       calvrateStartTime, calvrateConst
 
       COMMON /EXF_PARAM_TREND_REMOVAL/
      &       hflux_exfremo_intercept,
@@ -600,6 +632,7 @@ C-    File names.
      &       apressure_exfremo_intercept,
      &       tidePot_exfremo_intercept,
      &       areamask_exfremo_intercept,
+     &       calvrate_exfremo_intercept,
      &       hflux_exfremo_slope,
      &       atemp_exfremo_slope,
      &       aqh_exfremo_slope,
@@ -623,7 +656,8 @@ C-    File names.
      &       lwdown_exfremo_slope,
      &       apressure_exfremo_slope,
      &       tidePot_exfremo_slope,
-     &       areamask_exfremo_slope
+     &       areamask_exfremo_slope,
+     &       calvrate_exfremo_slope
 
       COMMON /EXF_PARAM_C/
      &       hfluxfile,     hfluxmask,
@@ -649,7 +683,8 @@ C-    File names.
      &       lwdownfile,    lwdownmask,
      &       apressurefile, apressuremask,
      &       tidePotFile,   tidePotMask,
-     &       areamaskfile,  areamaskmask
+     &       areamaskfile,  areamaskmask,
+     &       calvratefile,  calvratemask
 
       COMMON /EXF_CLIM_I/
      &       climsststartdate1,  climsststartdate2,
@@ -728,6 +763,7 @@ c     _RL     exf_inscal_sss
       _RL     exf_inscal_climsss
       _RL     exf_inscal_climustr
       _RL     exf_inscal_climvstr
+      _RL     exf_inscal_calvrate
 
       _RL     exf_outscal_hflux
       _RL     exf_outscal_sflux
@@ -767,6 +803,7 @@ c    &                      exf_inscal_sss,
      &                      exf_inscal_lwdown,
      &                      exf_inscal_tidePot,
      &                      exf_inscal_areamask,
+     &                      exf_inscal_calvrate,
      &                      exf_outscal_hflux,
      &                      exf_outscal_sflux,
      &                      exf_outscal_ustress,

@@ -10,6 +10,9 @@ C !INTERFACE:
 
 C     !DESCRIPTION:
 C     Initialize ICEBERG variables
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C     !USES:
       IMPLICIT NONE
@@ -24,7 +27,7 @@ C     !INPUT/OUTPUT PARAMETERS:
 C     myThid ::  my Thread Id number
       INTEGER myThid
 
-
+      _RL dbg_pickup
       CHARACTER*(MAX_LEN_FNAM) msgBuf
 CEOP
 
@@ -50,6 +53,7 @@ C     2-dim.
            DO i=1-Olx,sNx+Olx
 
             iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
+            iceberg_Reservoir(i,j,bi,bj,iCl) = 0. _d 0
            ENDDO
           ENDDO
          ENDDO
@@ -83,9 +87,29 @@ c      _BARRIER
          CALL READ_FLD_XY_RL( tmpInitialConcentration, ' ',
      &                iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
      &                0, myThid )
+         CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
+         DO bj = myByLo(myThid), myByHi(myThid)
+          DO bi = myBxLo(myThid), myBxHi(myThid)
+           DO j=1-Oly,sNy+OLy
+            DO i=1-Olx,sNx+Olx
+C change iceberg number to icebergs per grid area
+            PRINT*,'dbg conc read init',
+     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
 
+             iceberg_concentration(i,j,bi,bj,iCl)=
+     &          iceberg_concentration(i,j,bi,bj,iCl) / rA(i,j,bi,bj)
+            PRINT*,'dbg conc save init',
+     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+
+           ENDDO
+          ENDDO
+         ENDDO
         ENDDO
-        _EXCH_XY_RL(iceberg_concentration , myThid)
+       CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
+        ENDDO
+
 
 
        ENDIF
@@ -94,8 +118,14 @@ c      _BARRIER
 C--   restart from a pickup:
          CALL ICEBERG_READ_PICKUP( nIter0, myThid )
 C--   end start-from-iter-zero if/else block
+       CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
+
       ENDIF
 
+
+#ifdef ALLOW_ICEBERG_CALVING
+#ifndef EXF_ICEBERG_CALVING
       DO iCl = 1, ICEBERG_numClUsed
         tmpCalvFile = ICEBERG_CalvFile(iCl)
         IF ( tmpCalvFile .EQ.' ' ) THEN
@@ -109,9 +139,10 @@ C--   end start-from-iter-zero if/else block
         CALL READ_FLD_XY_RL( tmpCalvFile, ' ',
      &                iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl),
      &                0, myThid )
-
-         ENDDO
-        _EXCH_XY_RL(iceberg_CalvRate , myThid)
+        CALL EXCH_XY_RL(iceberg_CalvRate(1-OLx,1-OLy,1,1,iCl), myThid)
+      ENDDO
+#endif
+#endif
 
 C calculate iceberg length from iceberg width
       DO iCl = 1,ICEBERG_numClUsed

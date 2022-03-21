@@ -7,7 +7,7 @@ CBOP
 C !ROUTINE: ICEBERG_ADVDIFF
 
 C !INTERFACE: ==========================================================
-      SUBROUTINE ICEBERG_ADV(
+      SUBROUTINE ICEBERG_ADV(nCl,
      I                  myTime, myIter, myThid )
 
 C !DESCRIPTION: \bv
@@ -18,6 +18,8 @@ C     |   calls an adaption of gad_advection to call different
 C     |   advection routines of pkg/generic_advdiff
 C     | o the advection runs for every iceberg class separately in a loop
 C     | this routine is based on the advection of seaice in the pkg seaice
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
 C     *===========================================================*
 C \ev
 
@@ -46,14 +48,14 @@ C     myThid    :: my Thread Id number
 C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
-C     iCl        :: Loop counter for iceberg size classes
+C     nCl        :: Loop counter for iceberg size classes
 C     uTrans    :: volume transport, x direction
 C     vTrans    :: volume transport, y direction
 C     afx       :: horizontal advective flux, x direction
 C     afy       :: horizontal advective flux, y direction
 C     gFld      :: tendency of seaice field
 C     xA,yA     :: "areas" of X and Y face of tracer cells
-      INTEGER i, j, bi, bj, iCl
+      INTEGER i, j, bi, bj, nCl
       INTEGER GAD_HEFF, GAD_AREA
       _RL tmpscal, recip_nCl
       _RL uTrans    (1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -75,7 +77,7 @@ C TODO introduce GAD-Identifier for diagnostics
       GAD_HEFF = 1
       GAD_AREA = 2
 
-      DO iCl = 1, ICEBERG_numClUsed
+c      DO iCl = 1, ICEBERG_numClUsed
        DO bj=myByLo(myThid),myByHi(myThid)
         DO bi=myBxLo(myThid),myBxHi(myThid)
 
@@ -114,8 +116,8 @@ C
 C-    Calculate "volume transports" through tracer cell faces.
          DO j=1-OLy,sNy+OLy
           DO i=1-OLx,sNx+OLx
-           uTrans(i,j) = iceberg_uvel(i,j,bi,bj,iCl)*xA(i,j,bi,bj)
-           vTrans(i,j) = iceberg_vvel(i,j,bi,bj,iCl)*yA(i,j,bi,bj)
+           uTrans(i,j) = iceberg_uvel(i,j,bi,bj,nCl)*xA(i,j,bi,bj)
+           vTrans(i,j) = iceberg_vvel(i,j,bi,bj,nCl)*yA(i,j,bi,bj)
           ENDDO
          ENDDO
 
@@ -136,19 +138,19 @@ C afx, afy - horizontal advective flux
 C- advection of concentration
          CALL ICEBERG_ADVECTION(
      I        GAD_HEFF, ICEBERGadvScheme,
-     I        iceberg_uvel(1-OLx,1-OLy,bi,bj,iCl),
-     I        iceberg_vvel(1-OLx,1-OLy,bi,bj,iCl),
+     I        iceberg_uvel(1-OLx,1-OLy,bi,bj,nCl),
+     I        iceberg_vvel(1-OLx,1-OLy,bi,bj,nCl),
      I        uTrans, vTrans,
-     I        iceberg_concentration(1-OLx,1-OLy,bi,bj,iCl),
+     I        iceberg_concentration(1-OLx,1-OLy,bi,bj,nCl),
      I        recip_heff,
      O        gFld, afx, afy,
      I        bi, bj, myTime, myIter, myThid )
 C     now do the "explicit" time step
          DO j=1,sNy
           DO i=1,sNx
-              iceberg_concentration(i,j,bi,bj,iCl) =
+              iceberg_concentration(i,j,bi,bj,nCl) =
      &            maskC(i,j,1,bi,bj) * (
-     &            iceberg_concentration(i,j,bi,bj,iCl)
+     &            iceberg_concentration(i,j,bi,bj,nCl)
      &            + ICEBERG_deltaT * gFld(i,j))
           ENDDO
          ENDDO
@@ -164,19 +166,25 @@ C followed the example of seaice_reg_ridge.F
             DO i = 1, sNx
              tmpscal = 0. _d 0
              tmpscal =
-     &        MAX(-iceberg_concentration(i,j,bi,bj,iCl),0. _d 0)
-             iceberg_concentration(i,j,bi,bj,iCl) =
-     &          iceberg_concentration(i,j,bi,bj,iCl) + tmpscal
+     &        MAX(-iceberg_concentration(i,j,bi,bj,nCl),0. _d 0)
+C REMOVE debugging output when not needed anymore
+             IF (tmpscal .NE. 0. _d 0) THEN
+                PRINT*,'dbg fixing neg ',tmpscal
+             ENDIF
+             iceberg_concentration(i,j,bi,bj,nCl) =
+     &          iceberg_concentration(i,j,bi,bj,nCl) + tmpscal
             ENDDO
           ENDDO
 
 #endif
 
-         CALL EXCH_3D_RL( iceberg_concentration,  iCl, myThid )
 
 C---   end iCl bi,bj loops
         ENDDO !bi
        ENDDO !bj
-      ENDDO !iCl
+        CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,nCl),
+     &   myThid)
+
+c      ENDDO !iCl
       RETURN
       END

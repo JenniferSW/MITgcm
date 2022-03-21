@@ -81,6 +81,7 @@ C     ' ' = no masking; 'c' = centered mask; 'w' = western mask; 's' = southern
       climsssmask  = 'c'
       climustrmask = 'w'
       climvstrmask = 's'
+      calvratemask = 'c'
 
       IF ( useSEAICE ) THEN
 C     Avoid masking of vector fields with pkg/seaice (for B/C-grid interp.)
@@ -521,6 +522,22 @@ C     from the beginning of the year.
      I                    myThid )
       ENDIF
 #endif /* ALLOW_CLIMSTRESS_RELAXATION */
+
+#ifdef EXF_ICEBERG_CALVING
+      IF ( calvratefile .NE. ' ' ) THEN
+# ifdef ALLOW_DEBUG
+       IF (debugMode)
+     &    CALL DEBUG_CALL('GETFFIELD_START calvrate',myThid)
+# endif
+       CALL EXF_GETFFIELD_START( useExfYearlyFields,
+     I                    'exf', 'CalvingRate', calvrateperiod,
+     I                    calvratestartdate1, calvratestartdate2,
+     U                    calvrateStartTime, errCount,
+     I                    myThid )
+      ENDIF
+#endif /* EXF_ICEBERG_CALVING */
+
+
 
 #ifdef USE_EXF_INTERPOLATION
 C--   For vector fields, set flag to interpolate the 2 components together

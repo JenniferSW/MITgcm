@@ -20,7 +20,9 @@ c     ICEBERG_OceanDrag ::  ocean drag coefficient
 c     ICEBERG_SeaiceDrag  ::  sea ice drag coefficient
 c     ICEEBERG_gravity  ::  gravitational acceleration
 c     ICEBERG_temp      :: iceberg temperature (default - 4 deg C)
-C
+C     ICEBERG_minV      :: minimal volume which would count as an iceberg (default 0.0)
+C     ICEBERG_conc_norm_val :: Normalization value used for the concentration to avoid too small concentration values (default 1.0)
+C     ICEBERG_calv_fraction :: Fraction to distribute the calving to the size classes
 
       INTEGER ICEBERG_Iter0
       INTEGER ICEBERG_numClUsed
@@ -37,6 +39,9 @@ C
       _RL ICEBERG_SeaiceDrag
       _RL ICEBERG_gravity
       _RL ICEBERG_temp
+      _RL ICEBERG_minV
+      _RL ICEBERG_conc_norm_val
+      _RL ICEBERG_calv_fraction(ICEBERG_numCl)
 
 
 C-    additional parameters:
@@ -72,7 +77,10 @@ C Common block for real parameters
      &     ICEBERG_AirDrag, ICEBERG_AirDragform,
      &     ICEBERG_OceanDrag, ICEBERG_OceanDragform,
      &     ICEBERG_SeaiceDrag,
-     &     ICEBERG_gravity, ICEBERG_temp
+     &     ICEBERG_gravity, ICEBERG_temp,
+     &     ICEBERG_minV,
+     &     ICEBERG_conc_norm_val,
+     &     ICEBERG_calv_fraction
 
 
 
@@ -112,6 +120,8 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
      &     ICEBERG_numCl)
       _RL iceberg_CalvRate(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
      &     ICEBERG_numCl)
+      _RL iceberg_Reservoir(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy,
+     &     ICEBERG_numCl)
       _RL ICEBERG_width (ICEBERG_numCl)
       _RL iceberg_length (ICEBERG_numCl)
       _RL ICEBERG_height (ICEBERG_numCl)
@@ -132,6 +142,7 @@ C     iceberg_Vloss   ::  total loss of volume in a time step for every size cla
 
       COMMON /ICEBERG_STATE_2D/
      &    iceberg_concentration, iceberg_CalvRate,
+     &    iceberg_Reservoir,
      &    ICEBERG_height,ICEBERG_width, iceberg_length,
      &    iceberg_Vsgl,
      &    iceberg_MassC, iceberg_MassU, iceberg_MassV,

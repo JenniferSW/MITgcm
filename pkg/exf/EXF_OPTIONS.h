@@ -228,6 +228,8 @@ C   (no pole symmetry, single vector-comp interp, reset to 0 zonal-comp @ N.pole
 # define EXF_IREAD_USE_GLOBAL_POINTER
 #endif
 
+#undef EXF_ICEBERG_CALVING
+
 #endif /* ndef ECCO_CPPOPTIONS_H */
 #endif /* ALLOW_EXF */
 #endif /* EXF_OPTIONS_H */
