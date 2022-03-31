@@ -57,12 +57,19 @@ C     === Local variables ===
       PRINT *, 'dbg grounding'
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
-        DO j=1 ,sNy
-         DO i= 1,sNx
-          IF (ICEBERG_height(nCl) .GT. R_low(i,j,bi,bj)) THEN
+        DO j=0 ,sNy
+         DO i= 0,sNx
+           IF (ICEBERG_height(nCl) .GT. ABS(R_low(i,j,bi,bj)).OR.
+     &     ICEBERG_height(nCl) .GT. ABS(R_low(i-1,j,bi,bj))) THEN
             iceberg_uvel(i,j,bi,bj,nCl) = 0. _d 0
+          ENDIF
+          IF (ICEBERG_height(nCl) .GT. ABS(R_low(i,j,bi,bj)).OR.
+     &     ICEBERG_height(nCl) .GT. ABS(R_low(i,j-1,bi,bj))) THEN
             iceberg_vvel(i,j,bi,bj,nCl) = 0. _d 0
           ENDIF
+          CALL EXCH_UV_XY_RL(iceberg_uvel(1-OLx,1-OLy,1,1,nCl),
+     &    iceberg_vvel(1-OLx,1-OLy,1,1,nCl),
+     &    .TRUE.,myThid)
          ENDDO ! end i loop
         ENDDO ! end j loop
        ENDDO ! end bi loop

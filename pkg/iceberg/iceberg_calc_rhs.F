@@ -103,8 +103,8 @@ C--   Melt iceberg concentration
 
 #ifdef ALLOW_ICEBERG_DYNAMICS
 C--   Advect iceberg (effective height and fractional area)
-        CALL ICEBERG_ADV(iCl, myTime, myIter, myThid)
         CALL ICEBERG_GROUNDING(iCl, myTime, myIter, myThid)
+        CALL ICEBERG_ADV(iCl, myTime, myIter, myThid)
 
 #endif
       ENDDO
