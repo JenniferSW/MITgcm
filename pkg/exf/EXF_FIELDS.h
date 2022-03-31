@@ -126,6 +126,10 @@ C
 C     tidePot   :: Tidal geopotential forcing in m^2/s^2
 C                  Typical range: -10 < tidePot < +10
 C                  Input field
+C
+C     CalvingRate   :: Calving Rate for Iceberg calving
+C                      Typical range: 0 < CalvingRate
+C                      Input field
 
 C     NOTES:
 C     ======
@@ -237,10 +241,10 @@ C     sh        :: wind-speed [m/s] (always larger than uMin)
 #endif
 
 #ifdef ALLOW_DOWNWARD_RADIATION
-      COMMON /exf_rad_down_r/
-     &     swdown, lwdown, swdown0, swdown1, lwdown0, lwdown1
+      COMMON /exf_rad_down_r/ swdown, lwdown
       _RL swdown    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL lwdown    (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      COMMON /exfl_rad_down_r/ swdown0, swdown1, lwdown0, lwdown1
       _RL swdown0   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL swdown1   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL lwdown0   (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -335,4 +339,13 @@ C     zen_fsol_daily     :: incoming solar radiation (daily mean)
       _RL climvstr       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL climvstr0      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL climvstr1      (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+#endif
+
+
+#ifdef EXF_ICEBERG_CALVING
+      COMMON /exf_iceberg_calving_r/ CalvingRate,
+     &                              CalvingRate0, CalvingRate1
+      _RL CalvingRate       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL CalvingRate0       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL CalvingRate1       (1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
 #endif

@@ -210,9 +210,9 @@ testoutput_run()
 	#  load experiment-specific list from file "tr_checklist" (if it exist)
 	if test -r $1/$2/tr_checklist ; then listChk=`cat $1/$2/tr_checklist` ; fi
 	if test $KIND = 1 ; then kd='g_';
-	  if test -r $1/$2/tr_checklist.tlm ; then listChk=`cat $1/$2/tr_checklist.tlm` ; fi
 	  #  TLM use same input_ad/tr_checklist --> convert
-	  listChk=`echo $listChk | sed 's/\<adm/tlm/g'`
+	  listChk=`echo $listChk | sed 's/^adm/tlm/' | sed 's/ adm/ tlm/g'`
+	  if test -r $1/$2/tr_checklist.tlm ; then listChk=`cat $1/$2/tr_checklist.tlm` ; fi
 	elif test $KIND = 2 ; then kd='ad';
 	  if test -r $1/$2/tr_checklist.adm ; then listChk=`cat $1/$2/tr_checklist.adm` ; fi
 	elif test $KIND = 4 ; then kd='ad';
@@ -592,6 +592,29 @@ makemodel()
 	fi
 	echo " TAF reports $nerr Errors and $nwar Recomputation Warnings" \
 				>> $CDIR"/summary.txt"
+	if test -f ad_taf_output.f ; then
+	    adfile=ad_taf_output.f
+	elif test -f ad_taf_output.for ; then
+	    adfile=ad_taf_output.for
+	else
+	    echo "WARNING: neither ad_output_ad.f nor ad_output_ad.for found" \
+				>> $CDIR"/summary.txt"
+	    adfile=missing ; nlfd=0 ; ndop=0 ; nsm=0
+	fi
+	if test $adfile != missing ; then
+	    # count number of times load_fields_driver and do_oceanic_phys are called
+	    nlfd=`grep "call load_fields_driver(" ${adfile} | wc -l`
+	    nlfdmd=`grep "call load_fields_drivermd(" ${adfile} | wc -l`
+	    if (( $nlfdmd == 0 )) ; then
+		# if there is no load_fields_driver, we can substract one assuming
+		# that load_fields_driver is called once from forward_stepmd
+		nlfd=$((nlfd-1))
+	    fi
+	    ndop=`grep "call do_oceanic_phys("    ${adfile} | wc -l`
+	    nsm=`grep "call seaice_model(" ${adfile} | wc -l`
+	fi
+	echo " load_fields_driver, do_oceanic_phys, seaice_model are called " \
+	     "( $nlfd , $ndop , $nsm ) time(s)" >> $CDIR"/summary.txt"
     fi
     if test $mk_fail != 0 ; then return $mk_fail ; fi
     )
@@ -852,6 +875,8 @@ runmodel()
 		  mv -f $OUTPUTFILE ${OUTPUTFILE}.diva_${ii}
 		done
 	      fi
+	    elif test -f run_ADM_DIVA ; then
+		rm -f costf* divided.ctrl snapshot*
 	    fi
 	#- special DIVA processing ends here
 	    ( eval $COMMAND ) >> $RUNLOG 2>&1
@@ -986,10 +1011,12 @@ formatresults()
     fi
     printf '  %s' $nm
     if test $KIND = 2 ; then
-	#-- apppend taf repport summary:
+	#-- append taf report summary:
 	tafrep=`grep -c '^ TAF reports ' $CDIR/summary.txt`
 	if test $tafrep = 1 ; then
-	    grep '^ TAF reports ' $CDIR/summary.txt | awk '{printf "  (e=%i, w=%i)",$3,$6}'
+	    grep '^ TAF reports ' $CDIR/summary.txt | awk '{printf "  (e=%i, w=%i,",$3,$6}'
+	    grep '^ load_fields_driver,' $CDIR/summary.txt \
+		| awk '{printf " lfd=%i, dop=%i, sm=%i)",$7,$9,$11}'
 	fi
     fi
     printf '\n'
@@ -1125,7 +1152,7 @@ for ac_option ; do
     ac_optarg=`expr "x$ac_option" : 'x[^=]*=\(.*\)'`
 
     case $ac_option in
-	
+
 	-help | --help | -h | --h) usage ;;
 
 	-optfile | --optfile | -of | --of) ac_prev=OPTFILE ;;
@@ -1266,7 +1293,9 @@ fi
 
 #- setting for forward or ADM testing
 if test $KIND = 1 ; then
-    if test "x$TARG" = xsmall_f ; then TARG=ftltaf ; else TARG=ftlall ; fi
+    if test "x$TARG" = x        ; then TARG=ftlall ; fi
+    if test "x$TARG" = xobj     ; then TARG=ftlobj ; fi
+    if test "x$TARG" = xsmall_f ; then TARG=ftltaf ; fi
     code_dir=code_ad
     inputdir=input_ad
     ref_outp="output_tlm.txt"

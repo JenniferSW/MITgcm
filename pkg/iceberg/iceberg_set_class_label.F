@@ -11,6 +11,9 @@ C !Description:
 C Creates Label for iceberg classes in order to name the diagnostics
 C output.
 C It is possible to write labels up to 99 size classes
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 
 c !USES: ==============================================================

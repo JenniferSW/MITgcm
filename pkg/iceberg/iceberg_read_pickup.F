@@ -9,6 +9,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION:
 C     Reads current state of ICEBERG from a pickup file
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C     !USES:
       IMPLICIT NONE
@@ -141,10 +144,10 @@ c#ifdef ICEBERG_3D_STATE
      C             iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
      &             nj, fp, 1, myIter, myThid )
          nj = nj +1
-        ENDDO
+         CALL EXCH_XY_RL(iceberg_concentration(1-OLx,1-OLy,1,1,iCl),
+     &    myThid)
 
-        CALL EXCH_3D_RL( iceberg_concentration,
-     &                   iCl, myThid )
+        ENDDO
 
 c#endif /* ICEBERG_3D_STATE */
         nj = nj*Nr

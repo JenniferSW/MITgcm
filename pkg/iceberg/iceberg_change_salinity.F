@@ -18,6 +18,8 @@ C     | SUBROUTINE ICEBERG_CHANGE_SALINITY
 C     | o in this routine the salinity is changed due to meltwater input
 C     |
 C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 C
 C !USES: ===============================================================
       IMPLICIT NONE
@@ -60,13 +62,12 @@ CEOP
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1,sNy
           DO i=1,sNx
-           IF(maskC(i,j,k,bi,bj) .EQ. 1. _d 0)THEN
+          Vmelt = 0. _d 0
+           IF(iceberg_Vloss(i,j,bi,bj,nCl) .NE. 0. _d 0)THEN
 C Evaluate Vmelt for this grid cell
-            Vmelt = 0. _d 0
-c            DO nCl = 1, ICEBERG_numClUsed
-              Vmelt = Vmelt + iceberg_Vloss(i,j,bi,bj,nCl)
-c            ENDDO
-            cell_volume = rA(i,j,bi,bj)*drF(k)*hFacC(i,j,k,bi,bj)
+            Vmelt = iceberg_Vloss(i,j,bi,bj,nCl)
+     &          /ICEBERG_conc_norm_val*rA(i,j,bi,bj)
+            cell_volume = drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)
 C actual freshwater fraction
             FW = 1 - 1e-3 * salt(i,j,1,bi,bj)
 C actual freshwater volume
@@ -80,6 +81,6 @@ C new salinity
          ENDDO
         ENDDO
        ENDDO
-
+       _EXCH_XYZ_RL( salt, myThid )
       RETURN
       END

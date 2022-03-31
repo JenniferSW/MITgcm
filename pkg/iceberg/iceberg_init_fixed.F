@@ -9,6 +9,9 @@ C !INTERFACE:
 
 C     !DESCRIPTION:
 C     Initialize ICEBERG variables that are kept fixed during the run.
+C     *===========================================================*
+C     | written by Jennifer S. Wesselbaum, https://github.com/JenniferSW
+C     *===========================================================*
 
 C     !USES:
       IMPLICIT NONE
