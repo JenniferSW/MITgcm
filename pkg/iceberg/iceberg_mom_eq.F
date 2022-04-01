@@ -74,14 +74,14 @@ C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
 C     nCl       :: Loop counter for iceberg size classes
 C     u_temp
-      INTEGER i, j, bi, bj
+      INTEGER i, j, k, bi, bj
       _RL CFL_test
       _RL duw , dvw
       _RL dua , dva
       _RL dus , dvs
       _RL norm_a, Lw
       _RL cds_const, cdr_const
-      _RL form_a, form_w
+      _RL form_a, form_w, skin_w, frac_height
       _RL utemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vtemp(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL Fcu(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
@@ -235,8 +235,32 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
 
 
 #ifdef ALLOW_ICEBERG_OCEAN_DRAG
+
+           skin_w = + ICEBERG_OceanDrag
+     &              * iceberg_length(nCl)*iceberg_width(nCl)
+
+C berechnen des skin drag, da dieser unabhängig ist von den Layern ist und als Parameter in die Summe eingehen kann
+C Schleife über betroffene layer
+C Schleifen über i und j für CDw in layer k
+C bestimmen, ob der Eisberg den gesamten Layer ausfüllt (iceberg_height(iCl) > rF(k+1))
+C JA - CDw brechnen (0.5*ICEBERG_OceanDragform*Iceberg_width(iCl) * drF(k) + skin_drag)* norm_w
+C       mit norm_w = sqrt(duw(k)**2+dvw(k)**2)
+C NEIN - fraction der Höhe bestimmen
+C   frac_height = (1- (rF(k+1)-iceberg_height(iCl)))
+C   CDw brechnen (0.5*ICEBERG_OceanDragform*Iceberg_width(iCl) * frac_height* drF(k_bot) + skin_drag)* norm_w
+C       mit norm_w = sqrt(duw(k_bot)**2+dvw(k_bot)**2)
+C
+C Schleifen über i und j zur Berechnung des ocean drags in layer k
+C bestimmen ob Eisberg den gesamten Layer ausfüllt (iceberg_height(iCl) > rF(k+1)
+C JA - Berechnen von CDw(k) * v_w(k)
+C NEIN - CDw(k_bot)* v_w(k_bot)
+C aufsummieren
+
+C If the iceberg reaches deeper than layer k then use whole layer height for
+C calculating summand of layer k
+           DO k =1, Nr
             DO j=-1,sNy+1
-              DO i=-1,sNx+1
+             DO i=-1,sNx+1
                ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
                IF ( ibmaskC .GT. 0. _d 0 ) THEN
                 ibmaskC = 1. _d 0
@@ -244,36 +268,79 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
                 ibmaskC = 0. _d 0
                ENDIF
 
-               duw = 0.5 _d 0 * ((uVel(i,j,1,bi,bj)-utemp(i,j,bi,bj))
-     &          + (uVel(i+1,j,1,bi,bj)-utemp(i+1,j,bi,bj)))
-               dvw = 0.5 _d 0 * ((vVel(i,j,1,bi,bj)-vtemp(i,j,bi,bj))
-     &          +(vVel(i,j+1,1,bi,bj)-vtemp(i,j+1,bi,bj)))
-c Calculate Norm on C-Point with constants for ocean stress
-                IF (ibmaskC .EQ. 0. _d 0 ) THEN
-                  CDw(i,j) = 0. _d 0
-                ELSE
-                 form_w = 0.5 _d 0 * ICEBERG_OceanDragform
-     &              * ICEBERG_rhoIceberg/ICEBERG_rhoOcean
-     &              * ICEBERG_height(nCl) * ICEBERG_width(nCl)
+               IF(ICEBERG_height(nCl) .GT. rF(k+1))THEN
+                    IF (ibmaskC .EQ. 0. _d 0 ) THEN
+                      CDw(i,j) = 0. _d 0
+                    ELSE
+                      duw = 0.5 _d 0 *
+     &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
+     &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
+                      dvw = 0.5 _d 0 *
+     &                 ((vVel(i,j,k,bi,bj)-vtemp(i,j,bi,bj))
+     &                 +(vVel(i,j+1,k,bi,bj)-vtemp(i,j+1,bi,bj)))
 
-                 CDw(i,j) = ICEBERG_rhoOcean *
-     &              (form_w
-     &              + ICEBERG_OceanDrag
-     &              * iceberg_length(nCl)*iceberg_width(nCl))
-     &              * sqrt(duw**2+dvw**2)
-                ENDIF
+                      form_w = 0.5 _d 0 * ICEBERG_OceanDragform
+     &                      * drF(k) * ICEBERG_width(nCl)
+
+                      CDw(i,j) = ICEBERG_rhoOcean *
+     &                      (form_w
+     &                      + skin_w)
+     &                      * sqrt(duw**2+dvw**2)
+                    ENDIF
+
+               ELSE IF(ICEBERG_height(nCl) .GT. rF(k) .AND.
+     &                 ICEBERG_height(nCl) .LT. rF(k+1))THEN
+
+                    IF (ibmaskC .EQ. 0. _d 0 ) THEN
+                      CDw(i,j) = 0. _d 0
+                    ELSE
+                      frac_height = (1- (rF(k+1)-iceberg_height(nCl)))
+                      duw = 0.5 _d 0 *
+     &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
+     &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
+                      dvw = 0.5 _d 0 *
+     &                 ((vVel(i,j,k,bi,bj)-vtemp(i,j,bi,bj))
+     &                 +(vVel(i,j+1,k,bi,bj)-vtemp(i,j+1,bi,bj)))
+
+                      form_w = 0.5 _d 0 * ICEBERG_OceanDragform
+     &                      * drF(k) * frac_height
+     &                      * ICEBERG_width(nCl)
+
+                      CDw(i,j) = ICEBERG_rhoOcean *
+     &                      (form_w
+     &                      + skin_w)
+     &                      * sqrt(duw**2+dvw**2)
+                    ENDIF
+
+
+               ENDIF
               ENDDO
             ENDDO
 C calculate rhs of ocean drag force
             DO j=0,sNy+1
               DO i=0,sNx+1
-                Fwu(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i-1,j) )
-     &            * uVel(i,j,1,bi,bj)
+               IF(ICEBERG_height(nCl) .GT. rF(k+1))THEN
+                Fwu(i,j,bi,bj) = Fwu(i,j,bi,bj) +
+     &            0.5 * ( CDw(i,j) + CDw(i-1,j) )
+     &            * uVel(i,j,k,bi,bj)
 
-                Fwv(i,j,bi,bj) = 0.5 * ( CDw(i,j) + CDw(i,j-1) )
-     &            * vVel(i,j,1,bi,bj)
+                Fwv(i,j,bi,bj) = Fwu(i,j,bi,bj) +
+     &            0.5 * ( CDw(i,j) + CDw(i,j-1) )
+     &            * vVel(i,j,k,bi,bj)
+               ELSE IF(ICEBERG_height(nCl) .GT. rF(k) .AND.
+     &                 ICEBERG_height(nCl) .LT. rF(k+1))THEN
+                Fwu(i,j,bi,bj) = Fwu(i,j,bi,bj) +
+     &            0.5 * ( CDw(i,j) + CDw(i-1,j) )
+     &            * uVel(i,j,k,bi,bj)
+
+                Fwv(i,j,bi,bj) = Fwu(i,j,bi,bj) +
+     &            0.5 * ( CDw(i,j) + CDw(i,j-1) )
+     &            * vVel(i,j,k,bi,bj)
+
+              ENDIF
               ENDDO
             ENDDO
+          ENDDO
 #endif
 c   *------ Atmosphere Drag ------*
 C Uwind/Vwind is located on southwest C-Grid points
