@@ -335,7 +335,7 @@ C calculate rhs of ocean drag force
      &            0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )
      &            * uVel(i,j,k,bi,bj)
 
-                Fwv(i,j,bi,bj) = Fwu(i,j,bi,bj) +
+                Fwv(i,j,bi,bj) = Fwv(i,j,bi,bj) +
      &            0.5 * ( CDw(i,j,1) + CDw(i,j-1,1) )
      &            * vVel(i,j,k,bi,bj)
 
@@ -352,7 +352,7 @@ C calculate rhs of ocean drag force
      &            0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )
      &            * uVel(i,j,k,bi,bj)
 
-                Fwv(i,j,bi,bj) = Fwu(i,j,bi,bj) +
+                Fwv(i,j,bi,bj) = Fwv(i,j,bi,bj) +
      &            0.5 * ( CDw(i,j,1) + CDw(i,j-1,1) )
      &            * vVel(i,j,k,bi,bj)
 
