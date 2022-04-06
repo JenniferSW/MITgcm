@@ -300,8 +300,9 @@ C calculating summand of layer k
                     IF (ibmaskC .EQ. 0. _d 0 ) THEN
                       CDw(i,j,1) = 0. _d 0
                     ELSE
-                      frac_height = (1- (ABS(rF(k+1))
-     &                 -iceberg_height(nCl)))
+                      frac_height = (iceberg_height(nCl)-ABS(rF(k)))
+     &                  /drF(k)
+
                       duw = 0.5 _d 0 *
      &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
      &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
