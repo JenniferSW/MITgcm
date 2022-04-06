@@ -98,7 +98,7 @@ C     u_temp
       _RL Fpv(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL urhs(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vrhs(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL CDw(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
+      _RL CDw(1-OLx:sNx+OLx,1-OLy:sNy+OLy,2)
       _RL CDa(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDs(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDr(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -141,7 +141,8 @@ CEOP
               Fpv(i,j,bi,bj) = 0. _d 0
               urhs(i,j,bi,bj) = 0. _d 0
               vrhs(i,j,bi,bj) = 0. _d 0
-              CDw(i,j) = 0. _d 0 ! initialise coefficients
+              CDw(i,j,1) = 0. _d 0 ! initialise coefficients
+              CDw(i,j,2) = 0. _d 0 ! initialise coefficients
               CDa(i,j) = 0. _d 0
               CDs(i,j) = 0. _d 0
               CDr(i,j) = 0. _d 0
@@ -236,8 +237,7 @@ c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v
 
 #ifdef ALLOW_ICEBERG_OCEAN_DRAG
 
-           skin_w = + ICEBERG_OceanDrag
-     &              * iceberg_length(nCl)*iceberg_width(nCl)
+
 
 C berechnen des skin drag, da dieser unabhängig ist von den Layern ist und als Parameter in die Summe eingehen kann
 C Schleife über betroffene layer
@@ -258,6 +258,8 @@ C aufsummieren
 
 C If the iceberg reaches deeper than layer k then use whole layer height for
 C calculating summand of layer k
+            skin_w = ICEBERG_OceanDrag
+     &              * iceberg_length(nCl)*iceberg_width(nCl)
            DO k =1, Nr
             DO j=-1,sNy+1
              DO i=-1,sNx+1
@@ -268,9 +270,10 @@ C calculating summand of layer k
                 ibmaskC = 0. _d 0
                ENDIF
 
-               IF(ICEBERG_height(nCl) .GT. rF(k+1))THEN
+               IF(ICEBERG_height(nCl) .GT. ABS(rF(k+1)))THEN
                     IF (ibmaskC .EQ. 0. _d 0 ) THEN
-                      CDw(i,j) = 0. _d 0
+                      CDw(i,j,1) = 0. _d 0
+                      CDw(i,j,2) = 0. _d 0
                     ELSE
                       duw = 0.5 _d 0 *
      &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
@@ -282,19 +285,23 @@ C calculating summand of layer k
                       form_w = 0.5 _d 0 * ICEBERG_OceanDragform
      &                      * drF(k) * ICEBERG_width(nCl)
 
-                      CDw(i,j) = ICEBERG_rhoOcean *
+                      CDw(i,j,1) = ICEBERG_rhoOcean *
      &                      (form_w
      &                      + skin_w)
      &                      * sqrt(duw**2+dvw**2)
+                    PRINT * ,'dbg drag part',nCl,k, drF(k),ABS(rF(k)),
+     &               ABS(rF(k+1)),ICEBERG_height(nCl),
+     &              form_w,skin_w, sqrt(duw**2+dvw**2)
                     ENDIF
 
-               ELSE IF(ICEBERG_height(nCl) .GT. rF(k) .AND.
-     &                 ICEBERG_height(nCl) .LT. rF(k+1))THEN
+               ELSE IF(ICEBERG_height(nCl) .GT. ABS(rF(k)) .AND.
+     &                 ICEBERG_height(nCl) .LT. ABS(rF(k+1)))THEN
 
                     IF (ibmaskC .EQ. 0. _d 0 ) THEN
-                      CDw(i,j) = 0. _d 0
+                      CDw(i,j,1) = 0. _d 0
                     ELSE
-                      frac_height = (1- (rF(k+1)-iceberg_height(nCl)))
+                      frac_height = (1- (ABS(rF(k+1))
+     &                 -iceberg_height(nCl)))
                       duw = 0.5 _d 0 *
      &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
      &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
@@ -306,10 +313,13 @@ C calculating summand of layer k
      &                      * drF(k) * frac_height
      &                      * ICEBERG_width(nCl)
 
-                      CDw(i,j) = ICEBERG_rhoOcean *
+                      CDw(i,j,1) = ICEBERG_rhoOcean *
      &                      (form_w
      &                      + skin_w)
      &                      * sqrt(duw**2+dvw**2)
+                   PRINT * ,'dbg drag part 2',nCl,k, drF(k),ABS(rF(k)),
+     &               ABS(rF(k+1)),ICEBERG_height(nCl),
+     &              form_w,skin_w, sqrt(duw**2+dvw**2)
                     ENDIF
 
 
@@ -319,23 +329,33 @@ C calculating summand of layer k
 C calculate rhs of ocean drag force
             DO j=0,sNy+1
               DO i=0,sNx+1
-               IF(ICEBERG_height(nCl) .GT. rF(k+1))THEN
+               IF(ICEBERG_height(nCl) .GT. ABS(rF(k+1)))THEN
                 Fwu(i,j,bi,bj) = Fwu(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j) + CDw(i-1,j) )
+     &            0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )
      &            * uVel(i,j,k,bi,bj)
 
                 Fwv(i,j,bi,bj) = Fwu(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j) + CDw(i,j-1) )
+     &            0.5 * ( CDw(i,j,1) + CDw(i,j-1,1) )
      &            * vVel(i,j,k,bi,bj)
-               ELSE IF(ICEBERG_height(nCl) .GT. rF(k) .AND.
-     &                 ICEBERG_height(nCl) .LT. rF(k+1))THEN
+
+                CDw(i,j,2) = CDw(i,j,2) + CDw(i,j,1)
+
+                IF(iceberg_concentration(i,j,bi,bj,nCl).GT.0. _d 0)THEN
+                PRINT *, 'dbg ocean drag',Fwu(i,j,bi,bj),
+     &           Fwv(i,j,bi,bj),iceberg_concentration(i,j,bi,bj,nCl),
+     &          0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )* uVel(i,j,k,bi,bj)
+              ENDIF
+               ELSE IF(ICEBERG_height(nCl) .GT. ABS(rF(k)) .AND.
+     &                 ICEBERG_height(nCl) .LT. ABS(rF(k+1)))THEN
                 Fwu(i,j,bi,bj) = Fwu(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j) + CDw(i-1,j) )
+     &            0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )
      &            * uVel(i,j,k,bi,bj)
 
                 Fwv(i,j,bi,bj) = Fwu(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j) + CDw(i,j-1) )
+     &            0.5 * ( CDw(i,j,1) + CDw(i,j-1,1) )
      &            * vVel(i,j,k,bi,bj)
+
+                CDw(i,j,2) = CDw(i,j,2) + CDw(i,j,1)
 
               ENDIF
               ENDDO
@@ -472,8 +492,8 @@ C term conversion as shown in Rackow (2011)
             ENDDO
 
 
-           DO j=0,sNy+1
-              DO i=0,sNx+1
+           DO j=-1,sNy+1
+              DO i=-1,sNx+1
                 ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
                 IF ( ibmaskC .GT. 0. _d 0 ) THEN
                  ibmaskC = 1. _d 0
@@ -574,7 +594,7 @@ C TODO insert u and V
      &              / (1. - ibmaskU
      &              + massU(i,j)
      &              + ICEBERG_deltaT * (
-     &              0.5 * ( CDw(i,j) + CDw(i-1,j) )
+     &              0.5 * ( CDw(i,j,2) + CDw(i-1,j,2) )
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
      &               )))
 
@@ -585,7 +605,7 @@ C TODO insert u and V
      &              / (1. - ibmaskV
      &              + massV(i,j)
      &              + ICEBERG_deltaT * (
-     &              0.5 * ( CDw(i,j) + CDw(i,j-1) )
+     &              0.5 * ( CDw(i,j,2) + CDw(i,j-1,2) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               )))
                IF(ISNAN(iceberg_vvel(i,j,bi,bj,nCl)))THEN
@@ -593,14 +613,14 @@ C TODO insert u and V
      &            ibmaskV,
      &            massV(i,j),vtemp(i,j,bi,bj),
      &            vrhs(i,j,bi,bj),ICEBERG_deltaT,
-     &           ICEBERG_deltaT,CDw(i,j),CDw(i,j-1),CDs(i,j),CDs(i,j-1)
-                 STOP 'Nan found in vvel'
+     &           ICEBERG_deltaT,CDw(i,j,2),CDw(i,j-1,2),CDs(i,j)
+                  STOP 'Nan found in vvel'
                ENDIF
                IF(ISNAN(iceberg_uvel(i,j,bi,bj,nCl)))THEN
              PRINT*,'dbg nan in uvel', myIter,
      &        ibmaskU,massU(i,j),utemp(i,j,bi,bj),
      &        urhs(i,j,bi,bj),ICEBERG_deltaT,
-     &        ICEBERG_deltaT,CDw(i,j),CDw(i-1,j),
+     &        ICEBERG_deltaT,CDw(i,j,2),CDw(i-1,j,2),
      &        CDs(i,j), CDs(i-1,j)
 
              STOP 'Nan found in uvel'
