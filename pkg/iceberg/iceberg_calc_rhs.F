@@ -103,7 +103,9 @@ C--   Melt iceberg concentration
 
 #ifdef ALLOW_ICEBERG_DYNAMICS
 C--   Advect iceberg (effective height and fractional area)
+        CALL ICEBERG_GROUNDING(iCl, myTime, myIter, myThid)
         CALL ICEBERG_ADV(iCl, myTime, myIter, myThid)
+
 #endif
       ENDDO
 
@@ -117,8 +119,6 @@ C calculate new iceberg volume in grid cell after melting
           DO i=1-OLx+1,sNx+OLx
 
 #ifdef ALLOW_ICEBERG_MELTING
-            PRINT*,'dbg melting class transition'
-
             IF(iCl .EQ. 1 .AND. ICEBERG_numClUsed .GT. 1) THEN
             ! there is no transition from the smallest size class
             ! from the smallest size class the iceberg go to a non iceberg status
