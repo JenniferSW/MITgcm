@@ -80,7 +80,7 @@ C Diagnostics for iceberg distribution
         WRITE(diagTitle,'(A,I2)') 'Iceberg velocity u-dir for class'
      &       ,iCl
         diagUnits = 'm/s             '
-        diagCode  = 'SM      M1      '
+        diagCode  = 'UU      M1      '
         WRITE(diagLabel,'(A,A)') 'IB_uVel_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBU'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
@@ -92,7 +92,7 @@ C Diagnostics for iceberg distribution
         WRITE(diagTitle,'(A,I2)') 'Iceberg velocity v-dir for class'
      &       ,iCl
         diagUnits = 'm/s             '
-        diagCode  = 'SM      M1      '
+        diagCode  = 'VV      M1      '
         WRITE(diagLabel,'(A,A)') 'IB_vVel_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBV'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
