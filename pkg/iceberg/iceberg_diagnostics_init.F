@@ -54,7 +54,7 @@ C Diagnostics for iceberg distribution
        DO iCl = 1, ICEBERG_numCl
         WRITE(diagTitle,'(A,I2)') 'Iceberg concentration for class'
      &       ,iCl
-        diagUnits = 'm               '
+        diagUnits = '1/m^2           '
         diagCode  = 'SM      M1      '
         WRITE(diagLabel,'(A,A)') 'IB_conc_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBC'//ICEBERG_ClLbl(iCl)
@@ -65,11 +65,11 @@ C Diagnostics for iceberg distribution
 
 
        DO iCl = 1, ICEBERG_numCl
-        WRITE(diagTitle,'(A,I2)') 'Iceberg volume loss for class'
+        WRITE(diagTitle,'(A,I2)') 'Iceberg concentration loss for class'
      &       ,iCl
-        diagUnits = 'm               '
+        diagUnits = '1/m^2s          '
         diagCode  = 'SM      M1      '
-        WRITE(diagLabel,'(A,A)') 'IB_Vloss_',ICEBERG_ClLbl(iCl)
+        WRITE(diagLabel,'(A,A)') 'IB_loss_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBL'//ICEBERG_ClLbl(iCl)
         CALL DIAGNOSTICS_ADDTOLIST( diagNum,
      I       diagName, diagCode, diagUnits, diagTitle,
