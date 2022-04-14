@@ -58,11 +58,9 @@ C     nCl       :: number of class the velocity is calculated for
 C !LOCAL VARIABLES: ====================================================
 C     === Local variables ===
 C     i,j,bi,bj :: Loop counters
-C     addV       :: Volumen to be added to iceberg_concentration
 C     u_temp
       INTEGER i, j, bi, bj
       _RL calved_iceberg
-      _RL addV
 
 
 CEOP
@@ -72,7 +70,6 @@ C ICEBERG_calvrate :: field with calving rates at calving spots matching the cal
         DO bi=myBxLo(myThid),myBxHi(myThid)
          DO j=1 ,sNy
           DO i= 1,sNx
-          addV = 0. _d 0
           calved_iceberg = 0. _d 0
 #ifdef EXF_ICEBERG_CALVING
          IF( CalvingRate(i,j,bi,bj) .GT. 0. _d 0) THEN

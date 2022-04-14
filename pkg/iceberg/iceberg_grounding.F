@@ -54,7 +54,7 @@ C     === Local variables ===
       INTEGER i, j, bi, bj
       INTEGER nCl
 
-      PRINT *, 'dbg grounding'
+
       DO bj=myByLo(myThid),myByHi(myThid)
        DO bi=myBxLo(myThid),myBxHi(myThid)
         DO j=0 ,sNy

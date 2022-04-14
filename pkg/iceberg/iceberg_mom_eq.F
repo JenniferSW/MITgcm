@@ -289,9 +289,7 @@ C calculating summand of layer k
      &                      (form_w
      &                      + skin_w)
      &                      * sqrt(duw**2+dvw**2)
-                    PRINT * ,'dbg drag part',nCl,k, drF(k),ABS(rF(k)),
-     &               ABS(rF(k+1)),ICEBERG_height(nCl),
-     &              form_w,skin_w, sqrt(duw**2+dvw**2)
+
                     ENDIF
 
                ELSE IF(ICEBERG_height(nCl) .GT. ABS(rF(k)) .AND.
@@ -318,9 +316,7 @@ C calculating summand of layer k
      &                      (form_w
      &                      + skin_w)
      &                      * sqrt(duw**2+dvw**2)
-                   PRINT * ,'dbg drag part 2',nCl,k, drF(k),ABS(rF(k)),
-     &               ABS(rF(k+1)),ICEBERG_height(nCl),
-     &              form_w,skin_w, sqrt(duw**2+dvw**2)
+
                     ENDIF
 
 
@@ -341,11 +337,7 @@ C calculate rhs of ocean drag force
 
                 CDw(i,j,2) = CDw(i,j,2) + CDw(i,j,1)
 
-                IF(iceberg_concentration(i,j,bi,bj,nCl).GT.0. _d 0)THEN
-                PRINT *, 'dbg ocean drag',Fwu(i,j,bi,bj),
-     &           Fwv(i,j,bi,bj),iceberg_concentration(i,j,bi,bj,nCl),
-     &          0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )* uVel(i,j,k,bi,bj)
-              ENDIF
+
                ELSE IF(ICEBERG_height(nCl) .GT. ABS(rF(k)) .AND.
      &                 ICEBERG_height(nCl) .LT. ABS(rF(k+1)))THEN
                 Fwu(i,j,bi,bj) = Fwu(i,j,bi,bj) +
