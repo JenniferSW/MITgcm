@@ -67,7 +67,7 @@ C Diagnostics for iceberg distribution
        DO iCl = 1, ICEBERG_numCl
         WRITE(diagTitle,'(A,I2)') 'Iceberg concentration loss for class'
      &       ,iCl
-        diagUnits = '1/m^2s          '
+        diagUnits = 'm^3/m^2s        '
         diagCode  = 'SM      M1      '
         WRITE(diagLabel,'(A,A)') 'IB_loss_',ICEBERG_ClLbl(iCl)
         WRITE(diagName,'(A8)') 'IBL'//ICEBERG_ClLbl(iCl)
