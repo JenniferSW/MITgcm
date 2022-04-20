@@ -22,6 +22,9 @@ C     !USES:
 #include "GRID.h"
 #include "ICEBERG_SIZE.h"
 #include "ICEBERG.h"
+#ifdef ALLOW_EXF
+# include "EXF_OPTIONS.h"
+#endif
 
 C     !INPUT/OUTPUT PARAMETERS:
 C     myThid ::  my Thread Id number
@@ -94,13 +97,11 @@ c      _BARRIER
            DO j=1-Oly,sNy+OLy
             DO i=1-Olx,sNx+Olx
 C change iceberg number to icebergs per grid area
-            PRINT*,'dbg conc read init',
-     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+
 
              iceberg_concentration(i,j,bi,bj,iCl)=
      &          iceberg_concentration(i,j,bi,bj,iCl) / rA(i,j,bi,bj)
-            PRINT*,'dbg conc save init',
-     &          iceberg_concentration(i,j,bi,bj,iCl),rA(i,j,bi,bj)
+
 
            ENDDO
           ENDDO
