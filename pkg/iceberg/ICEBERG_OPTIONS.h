@@ -14,6 +14,7 @@ C CPP flags for use of dynamics, melting, calving and freshwater input
 #define ALLOW_ICEBERG_MELTING
 #define ALLOW_ICEBERG_CALVING
 #define ALLOW_FRESHWATER_INPUT
+#define ALLOW_GROUNDING
 
 C CPP flags for the use of forces in dynamics
 #define ALLOW_ICEBERG_CORIOLIS
