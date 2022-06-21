@@ -67,6 +67,8 @@ CEOP
 C Evaluate Vmelt for this grid cell
             Vmelt = iceberg_Vloss(i,j,bi,bj,nCl)
      &          /ICEBERG_conc_norm_val*rA(i,j,bi,bj)
+C Convert ice volume into frehwater volume
+            Vmelt = Vmelt*ICEBERG_rhoIceberg/rhoConstFresh
             cell_volume = drF(k)*hFacC(i,j,k,bi,bj)*rA(i,j,bi,bj)
 C actual freshwater fraction
             FW = 1 - 1e-3 * salt(i,j,1,bi,bj)
