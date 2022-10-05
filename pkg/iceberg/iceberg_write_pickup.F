@@ -84,7 +84,7 @@ C     record number < 0 : a hack not to write meta files now:
 
          j = j + 1
 
-         CALL WRITE_REC_3D_RL( fn, fp, Nr,
+         CALL WRITE_REC_3D_RL( fn, fp, 1,
      C              iceberg_concentration(1-OLx,1-OLy,1,1,iCl)
      &             , -j, myIter, myThid )
          IF (j.LE.listDim) wrFldList(j) = 'IBC'//ICEBERG_ClLbl(iCl)
