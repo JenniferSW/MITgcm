@@ -169,12 +169,12 @@ C catch values that are too small or values that are negative because of too str
 #endif
 
 #ifdef ALLOW_FIXING
-            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.0. _d 0) THEN
+            IF (iceberg_concentration(i,j,bi,bj,iCl).LE.1. _d -15) THEN
 C REMOVE debugging output when not needed anymore
-                IF (iceberg_concentration(i,j,bi,bj,iCl).GT.0. _d 0) THEN
-                PRINT*,'dbg fixing low ',
-     &              iceberg_concentration(i,j,bi,bj,iCl)
-                ENDIF
+C                IF (iceberg_concentration(i,j,bi,bj,iCl).GT.0. _d 0) THEN
+C                PRINT*,'dbg fixing low ',
+C     &              iceberg_concentration(i,j,bi,bj,iCl)
+C                ENDIF
              iceberg_concentration(i,j,bi,bj,iCl) = 0. _d 0
             ENDIF
 #endif
