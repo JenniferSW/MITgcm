@@ -159,45 +159,16 @@ C interpolation from c to u/v point
 C u-point -> 0.5*( c(i,j) + c(i-1,j))
 C v-point -> 0.5*( c(i,j) + c(i,j-1))
 
-C This is the mass of all icebergs at grid point
-!           DO j=1-OLy+1,sNy+OLy
-!             DO i=1-OLx+1,sNx+OLx
-!               iceberg_MassC(i,j,bi,bj) =
-!    &                 ICEBERG_rhoSeaice
-!    &                 * iceberg_concentration(i,j,bi,bj,nCl)
-!    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
-!    &                 * ICEBERG_height(nCl)
-!               iceberg_MassU(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
-!    &                 (iceberg_concentration(i,j,bi,bj,nCl)
-!    &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
-!    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
-!    &                 * ICEBERG_height(nCl)
-!               iceberg_MassV(i,j,bi,bj) = ICEBERG_rhoSeaice * 0.5 *
-!    &                 (iceberg_concentration(i,j,bi,bj,nCl)
-!    &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
-!    &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
-!    &                 * ICEBERG_height(nCl)
-!             ENDDO
-!           ENDDO
-!           _EXCH_XY_RL( iceberg_MassC, mythid )
-!           _EXCH_XY_RL( iceberg_MassU, mythid )
-!           _EXCH_XY_RL( iceberg_MassV, mythid )
-C TODO replace Iceberg_rhoSeaice with rhoIceberg
             DO j=-1,sNy+1
               DO i=-1,sNx+1
                 massC(i,j) =
      &                 ICEBERG_rhoSeaice
-!    &                 * iceberg_concentration(i,j,bi,bj,nCl)
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
                 massU(i,j) = ICEBERG_rhoSeaice
-!    &                 * 0.5 *(iceberg_concentration(i,j,bi,bj,nCl)
-!    &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
                 massV(i,j) = ICEBERG_rhoSeaice
-!    &                 * 0.5 *(iceberg_concentration(i,j,bi,bj,nCl)
-!    &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
 
@@ -422,7 +393,7 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_ICEBERG_SEAICE_DRAG
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
-           cds_const = 0.5 * AREA(i,j,bi,bj) * ICEBERG_rhoSeaice
+           cds_const = 0.5  * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
            DO j=-1,sNy+1
              DO i=-1,sNx+1
@@ -433,7 +404,7 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
      &          + (VICE(i,j+1,bi,bj)-vtemp(i,j+1,bi,bj)))
 C     Calculate Norm on C-Point with constant values for wind stress
 C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
-               CDs(i,j) = cds_const
+               CDs(i,j) = cds_const * AREA(i,j,bi,bj)
      &            * iceberg_width(nCl)
      &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
      &            * sqrt(dus**2+dvs**2)
