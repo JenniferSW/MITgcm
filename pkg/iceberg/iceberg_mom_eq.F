@@ -422,7 +422,7 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_ICEBERG_SEAICE_DRAG
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
-           cds_const = 0.5 * AREA(i,j,bi,bj) * ICEBERG_rhoSeaice
+           cds_const = 0.5  * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
            DO j=-1,sNy+1
              DO i=-1,sNx+1
@@ -433,7 +433,7 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
      &          + (VICE(i,j+1,bi,bj)-vtemp(i,j+1,bi,bj)))
 C     Calculate Norm on C-Point with constant values for wind stress
 C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
-               CDs(i,j) = cds_const
+               CDs(i,j) = cds_const * AREA(i,j,bi,bj)
      &            * iceberg_width(nCl)
      &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
      &            * sqrt(dus**2+dvs**2)
