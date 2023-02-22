@@ -98,7 +98,8 @@ C     u_temp
       _RL Fpv(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL urhs(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL vrhs(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL CDw(1-OLx:sNx+OLx,1-OLy:sNy+OLy,2)
+      _RL CDw(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr)
+      _RL CDw_abs(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDa(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDs(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
       _RL CDr(1-OLx:sNx+OLx,1-OLy:sNy+OLy)
@@ -142,8 +143,10 @@ CEOP
               Fpv(i,j,bi,bj) = 0. _d 0
               urhs(i,j,bi,bj) = 0. _d 0
               vrhs(i,j,bi,bj) = 0. _d 0
-              CDw(i,j,1) = 0. _d 0 ! initialise coefficients
-              CDw(i,j,2) = 0. _d 0 ! initialise coefficients
+              DO k = 1,Nr
+                CDw(i,j,k) = 0. _d 0 ! initialise coefficients
+              ENDDO
+              CDw_abs(i,j) = 0. _d 0 ! initialise coefficients
               CDa(i,j) = 0. _d 0
               CDs(i,j) = 0. _d 0
               CDr(i,j) = 0. _d 0
@@ -159,21 +162,167 @@ C interpolation from c to u/v point
 C u-point -> 0.5*( c(i,j) + c(i-1,j))
 C v-point -> 0.5*( c(i,j) + c(i,j-1))
 
-            DO j=-1,sNy+1
+
+
+C --------- Claculate constant values for different forces -----------
+C constant for ocean drag
+#ifdef ALLOW_ICEBERG_OCEAN_DRAG
+        skin_w = ICEBERG_OceanDrag
+     &           * iceberg_length(nCl)*iceberg_width(nCl)
+#endif /* ALLOW_ICEBERG_OCEAN_DRAG */
+
+C constant for atmosphere drag
+#ifdef ALLOW_ICEBERG_ATMOSPHERE_DRAG
+        form_a = 0.5 * ICEBERG_AirDragform
+     &              * (1-ICEBERG_rhoIceberg/ICEBERG_rhoOcean)
+     &              * ICEBERG_height(nCl) * ICEBERG_width(nCl)
+#endif /* ALLOW_ICEBERG_ATMOSPHERE_DRAG */
+
+C constant for seaice drag
+#ifdef ALLOW_ICEBERG_SEAICE_DRAG
+        cds_const = 0.5  * ICEBERG_rhoSeaice
+     &             * ICEBERG_SeaiceDrag
+#endif /* ALLOW_ICEBERG_SEAICE_DRAG */
+
+C constant for wave radiation
+#ifdef ALLOW_ICEBERG_WAVE_RADIATION
+        cdr_const = 0.25 * ICEBERG_rhoOcean
+     &            * ICEBERG_gravity * (0.5 * 0.02025)**2
+#endif /* ALLOW_ICEBERG_WAVER_RADIATION */
+
+
+c loop for coefficients of the different forces
+             DO j=-1,sNy+1
               DO i=-1,sNx+1
+
+C calculate iceberg mass
                 massC(i,j) =
-     &                 ICEBERG_rhoSeaice
+     &                 ICEBERG_rhoIceberg
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                massU(i,j) = ICEBERG_rhoSeaice
+                massU(i,j) = ICEBERG_rhoIceberg
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                massV(i,j) = ICEBERG_rhoSeaice
+                massV(i,j) = ICEBERG_rhoIceberg
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
 
+C calculate iceberg maskC
+                ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
+               IF ( ibmaskC .GT. 0. _d 0 ) THEN
+                ibmaskC = 1. _d 0
+               ELSE
+                ibmaskC = 0. _d 0
+               ENDIF
+
+C ocean drag coefficient
+#ifdef ALLOW_ICEBERG_OCEAN_DRAG
+                IF (ibmaskC .EQ. 0. _d 0 )THEN
+                      CDw(i,j,k) = 0. _d 0
+                      CDw_abs(i,j) = 0. _d 0
+                ELSE
+                 DO k =1, Nr
+                   IF(ICEBERG_height(nCl) .GT. ABS(rF(k+1)))THEN
+                      duw = 0.5 _d 0 *
+     &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
+     &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
+                      dvw = 0.5 _d 0 *
+     &                 ((vVel(i,j,k,bi,bj)-vtemp(i,j,bi,bj))
+     &                 +(vVel(i,j+1,k,bi,bj)-vtemp(i,j+1,bi,bj)))
+
+                      form_w = 0.5 _d 0 * ICEBERG_OceanDragform
+     &                      * drF(k) * ICEBERG_width(nCl)
+
+                   ELSE IF(ICEBERG_height(nCl) .GT. ABS(rF(k)) .AND.
+     &                 ICEBERG_height(nCl) .LT. ABS(rF(k+1)))THEN
+
+                      frac_height = (iceberg_height(nCl)-ABS(rF(k)))
+     &                  /drF(k)
+
+                      duw = 0.5 _d 0 *
+     &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
+     &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
+                      dvw = 0.5 _d 0 *
+     &                 ((vVel(i,j,k,bi,bj)-vtemp(i,j,bi,bj))
+     &                 +(vVel(i,j+1,k,bi,bj)-vtemp(i,j+1,bi,bj)))
+
+                      form_w = 0.5 _d 0 * ICEBERG_OceanDragform
+     &                      * drF(k) * frac_height
+     &                      * ICEBERG_width(nCl)
+
+                   ENDIF
+                   CDw(i,j,k) = ICEBERG_rhoOcean *
+     &                      (form_w
+     &                      + skin_w)
+     &                      * sqrt(duw**2+dvw**2)
+                 ENDDO
+                ENDIF
+#endif /* ALLOW_ICEBERG_OCEAN_DRAG */
+
+C atmosphere drag coefficient
+#ifdef ALLOW_ICEBERG_ATMOSPHERE_DRAG
+#ifdef ALLOW_EXF
+                IF (ibmaskC .EQ. 0. _d 0 ) THEN
+                  CDa(i,j) = 0. _d 0
+                ELSE
+                  CDa(i,j) = ICEBERG_rhoAir *
+     &              (form_a
+     &              + ICEBERG_AirDrag
+     &              * iceberg_length(nCl)*iceberg_width(nCl))
+     &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
+                ENDIF
+
+#endif /* ALLOW_EXF */
+#endif /* ALLOW_ICEBERG_ATMOSPHERE_DRAG */
+
+C seaice drag coefficient
+#ifdef ALLOW_ICEBERG_SEAICE_DRAG
+#ifdef ALLOW_SEAICE
+                 IF (useSEAICE) THEN
+                    dus = 0.5 * ((UICE(i,j,bi,bj)-utemp(i,j,bi,bj))
+     &                  + (UICE(i+1,j,bi,bj)-utemp(i+1,j,bi,bj)))
+                    dvs = 0.5 * ((VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
+     &                  + (VICE(i,j+1,bi,bj)-vtemp(i,j+1,bi,bj)))
+C     Calculate Norm on C-Point with constant values for wind stress
+C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
+                    CDs(i,j) = cds_const * AREA(i,j,bi,bj)
+     &            * iceberg_width(nCl)
+     &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
+     &            * sqrt(dus**2+dvs**2)
+                 ENDIF
+#endif /*ALLOW_SEAICE*/
+#endif /* ALLOW_ICEBERG_SEAICE_DRAG */
+
+C wave radiation force coefficient
+#ifdef ALLOW_ICEBERG_WAVE_RADIATION
+             Lw = 0.32 *
+     &             sqrt((UWIND(i,j,bi,bj)
+     &             - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
+     &             + (VWIND(i,j,bi,bj)
+     &             - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
+     &              **2
+
+
+             cwave(i,j) = 0.06 * MIN(MAX(0. _d 0,
+     &           (iceberg_length(nCl)
+     &            -0.125*Lw)/(0.25*Lw-0.125*Lw)),1. _d 0)
+
+            norm_a = sqrt(UWIND(i,j,bi,bj)**2
+     &                      +VWIND(i,j,bi,bj)**2)
+            IF (ibmaskC .EQ. 0. _d 0 ) THEN
+                Cdr(i,j) = 0. _d 0
+            ELSE
+                Cdr(i,j) = cdr_const * cwave(i,j)
+     &            * (2*iceberg_length(nCl)*iceberg_width(nCl))
+     &            /(iceberg_length(nCl)+iceberg_width(nCl))
+     &            * norm_a**3
+            ENDIF
+#endif /* ALLOW_ICEBERG_WAVE_RADIATION */
+
+
               ENDDO
             ENDDO
+
 
 c   *------- Coriolis Force -------*
 C  Fc = -M * f * k x v_i[n]
@@ -206,11 +355,7 @@ c   *------- Ocean Drag -------*
 C   explicit: Fw = 1/2 * rho_ocean * C_ocean * A_ocean * |v_ocean - v_i| (v_ocean -v_i)
 c   implicit: rhsw = 1/2* rho_ocean * C_ocean * A_ocean + |v_ocean - v_i[n]| * v_ocean
 
-
 #ifdef ALLOW_ICEBERG_OCEAN_DRAG
-
-
-
 C berechnen des skin drag, da dieser unabhängig ist von den Layern ist und als Parameter in die Summe eingehen kann
 C Schleife über betroffene layer
 C Schleifen über i und j für CDw in layer k
@@ -230,97 +375,34 @@ C aufsummieren
 
 C If the iceberg reaches deeper than layer k then use whole layer height for
 C calculating summand of layer k
-            skin_w = ICEBERG_OceanDrag
-     &              * iceberg_length(nCl)*iceberg_width(nCl)
-           DO k =1, Nr
-            DO j=-1,sNy+1
-             DO i=-1,sNx+1
-               ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
-               IF ( ibmaskC .GT. 0. _d 0 ) THEN
-                ibmaskC = 1. _d 0
-               ELSE
-                ibmaskC = 0. _d 0
-               ENDIF
 
-               IF(ICEBERG_height(nCl) .GT. ABS(rF(k+1)))THEN
-                    IF (ibmaskC .EQ. 0. _d 0 ) THEN
-                      CDw(i,j,1) = 0. _d 0
-                      CDw(i,j,2) = 0. _d 0
-                    ELSE
-                      duw = 0.5 _d 0 *
-     &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
-     &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
-                      dvw = 0.5 _d 0 *
-     &                 ((vVel(i,j,k,bi,bj)-vtemp(i,j,bi,bj))
-     &                 +(vVel(i,j+1,k,bi,bj)-vtemp(i,j+1,bi,bj)))
-
-                      form_w = 0.5 _d 0 * ICEBERG_OceanDragform
-     &                      * drF(k) * ICEBERG_width(nCl)
-
-                      CDw(i,j,1) = ICEBERG_rhoOcean *
-     &                      (form_w
-     &                      + skin_w)
-     &                      * sqrt(duw**2+dvw**2)
-
-                    ENDIF
-
-               ELSE IF(ICEBERG_height(nCl) .GT. ABS(rF(k)) .AND.
-     &                 ICEBERG_height(nCl) .LT. ABS(rF(k+1)))THEN
-
-                    IF (ibmaskC .EQ. 0. _d 0 ) THEN
-                      CDw(i,j,1) = 0. _d 0
-                    ELSE
-                      frac_height = (iceberg_height(nCl)-ABS(rF(k)))
-     &                  /drF(k)
-
-                      duw = 0.5 _d 0 *
-     &                 ((uVel(i,j,k,bi,bj)-utemp(i,j,bi,bj))
-     &                 + (uVel(i+1,j,k,bi,bj)-utemp(i+1,j,bi,bj)))
-                      dvw = 0.5 _d 0 *
-     &                 ((vVel(i,j,k,bi,bj)-vtemp(i,j,bi,bj))
-     &                 +(vVel(i,j+1,k,bi,bj)-vtemp(i,j+1,bi,bj)))
-
-                      form_w = 0.5 _d 0 * ICEBERG_OceanDragform
-     &                      * drF(k) * frac_height
-     &                      * ICEBERG_width(nCl)
-
-                      CDw(i,j,1) = ICEBERG_rhoOcean *
-     &                      (form_w
-     &                      + skin_w)
-     &                      * sqrt(duw**2+dvw**2)
-
-                    ENDIF
-
-
-               ENDIF
-              ENDDO
-            ENDDO
 C calculate rhs of ocean drag force
+            DO k = 1, Nr
             DO j=0,sNy+1
               DO i=0,sNx+1
                IF(ICEBERG_height(nCl) .GT. ABS(rF(k+1)))THEN
                 Fwu(i,j,bi,bj) = Fwu(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )
+     &            0.5 * ( CDw(i,j,k) + CDw(i-1,j,k) )
      &            * uVel(i,j,k,bi,bj)
 
                 Fwv(i,j,bi,bj) = Fwv(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j,1) + CDw(i,j-1,1) )
+     &            0.5 * ( CDw(i,j,k) + CDw(i,j-1,k) )
      &            * vVel(i,j,k,bi,bj)
 
-                CDw(i,j,2) = CDw(i,j,2) + CDw(i,j,1)
+                CDw_abs(i,j) = CDw_abs(i,j) + CDw(i,j,k)
 
 
                ELSE IF(ICEBERG_height(nCl) .GT. ABS(rF(k)) .AND.
      &                 ICEBERG_height(nCl) .LT. ABS(rF(k+1)))THEN
                 Fwu(i,j,bi,bj) = Fwu(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j,1) + CDw(i-1,j,1) )
+     &            0.5 * ( CDw(i,j,k) + CDw(i-1,j,k) )
      &            * uVel(i,j,k,bi,bj)
 
                 Fwv(i,j,bi,bj) = Fwv(i,j,bi,bj) +
-     &            0.5 * ( CDw(i,j,1) + CDw(i,j-1,1) )
+     &            0.5 * ( CDw(i,j,k) + CDw(i,j-1,k) )
      &            * vVel(i,j,k,bi,bj)
 
-                CDw(i,j,2) = CDw(i,j,2) + CDw(i,j,1)
+                CDw_abs(i,j) = CDw_abs(i,j) + CDw(i,j,k)
 
               ENDIF
               ENDDO
@@ -336,37 +418,6 @@ c   rhsa = 1/2 * rho_atm * C_atm * A_atm * | v_atm| * v_atm
 
 #ifdef ALLOW_ICEBERG_ATMOSPHERE_DRAG
 #ifdef ALLOW_EXF
-
-
-            DO j=-1,sNy+1
-              DO i=-1,sNx+1
-
-C Calculate Norm on C-Point with constant values for wind stress
-                ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
-                IF ( ibmaskC .GT. 0. _d 0 ) THEN
-                 ibmaskC = 1. _d 0
-                ELSE
-                 ibmaskC = 0. _d 0
-                ENDIF
-                IF (ibmaskC .EQ. 0. _d 0 ) THEN
-                  CDa(i,j) = 0. _d 0
-                ELSE
-                  form_a = 0.5 * ICEBERG_AirDragform
-     &              * (1-ICEBERG_rhoIceberg/ICEBERG_rhoOcean)
-     &              * ICEBERG_height(nCl) * ICEBERG_width(nCl)
-
-                  CDa(i,j) = ICEBERG_rhoAir *
-     &              (form_a
-     &              + ICEBERG_AirDrag
-     &              * iceberg_length(nCl)*iceberg_width(nCl))
-     &              * sqrt(UWIND(i,j,bi,bj)**2+VWIND(i,j,bi,bj)**2)
-                ENDIF
-                IF(massC(i,j) .NE. 0. _d 0)THEN
-c                  PRINT *, 'debug forma', form_a
-                ENDIF
-              ENDDO
-            ENDDO
-
             DO j=0,sNy+1
               DO i=0,sNx+1
                 Fau(i,j,bi,bj) = 0.5 *
@@ -393,24 +444,6 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_ICEBERG_SEAICE_DRAG
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
-           cds_const = 0.5  * ICEBERG_rhoSeaice
-     &            * ICEBERG_SeaiceDrag
-           DO j=-1,sNy+1
-             DO i=-1,sNx+1
-
-               dus = 0.5 * ((UICE(i,j,bi,bj)-utemp(i,j,bi,bj))
-     &          + (UICE(i+1,j,bi,bj)-utemp(i+1,j,bi,bj)))
-               dvs = 0.5 * ((VICE(i,j,bi,bj)-vtemp(i,j,bi,bj))
-     &          + (VICE(i,j+1,bi,bj)-vtemp(i,j+1,bi,bj)))
-C     Calculate Norm on C-Point with constant values for wind stress
-C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
-               CDs(i,j) = cds_const * AREA(i,j,bi,bj)
-     &            * iceberg_width(nCl)
-     &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
-     &            * sqrt(dus**2+dvs**2)
-             ENDDO
-           ENDDO
-
            DO j=0,sNy+1
               DO i=0,sNx+1
 
@@ -438,46 +471,6 @@ c   *------ Wave Radiation Force ------*
 c   Fr = 1/4 * rho_ocean * gravity * a^2 * L * v_air/|v_air|
 C term conversion as shown in Rackow (2011)
 #ifdef ALLOW_ICEBERG_WAVE_RADIATION
-           cdr_const = 0.25 * ICEBERG_rhoOcean
-     &            * ICEBERG_gravity * (0.5 * 0.02025)**2
-            DO j=0,sNy+1
-              DO i=0,sNx+1
-                Lw = 0.32 *
-     &             sqrt((UWIND(i,j,bi,bj)
-     &             - 0.5*(uVel(i,j,1,bi,bj) + uVel(i-1,j,1,bi,bj)))**2
-     &             + (VWIND(i,j,bi,bj)
-     &             - 0.5*(vVel(i,j,1,bi,bj) + vVel(i,j-1,1,bi,bj)))**2)
-     &              **2
-
-
-                cwave(i,j) = 0.06 * MIN(MAX(0. _d 0,
-     &           (iceberg_length(nCl)
-     &            -0.125*Lw)/(0.25*Lw-0.125*Lw)),1. _d 0)
-              ENDDO
-            ENDDO
-
-
-           DO j=-1,sNy+1
-              DO i=-1,sNx+1
-                ibmaskC = iceberg_concentration(i,j,bi,bj,nCl)
-                IF ( ibmaskC .GT. 0. _d 0 ) THEN
-                 ibmaskC = 1. _d 0
-                ELSE
-                 ibmaskC = 0. _d 0
-                ENDIF
-                norm_a = sqrt(UWIND(i,j,bi,bj)**2
-     &                      +VWIND(i,j,bi,bj)**2)
-               IF (ibmaskC .EQ. 0. _d 0 ) THEN
-                Cdr(i,j) = 0. _d 0
-               ELSE
-                Cdr(i,j) = cdr_const * cwave(i,j)
-     &            * (2*iceberg_length(nCl)*iceberg_width(nCl))
-     &            /(iceberg_length(nCl)+iceberg_width(nCl))
-     &            * norm_a**3
-               ENDIF
-              ENDDO
-           ENDDO
-
            DO j=0,sNy+1
               DO i=0,sNx+1
 
@@ -564,7 +557,7 @@ C calcuilate iceberg velocity
      &              / (1. - ibmaskU
      &              + massU(i,j)
      &              + ICEBERG_deltaT * (
-     &              0.5 * ( CDw(i,j,2) + CDw(i-1,j,2) )
+     &              0.5 * ( CDw_abs(i,j) + CDw_abs(i-1,j) )
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
      &               )))
 
@@ -575,7 +568,7 @@ C calcuilate iceberg velocity
      &              / (1. - ibmaskV
      &              + massV(i,j)
      &              + ICEBERG_deltaT * (
-     &              0.5 * ( CDw(i,j,2) + CDw(i,j-1,2) )
+     &              0.5 * ( CDw_abs(i,j) + CDw_abs(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               )))
             ELSE IF (AREA(i,j,bi,bj) .GT. 0.9 .AND. P .GE. P_star)THEN
@@ -592,7 +585,7 @@ C calcuilate iceberg velocity
      &              / (1. - ibmaskU
      &              + massU(i,j)
      &              + ICEBERG_deltaT * (
-     &              0.5 * ( CDw(i,j,2) + CDw(i-1,j,2) )
+     &              0.5 * ( CDw_abs(i,j) + CDw_abs(i-1,j) )
      &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
      &               )))
                 iceberg_uvel(i,j,bi,bj,nCl) =
@@ -607,7 +600,7 @@ C calcuilate iceberg velocity
      &              / (1. - ibmaskV
      &              + massV(i,j)
      &              + ICEBERG_deltaT * (
-     &              0.5 * ( CDw(i,j,2) + CDw(i,j-1,2) )
+     &              0.5 * ( CDw_abs(i,j) + CDw_abs(i,j-1) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               )))
                  iceberg_vvel(i,j,bi,bj,nCl) =
@@ -622,14 +615,14 @@ C TODO remove old debugging output
      &            ibmaskV,
      &            massV(i,j),vtemp(i,j,bi,bj),
      &            vrhs(i,j,bi,bj),ICEBERG_deltaT,
-     &           ICEBERG_deltaT,CDw(i,j,2),CDw(i,j-1,2),CDs(i,j)
+     &           ICEBERG_deltaT,CDw_abs(i,j),CDw_abs(i,j-1),CDs(i,j)
                   STOP 'Nan found in vvel'
                ENDIF
                IF(ISNAN(iceberg_uvel(i,j,bi,bj,nCl)))THEN
              PRINT*,'dbg nan in uvel', myIter,
      &        ibmaskU,massU(i,j),utemp(i,j,bi,bj),
      &        urhs(i,j,bi,bj),ICEBERG_deltaT,
-     &        ICEBERG_deltaT,CDw(i,j,2),CDw(i-1,j,2),
+     &        ICEBERG_deltaT,CDw_abs(i,j),CDw_abs(i-1,j),
      &        CDs(i,j), CDs(i-1,j)
 
              STOP 'Nan found in uvel'
