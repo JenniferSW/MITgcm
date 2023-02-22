@@ -181,20 +181,19 @@ C This is the mass of all icebergs at grid point
 !           _EXCH_XY_RL( iceberg_MassC, mythid )
 !           _EXCH_XY_RL( iceberg_MassU, mythid )
 !           _EXCH_XY_RL( iceberg_MassV, mythid )
-C TODO replace Iceberg_rhoSeaice with rhoIceberg
             DO j=-1,sNy+1
               DO i=-1,sNx+1
                 massC(i,j) =
-     &                 ICEBERG_rhoSeaice
+     &                 ICEBERG_rhoIceberg
 !    &                 * iceberg_concentration(i,j,bi,bj,nCl)
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                massU(i,j) = ICEBERG_rhoSeaice
+                massU(i,j) = ICEBERG_rhoIceberg
 !    &                 * 0.5 *(iceberg_concentration(i,j,bi,bj,nCl)
 !    &                 + iceberg_concentration(i-1,j,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
      &                 * ICEBERG_height(nCl)
-                massV(i,j) = ICEBERG_rhoSeaice
+                massV(i,j) = ICEBERG_rhoIceberg
 !    &                 * 0.5 *(iceberg_concentration(i,j,bi,bj,nCl)
 !    &                 + iceberg_concentration(i,j-1,bi,bj,nCl))
      &                 * ICEBERG_width(nCl) * iceberg_length(nCl)
