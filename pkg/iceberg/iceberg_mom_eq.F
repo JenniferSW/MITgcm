@@ -75,7 +75,7 @@ C     i,j,bi,bj :: Loop counters
 C     nCl       :: Loop counter for iceberg size classes
 C     u_temp
       INTEGER i, j, k, bi, bj
-      _RL CFL_test
+      _RL P, P_star
       _RL duw , dvw
       _RL dua , dva
       _RL dus , dvs
@@ -117,6 +117,7 @@ CEOP
         ibmaskC = 0. _d 0
         ibmaskU = 0. _d 0
         ibmaskV = 0. _d 0
+        P_star = 20000
         DO bj=myByLo(myThid),myByHi(myThid)
           DO bi=myBxLo(myThid),myBxHi(myThid)
 
@@ -420,7 +421,7 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
 #ifdef ALLOW_ICEBERG_SEAICE_DRAG
 #ifdef ALLOW_SEAICE
       IF (useSEAICE) THEN
-           cds_const = 0.5 * ICEBERG_rhoSeaice
+           cds_const = 0.5  * ICEBERG_rhoSeaice
      &            * ICEBERG_SeaiceDrag
            DO j=-1,sNy+1
              DO i=-1,sNx+1
@@ -431,7 +432,7 @@ C TODO fix problems with MDSIO_BUFF_3D, related to SEAICE_ITD
      &          + (VICE(i,j+1,bi,bj)-vtemp(i,j+1,bi,bj)))
 C     Calculate Norm on C-Point with constant values for wind stress
 C     AREA can be zero, so avoid division by regularisation stolen from seaice_growth
-               CDs(i,j) = cds_const
+               CDs(i,j) = cds_const * AREA(i,j,bi,bj)
      &            * iceberg_width(nCl)
      &            * HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
      &            * sqrt(dus**2+dvs**2)
@@ -557,8 +558,8 @@ C   dv_i/dt = Coriolis + Fw + Fa + Fs + Fr + Fp
 C   *------ Euler Forward Step ------*
 c   v_i[n+1] = v_i[n] + dv_i * dt
 C Calculated at C-Point
-            DO j=0,sNy+1
-             DO i=0,sNx+1
+          DO j=0,sNy+1
+           DO i=0,sNx+1
 C TODO insert u and V
                   ibmaskU = iceberg_concentration(i,j,bi,bj,nCl)
      &         + iceberg_concentration(i-1,j,bi,bj,nCl)
@@ -578,7 +579,12 @@ C TODO insert u and V
             ENDIF
 
 
-
+C calculate sea ice strength
+            P = P_star *
+     &        HEFF(i,j,bi,bj)/(AREA(i,j,bi,bj)+ seaice_area_reg)
+     &        * EXP(-20*(1-AREA(i,j,bi,bj)))
+C calcuilate iceberg velocity
+            IF (AREA(i,j,bi,bj) .LE. 0.9) THEN
                   iceberg_uvel(i,j,bi,bj,nCl) =
      &              ibmaskU * (
      &              (massU(i,j) * utemp(i,j,bi,bj)
@@ -600,6 +606,45 @@ C TODO insert u and V
      &              0.5 * ( CDw(i,j,2) + CDw(i,j-1,2) )
      &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
      &               )))
+            ELSE IF (AREA(i,j,bi,bj) .GT. 0.9 .AND. P .GE. P_star)THEN
+                iceberg_uvel(i,j,bi,bj,nCl) = ibmaskU *
+     &              UICE(i,j,bi,bj)
+                iceberg_vvel(i,j,bi,bj,nCl) = ibmaskV *
+     &              VICE(i,j,bi,bj)
+
+            ELSE IF (AREA(i,j,bi,bj) .GT. 0.9 .AND. P .LT. P_star)THEN
+                iceberg_uvel(i,j,bi,bj,nCl) =
+     &              ibmaskU * (
+     &              (massU(i,j) * utemp(i,j,bi,bj)
+     &              + urhs(i,j,bi,bj) * ICEBERG_deltaT)
+     &              / (1. - ibmaskU
+     &              + massU(i,j)
+     &              + ICEBERG_deltaT * (
+     &              0.5 * ( CDw(i,j,2) + CDw(i-1,j,2) )
+     &              + 0.5 * ( CDs(i,j) + CDs(i-1,j) )
+     &               )))
+                iceberg_uvel(i,j,bi,bj,nCl) =
+     &           (P * iceberg_uvel(i,j,bi,bj,nCl)
+     &           + P_star * UICE(i,j,bi,bj))/ (P+P_star)
+
+
+                 iceberg_vvel(i,j,bi,bj,nCl) =
+     &              ibmaskV * (
+     &              (massV(i,j) * vtemp(i,j,bi,bj)
+     &              + vrhs(i,j,bi,bj) * ICEBERG_deltaT)
+     &              / (1. - ibmaskV
+     &              + massV(i,j)
+     &              + ICEBERG_deltaT * (
+     &              0.5 * ( CDw(i,j,2) + CDw(i,j-1,2) )
+     &              + 0.5 * ( CDs(i,j) + CDs(i,j-1) )
+     &               )))
+                 iceberg_vvel(i,j,bi,bj,nCl) =
+     &           (P * iceberg_vvel(i,j,bi,bj,nCl)
+     &           + P_star * VICE(i,j,bi,bj))/ (P+P_star)
+
+
+            ENDIF
+C TODO remove old debugging output
                IF(ISNAN(iceberg_vvel(i,j,bi,bj,nCl)))THEN
                  PRINT*,'dbg nan in vvel', myIter,
      &            ibmaskV,
@@ -618,8 +663,8 @@ C TODO insert u and V
              STOP 'Nan found in uvel'
              ENDIF
 
-               ENDDO
-             ENDDO
+            ENDDO
+           ENDDO
 
           ENDDO
         ENDDO
